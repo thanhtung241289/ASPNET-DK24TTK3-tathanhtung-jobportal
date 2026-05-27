@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobPortal.Domain", "JobPortal.Domain\JobPortal.Domain.csproj", "{07840F9A-3196-4901-8839-5024D1122142}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobPortal.Application", "JobPortal.Application\JobPortal.Application.csproj", "{D54B66CA-A574-4D59-B618-A78C275B67E9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobPortal.Infrastructure", "JobPortal.Infrastructure\JobPortal.Infrastructure.csproj", "{F3D3F63B-C08C-423A-A40C-A1D4889D4958}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JobPortal.API", "JobPortal.API\JobPortal.API.csproj", "{0BE91052-E7A6-485D-9E5E-CE4449A3143E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07840F9A-3196-4901-8839-5024D1122142}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07840F9A-3196-4901-8839-5024D1122142}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07840F9A-3196-4901-8839-5024D1122142}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07840F9A-3196-4901-8839-5024D1122142}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D54B66CA-A574-4D59-B618-A78C275B67E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D54B66CA-A574-4D59-B618-A78C275B67E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D54B66CA-A574-4D59-B618-A78C275B67E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D54B66CA-A574-4D59-B618-A78C275B67E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3D3F63B-C08C-423A-A40C-A1D4889D4958}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3D3F63B-C08C-423A-A40C-A1D4889D4958}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3D3F63B-C08C-423A-A40C-A1D4889D4958}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3D3F63B-C08C-423A-A40C-A1D4889D4958}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BE91052-E7A6-485D-9E5E-CE4449A3143E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BE91052-E7A6-485D-9E5E-CE4449A3143E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BE91052-E7A6-485D-9E5E-CE4449A3143E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BE91052-E7A6-485D-9E5E-CE4449A3143E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
