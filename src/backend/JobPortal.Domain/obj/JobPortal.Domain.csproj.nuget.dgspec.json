@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj": {}
+    "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj": {}
   },
   "projects": {
-    "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj": {
+    "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj",
+        "projectUniqueName": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj",
         "projectName": "JobPortal.Domain",
-        "projectPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj",
+        "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Domain\\JobPortal.Domain.csproj",
         "packagesPath": "C:\\Users\\ancha\\.nuget\\packages\\",
-        "outputPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Domain\\obj\\",
+        "outputPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ancha\\AppData\\Roaming\\NuGet\\NuGet.Config"

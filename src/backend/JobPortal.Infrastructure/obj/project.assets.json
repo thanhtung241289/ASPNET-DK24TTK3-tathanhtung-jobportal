@@ -1,11 +1,48 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {}
+    "net8.0": {
+      "JobPortal.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "JobPortal.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/JobPortal.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobPortal.Application.dll": {}
+        }
+      },
+      "JobPortal.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/JobPortal.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobPortal.Domain.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "JobPortal.Application/1.0.0": {
+      "type": "project",
+      "path": "../JobPortal.Application/JobPortal.Application.csproj",
+      "msbuildProject": "../JobPortal.Application/JobPortal.Application.csproj"
+    },
+    "JobPortal.Domain/1.0.0": {
+      "type": "project",
+      "path": "../JobPortal.Domain/JobPortal.Domain.csproj",
+      "msbuildProject": "../JobPortal.Domain/JobPortal.Domain.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net8.0": []
+    "net8.0": [
+      "JobPortal.Application >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\ancha\\.nuget\\packages\\": {}
@@ -13,11 +50,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj",
+      "projectUniqueName": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj",
       "projectName": "JobPortal.Infrastructure",
-      "projectPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj",
+      "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj",
       "packagesPath": "C:\\Users\\ancha\\.nuget\\packages\\",
-      "outputPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Infrastructure\\obj\\",
+      "outputPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Infrastructure\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ancha\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -31,7 +68,11 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj": {
+              "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

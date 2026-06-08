@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "roA7v0fYQkk=",
+  "dgSpecHash": "MaaVIAr/tJo=",
   "success": true,
-  "projectFilePath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj",
+  "projectFilePath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

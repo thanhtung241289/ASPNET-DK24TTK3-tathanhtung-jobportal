@@ -107,6 +107,42 @@
         "frameworkReferences": [
           "Microsoft.AspNetCore.App"
         ]
+      },
+      "JobPortal.Application/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "JobPortal.Domain": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/JobPortal.Application.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobPortal.Application.dll": {}
+        }
+      },
+      "JobPortal.Domain/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "compile": {
+          "bin/placeholder/JobPortal.Domain.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobPortal.Domain.dll": {}
+        }
+      },
+      "JobPortal.Infrastructure/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v8.0",
+        "dependencies": {
+          "JobPortal.Application": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/JobPortal.Infrastructure.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/JobPortal.Infrastructure.dll": {}
+        }
       }
     }
   },
@@ -473,10 +509,27 @@
         "swashbuckle.aspnetcore.swaggerui.6.6.2.nupkg.sha512",
         "swashbuckle.aspnetcore.swaggerui.nuspec"
       ]
+    },
+    "JobPortal.Application/1.0.0": {
+      "type": "project",
+      "path": "../JobPortal.Application/JobPortal.Application.csproj",
+      "msbuildProject": "../JobPortal.Application/JobPortal.Application.csproj"
+    },
+    "JobPortal.Domain/1.0.0": {
+      "type": "project",
+      "path": "../JobPortal.Domain/JobPortal.Domain.csproj",
+      "msbuildProject": "../JobPortal.Domain/JobPortal.Domain.csproj"
+    },
+    "JobPortal.Infrastructure/1.0.0": {
+      "type": "project",
+      "path": "../JobPortal.Infrastructure/JobPortal.Infrastructure.csproj",
+      "msbuildProject": "../JobPortal.Infrastructure/JobPortal.Infrastructure.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net8.0": [
+      "JobPortal.Application >= 1.0.0",
+      "JobPortal.Infrastructure >= 1.0.0",
       "Microsoft.AspNetCore.OpenApi >= 8.0.27",
       "Swashbuckle.AspNetCore >= 6.6.2"
     ]
@@ -487,11 +540,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
+      "projectUniqueName": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
       "projectName": "JobPortal.API",
-      "projectPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
+      "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
       "packagesPath": "C:\\Users\\ancha\\.nuget\\packages\\",
-      "outputPath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.API\\obj\\",
+      "outputPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.API\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ancha\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -505,7 +558,14 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj": {
+              "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Application\\JobPortal.Application.csproj"
+            },
+            "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj": {
+              "projectPath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.Infrastructure\\JobPortal.Infrastructure.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

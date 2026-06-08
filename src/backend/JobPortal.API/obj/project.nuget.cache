@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "979fsOgF5zg=",
+  "dgSpecHash": "t32Yv2W+U8I=",
   "success": true,
-  "projectFilePath": "D:\\dotnet\\jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
+  "projectFilePath": "D:\\lam-muon\\jobportal\\ASPNET-DK24TTK3-tathanhtung-jobportal\\src\\backend\\JobPortal.API\\JobPortal.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ancha\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.27\\microsoft.aspnetcore.openapi.8.0.27.nupkg.sha512",
     "C:\\Users\\ancha\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
