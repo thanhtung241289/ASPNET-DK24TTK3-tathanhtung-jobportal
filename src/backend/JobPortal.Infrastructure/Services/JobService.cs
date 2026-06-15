@@ -126,4 +126,44 @@ public class JobService : IJobService
 
         return new PagedResult<JobPost>(items, totalItems, filter.PageNumber, filter.PageSize);
     }
+
+    public async Task<IEnumerable<object>> GetPendingJobsAsync()
+    {
+        return await _context.JobPosts
+            .Include(j => j.Company)
+            .Include(j => j.Category)
+            .Where(j => j.Status == JobStatus.Pending)
+            .OrderBy(j => j.CreatedAt)
+            .Select(j => new
+            {
+                j.Id,
+                j.Title,
+                CompanyName = j.Company.CompanyName,
+                CategoryName = j.Category.Name,
+                j.CreatedAt,
+                j.ExpirationDate
+            })
+            .ToListAsync();
+    }
+
+    public async Task<bool> ApproveJobPostAsync(Guid jobId, ApproveJobRequest request)
+    {
+        var jobPost = await _context.JobPosts.FirstOrDefaultAsync(j => j.Id == jobId);
+        if (jobPost == null) return false;
+
+        // Chỉ cho phép duyệt các tin đang ở trạng thái Chờ duyệt (Pending)
+        if (jobPost.Status != JobStatus.Pending) return false;
+
+        // Nếu từ chối, có thể đính kèm lý do vào đầu phần mô tả hoặc lưu vết hệ thống
+        if (request.Status == JobStatus.Rejected && !string.IsNullOrWhiteSpace(request.RejectReason))
+        {
+            jobPost.Description = $"<p style='color:red;'><b>Lý do từ chối kiểm duyệt:</b> {request.RejectReason}</p><hr/>" + jobPost.Description;
+        }
+
+        jobPost.Status = request.Status;
+        
+        _context.JobPosts.Update(jobPost);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 }

@@ -8,4 +8,7 @@ public interface IJobService
 {
     Task<Guid?> CreateJobPostAsync(Guid userId, CreateJobPostRequest request);
     Task<PagedResult<JobPost>> SearchJobsAsync(JobSearchFilter filter);
+
+    Task<bool> ApproveJobPostAsync(Guid jobId, ApproveJobRequest request);
+    Task<IEnumerable<object>> GetPendingJobsAsync(); //
 }
