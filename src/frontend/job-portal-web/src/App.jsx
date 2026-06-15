@@ -1,122 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+// File: src/App.jsx
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Giả lập các component giao diện (Bạn sẽ thay thế bằng file thực tế sau)
+const Home = () => (
+  <div className="p-8">🏠 Trang chủ tìm việc (Ai cũng vào được)</div>
+);
+const CandidateProfile = () => (
+  <div className="p-8">📄 Hồ sơ cá nhân của Ứng viên (Role 2)</div>
+);
+const EmployerDashboard = () => (
+  <div className="p-8">💼 Bảng điều khiển của Nhà tuyển dụng (Role 3)</div>
+);
+const AdminDashboard = () => (
+  <div className="p-8">👑 Trang quản trị tối cao của Admin (Role 1)</div>
+);
+const Unauthorized = () => (
+  <div className="p-8 text-red-600 font-bold">
+    🚫 Bạn không có quyền truy cập vào chức năng này!
+  </div>
+);
 
+export default function App() {
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <BrowserRouter>
+      <Routes>
+        {/* ================= ROUTES CÔNG KHAI (PUBLIC) ================= */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
-      <div className="ticks"></div>
+        {/* ================= ROUTES CHO ỨNG VIÊN (SEEKER - ROLE 2) ================= */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={[2]}>
+              <CandidateProfile />
+            </ProtectedRoute>
+          }
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* ================= ROUTES CHO NHÀ TUYỂN DỤNG (EMPLOYER - ROLE 3) ================= */}
+        <Route
+          path="/employer/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={[3]}>
+              <EmployerDashboard />
+            </ProtectedRoute>
+          }
+        />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* ================= ROUTES CHO ADMIN (ADMIN - ROLE 1) ================= */}
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={[1]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Tự động bắt các route bậy bạ trả về trang chủ */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
-
-export default App
