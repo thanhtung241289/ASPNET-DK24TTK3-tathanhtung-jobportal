@@ -47,5 +47,15 @@ public class JobController : ControllerBase
         return Ok(result);
     }
 
-    
+    // Thêm vào JobController.cs
+    [HttpGet("{id}")]
+    [AllowAnonymous] // Ai cũng có thể xem chi tiết bài đăng tuyển dụng
+    public async Task<IActionResult> GetJobDetail(Guid id)
+    {
+        var jobDetail = await _jobService.GetJobPostDetailAsync(id);
+        if (jobDetail == null) 
+            return NotFound(new { message = "Không tìm thấy tin tuyển dụng hoặc tin đã bị gỡ." });
+
+        return Ok(jobDetail);
+    }
 }
