@@ -8,7 +8,7 @@ namespace JobPortal.API.Controllers;
 
 [ApiController]
 [Route("api/admin/jobs")]
-[Authorize(Roles = "1")] // Chỉ duy nhất Admin (Role 1) mới được phép vào hệ thống này
+[Authorize(Roles = "Admin")] // Chỉ duy nhất Admin (Role 1) mới được phép vào hệ thống này
 public class AdminJobController : ControllerBase
 {
     private readonly IJobService _jobService;

@@ -46,4 +46,6 @@ public class JobController : ControllerBase
         var result = await _jobService.SearchJobsAsync(filter);
         return Ok(result);
     }
+
+    
 }

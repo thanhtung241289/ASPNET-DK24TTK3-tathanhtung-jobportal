@@ -7,6 +7,8 @@ using JobPortal.Domain.Entities;
 using JobPortal.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Configuration;
+using JobPortal.Domain.Enums;
 
 public class AuthService : IAuthService
 {
