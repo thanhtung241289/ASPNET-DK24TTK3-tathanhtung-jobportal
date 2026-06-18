@@ -8,6 +8,7 @@ public class Resume
     public string FileName { get; set; } = string.Empty;
     public string FileUrl { get; set; } = string.Empty;
     public bool IsDefault { get; set; } = false;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties
     public virtual SeekerProfile SeekerProfile { get; set; } = null!;

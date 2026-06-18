@@ -1,9 +1,9 @@
 // File: JobPortal.Application/DTOs/UploadResumeDto.cs
-namespace JobPortal.Application.DTOs;
 
+namespace JobPortal.Application.DTOs;
+using Microsoft.AspNetCore.Http;
 public class UploadResumeDto
 {
-    public string FileName { get; set; } = string.Empty;
-    public string FileUrl { get; set; } = string.Empty;
-    public bool IsDefault { get; set; } = false;
+    // IFormFile là interface chuyên nghiệp bắt buộc phải có để nhận file từ FromData
+    public IFormFile File { get; set; } = null!;
 }

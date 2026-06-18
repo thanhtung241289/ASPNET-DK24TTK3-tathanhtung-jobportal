@@ -3,6 +3,7 @@ using JobPortal.Application.DTOs.Profiles;
 using JobPortal.Application.Interfaces;
 using JobPortal.Domain.Entities;
 using JobPortal.Infrastructure.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobPortal.Infrastructure.Services;
@@ -10,19 +11,21 @@ namespace JobPortal.Infrastructure.Services;
 public class ProfileService : IProfileService
 {
     private readonly JobPortalDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public ProfileService(JobPortalDbContext context)
+    public ProfileService(JobPortalDbContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     public async Task<object?> GetProfileAsync(Guid userId, string role)
     {
-        if (role == "Candidate")
+        if (role == "Candidate" || role == "Seeker" || role == "2")
         {
             return await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
         }
-        if (role == "Employer")
+        if (role == "Employer" || role == "3")
         {
             return await _context.Companies.FirstOrDefaultAsync(p => p.UserId == userId);
         }
@@ -68,5 +71,40 @@ public class ProfileService : IProfileService
 
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<string?> UploadAvatarAsync(Guid userId, UploadAvatarDto dto)
+    {
+        // 1. Kiểm tra ứng viên đã có Profile chưa
+        var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+        if (profile == null) return null;
+
+        // 2. Validate File (Chỉ nhận ảnh .jpg, .jpeg, .png và < 2MB)
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(dto.File.FileName).ToLower();
+        
+        if (!allowedExtensions.Contains(extension) || dto.File.Length > 2 * 1024 * 1024)
+            throw new Exception("Định dạng file không hợp lệ hoặc vượt quá 2MB (chỉ chấp nhận .jpg, .jpeg, .png).");
+
+        // 3. Tạo thư mục lưu trữ nếu chưa có
+        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "avatars");
+        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+        // 4. Đổi tên file chống trùng lặp (Sử dụng Guid)
+        var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        // 5. Copy luồng byte vật lý vào máy chủ
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(fileStream);
+        }
+
+        // 6. Cập nhật AvatarUrl trong Database
+        var relativeUrl = $"/avatars/{uniqueFileName}";
+        profile.AvatarUrl = relativeUrl;
+        await _context.SaveChangesAsync();
+
+        return relativeUrl;
     }
 }

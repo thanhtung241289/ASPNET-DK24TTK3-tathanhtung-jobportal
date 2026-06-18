@@ -4,6 +4,7 @@ using JobPortal.Application.Interfaces;
 using JobPortal.Domain.Entities;
 using JobPortal.Domain.Enums;
 using JobPortal.Infrastructure.Data;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace JobPortal.Infrastructure.Services;
@@ -11,37 +12,57 @@ namespace JobPortal.Infrastructure.Services;
 public class ApplicationService : IApplicationService
 {
     private readonly JobPortalDbContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public ApplicationService(JobPortalDbContext context)
+    public ApplicationService(JobPortalDbContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     public async Task<Guid?> UploadResumeAsync(Guid userId, UploadResumeDto dto)
     {
-        var seeker = await _context.SeekerProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
-        if (seeker == null) return null;
+        // 1. Kiểm tra ứng viên đã có Profile chưa
+        var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+        if (profile == null) return null;
 
-        // Nếu đặt CV này làm mặc định, bỏ mặc định các CV cũ
-        if (dto.IsDefault)
+        // 2. Validate File (Chỉ nhận PDF, DOC, DOCX và < 5MB)
+        var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
+        var extension = Path.GetExtension(dto.File.FileName).ToLower();
+        
+        if (!allowedExtensions.Contains(extension) || dto.File.Length > 5 * 1024 * 1024)
+            throw new Exception("Định dạng file không hợp lệ hoặc vượt quá 5MB.");
+
+        // 3. Tạo thư mục lưu trữ nếu chưa có
+        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "resumes");
+        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+        // 4. Đổi tên file chống trùng lặp (Sử dụng Guid)
+        var uniqueFileName = $"{Guid.NewGuid()}_{dto.File.FileName}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        // 5. Copy luồng byte vật lý vào máy chủ
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
         {
-            var oldResumes = await _context.Resumes.Where(r => r.SeekerId == seeker.Id).ToListAsync();
-            oldResumes.ForEach(r => r.IsDefault = false);
+            await dto.File.CopyToAsync(fileStream);
         }
 
+        // 6. Lưu thông tin vào Database
         var resume = new Resume
         {
-            SeekerId = seeker.Id,
-            FileName = dto.FileName,
-            FileUrl = dto.FileUrl,
-            IsDefault = dto.IsDefault
+            SeekerId = profile.Id,
+            SeekerProfile = profile,
+            FileName = dto.File.FileName,
+            // Giả lập URL tĩnh trả về Frontend (Nếu dùng Domain thật thì thay thế)
+            FileUrl = $"/resumes/{uniqueFileName}",
+            IsDefault = !await _context.Resumes.AnyAsync(r => r.SeekerId == profile.Id) // File đầu tiên tự làm mặc định
         };
 
         _context.Resumes.Add(resume);
         await _context.SaveChangesAsync();
+
         return resume.Id;
     }
-
     public async Task<bool> ApplyJobAsync(Guid userId, ApplyJobRequest request)
     {
         // 1. Lấy thông tin SeekerProfile
@@ -120,4 +141,81 @@ public class ApplicationService : IApplicationService
         
         return true;
     }
+
+    // File: JobPortal.Infrastructure/Services/ApplicationService.cs
+
+public async Task<object?> GetResumesByUserIdAsync(Guid userId)
+{
+    // 1. Tìm hồ sơ ứng viên tương ứng với tài khoản đăng nhập
+    var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+    if (profile == null) return new List<object>();
+
+    // 2. Lấy danh sách CV và trả về Object vô danh (ẩn đi các trường không cần thiết)
+    var resumes = await _context.Resumes
+        .Where(r => r.SeekerId == profile.Id)
+        .OrderByDescending(r => r.IsDefault) // Ưu tiên CV mặc định lên đầu
+        .Select(r => new {
+            r.Id,
+            r.FileName,
+            r.FileUrl,
+            r.IsDefault,
+            uploadedAt = r.CreatedAt
+        })
+        .ToListAsync();
+
+    return resumes;
+}
+
+public async Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId)
+{
+    var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+    if (profile == null) return false;
+
+    // Lấy toàn bộ CV của ứng viên này
+    var resumes = await _context.Resumes.Where(r => r.SeekerId == profile.Id).ToListAsync();
+    
+    var targetResume = resumes.FirstOrDefault(r => r.Id == resumeId);
+    if (targetResume == null) return false;
+
+    // Chuyển toàn bộ các CV khác về trạng thái Không mặc định (false)
+    foreach (var res in resumes)
+    {
+        res.IsDefault = false;
+    }
+
+    // Gắn nhãn Mặc định (true) cho CV được chọn
+    targetResume.IsDefault = true;
+
+    await _context.SaveChangesAsync();
+    return true;
+}
+
+public async Task<bool> DeleteResumeAsync(Guid userId, Guid resumeId)
+{
+    var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+    if (profile == null) return false;
+
+    // Tìm CV cần xóa, đảm bảo CV này phải thuộc về người đang thao tác
+    var resume = await _context.Resumes.FirstOrDefaultAsync(r => r.Id == resumeId && r.SeekerId == profile.Id);
+    if (resume == null) return false;
+
+    // QUAN TRỌNG: Xóa file vật lý trong thư mục wwwroot để tránh rác server
+    if (!string.IsNullOrEmpty(resume.FileUrl))
+    {
+        var fileName = Path.GetFileName(resume.FileUrl);
+        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "resumes");
+        var filePath = Path.Combine(uploadsFolder, fileName);
+        
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+        }
+    }
+
+    // Xóa bản ghi trong Database
+    _context.Resumes.Remove(resume);
+    await _context.SaveChangesAsync();
+    
+    return true;
+}
 }
