@@ -11,6 +11,7 @@ public interface IApplicationService
     Task<IEnumerable<object>> GetApplicationTrackerAsync(Guid userId); // Xem trạng thái các đơn đã nộp
     // Thêm vào IApplicationService.cs
     Task<bool> UpdateApplicationStatusAsync(Guid userId, Guid applicationId, ApplicationStatus status);
+    Task<IEnumerable<object>> GetApplicationsForEmployerAsync(Guid userId);
 
     // File: JobPortal.Application/Interfaces/IApplicationService.cs
     Task<object?> GetResumesByUserIdAsync(Guid userId);

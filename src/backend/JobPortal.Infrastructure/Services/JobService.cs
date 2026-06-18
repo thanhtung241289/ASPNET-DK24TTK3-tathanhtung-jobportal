@@ -206,4 +206,37 @@ public class JobService : IJobService
             Locations = job.Locations.Select(l => new { l.Id, l.Name })
         };
     }
+
+    public async Task<IEnumerable<object>> GetEmployerJobsAsync(Guid userId)
+    {
+        var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (company == null) return Enumerable.Empty<object>();
+
+        return await _context.JobPosts
+            .Include(j => j.Category)
+            .Include(j => j.Skills)
+            .Include(j => j.Locations)
+            .Include(j => j.Applications)
+            .Where(j => j.CompanyId == company.Id)
+            .OrderByDescending(j => j.CreatedAt)
+            .Select(j => new
+            {
+                j.Id,
+                j.Title,
+                j.Quantity,
+                j.SalaryMin,
+                j.SalaryMax,
+                j.IsNegotiable,
+                j.CreatedAt,
+                j.ExpirationDate,
+                Status = j.Status.ToString(),
+                JobLevel = j.JobLevel.ToString(),
+                WorkType = j.WorkType.ToString(),
+                Category = j.Category != null ? new { j.Category.Id, j.Category.Name } : null,
+                Skills = j.Skills.Select(s => new { s.Id, s.Name }),
+                Locations = j.Locations.Select(l => new { l.Id, l.Name }),
+                ApplicantCount = j.Applications.Count()
+            })
+            .ToListAsync();
+    }
 }

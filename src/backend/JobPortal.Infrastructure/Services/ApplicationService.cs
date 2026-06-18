@@ -218,4 +218,32 @@ public async Task<bool> DeleteResumeAsync(Guid userId, Guid resumeId)
     
     return true;
 }
+
+public async Task<IEnumerable<object>> GetApplicationsForEmployerAsync(Guid userId)
+{
+    var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+    if (company == null) return Enumerable.Empty<object>();
+
+    return await _context.Applications
+        .Include(a => a.JobPost)
+        .Include(a => a.SeekerProfile)
+            .ThenInclude(s => s.User)
+        .Include(a => a.Resume)
+        .Where(a => a.JobPost.CompanyId == company.Id)
+        .OrderByDescending(a => a.AppliedAt)
+        .Select(a => new
+        {
+            a.Id,
+            a.JobId,
+            JobTitle = a.JobPost.Title,
+            CandidateName = a.SeekerProfile.FullName,
+            CandidateEmail = a.SeekerProfile.User.Email,
+            CandidatePhone = a.SeekerProfile.Phone,
+            ResumeUrl = a.Resume.FileUrl,
+            ResumeFileName = a.Resume.FileName,
+            a.AppliedAt,
+            Status = a.Status.ToString()
+        })
+        .ToListAsync();
+}
 }

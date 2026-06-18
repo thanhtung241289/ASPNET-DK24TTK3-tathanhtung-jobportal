@@ -9,6 +9,14 @@ const CompanyPage = () => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper helper to get static file URLs
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const baseUrl = import.meta.env.VITE_API_URL.replace("/api", "");
+    return `${baseUrl}/${path.replace(/^\//, "")}`;
+  };
+
   useEffect(() => {
     const fetchCompanyDetail = async () => {
       try {
@@ -56,7 +64,7 @@ const CompanyPage = () => {
       <div className="relative h-64 md:h-80 w-full overflow-hidden bg-gradient-to-tr from-blue-100 via-indigo-100/50 to-purple-100">
         {company.coverUrl ? (
           <img
-            src={company.coverUrl}
+            src={getFullUrl(company.coverUrl)}
             alt="Company Cover"
             className="w-full h-full object-cover"
           />
@@ -73,7 +81,7 @@ const CompanyPage = () => {
             <div className="w-28 h-28 bg-white rounded-2xl shadow-md border border-slate-100 flex items-center justify-center overflow-hidden p-2 flex-shrink-0">
               {company.logoUrl ? (
                 <img
-                  src={company.logoUrl}
+                  src={getFullUrl(company.logoUrl)}
                   alt={company.companyName}
                   className="object-contain w-full h-full"
                 />

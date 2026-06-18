@@ -1,3 +1,4 @@
+// File: src/services/adminApi.js
 import axiosClient from "../config/axiosClient";
 
 export const adminApi = {
@@ -5,5 +6,11 @@ export const adminApi = {
   getPendingJobs: () => axiosClient.get("/admin/jobs/pending"),
 
   // Phê duyệt hoặc từ chối bài viết cụ thể
-  reviewJob: (id, data) => axiosClient.put(`/admin/jobs/${id}/review`, data),
+  reviewJob: (id, data) => {
+    const apiData = {
+      status: data.status === "Approved" ? 1 : 3,
+      rejectReason: data.reason || null,
+    };
+    return axiosClient.put(`/admin/jobs/${id}/approve`, apiData);
+  },
 };

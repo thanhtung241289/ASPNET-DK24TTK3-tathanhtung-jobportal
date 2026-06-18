@@ -9,4 +9,6 @@ public interface IProfileService
     Task<bool> UpdateCandidateProfileAsync(Guid userId, UpdateCandidateProfileDto dto);
     Task<bool> UpdateEmployerProfileAsync(Guid userId, UpdateEmployerProfileDto dto);
     Task<string?> UploadAvatarAsync(Guid userId, UploadAvatarDto dto);
+    Task<string?> UploadCompanyLogoAsync(Guid userId, UploadCompanyFileDto dto);
+    Task<string?> UploadCompanyCoverAsync(Guid userId, UploadCompanyFileDto dto);
 }

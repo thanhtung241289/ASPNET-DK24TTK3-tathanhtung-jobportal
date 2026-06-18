@@ -8,6 +8,13 @@ import {
 } from "../utils/translators";
 
 const JobCard = ({ job }) => {
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const baseUrl = import.meta.env.VITE_API_URL.replace("/api", "");
+    return `${baseUrl}/${path.replace(/^\//, "")}`;
+  };
+
   return (
     <div className="bg-white p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 relative overflow-hidden group">
       {/* Top indicator line on hover */}
@@ -23,7 +30,7 @@ const JobCard = ({ job }) => {
           >
             {job.company.logoUrl ? (
               <img
-                src={job.company.logoUrl}
+                src={getFullUrl(job.company.logoUrl)}
                 alt={job.company.companyName}
                 className="object-contain w-full h-full p-1"
               />

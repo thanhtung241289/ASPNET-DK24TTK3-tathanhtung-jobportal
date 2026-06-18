@@ -27,7 +27,20 @@ public class ProfileService : IProfileService
         }
         if (role == "Employer" || role == "3")
         {
-            return await _context.Companies.FirstOrDefaultAsync(p => p.UserId == userId);
+            var company = await _context.Companies.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (company == null)
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                company = new Company
+                {
+                    UserId = userId,
+                    CompanyName = user?.Email.Split('@')[0] ?? "Doanh nghiệp mới",
+                    IsVerified = false
+                };
+                _context.Companies.Add(company);
+                await _context.SaveChangesAsync();
+            }
+            return company;
         }
         return null;
     }
@@ -68,6 +81,9 @@ public class ProfileService : IProfileService
         company.Description = dto.Description;
         company.Address = dto.Address;
         company.LogoUrl = dto.LogoUrl;
+        company.CoverUrl = dto.CoverUrl;
+        company.ShortDescription = dto.ShortDescription;
+        company.CompanySize = dto.CompanySize;
 
         await _context.SaveChangesAsync();
         return true;
@@ -103,6 +119,64 @@ public class ProfileService : IProfileService
         // 6. Cập nhật AvatarUrl trong Database
         var relativeUrl = $"/avatars/{uniqueFileName}";
         profile.AvatarUrl = relativeUrl;
+        await _context.SaveChangesAsync();
+
+        return relativeUrl;
+    }
+
+    public async Task<string?> UploadCompanyLogoAsync(Guid userId, UploadCompanyFileDto dto)
+    {
+        var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (company == null) return null;
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(dto.File.FileName).ToLower();
+        
+        if (!allowedExtensions.Contains(extension) || dto.File.Length > 2 * 1024 * 1024)
+            throw new Exception("Định dạng file không hợp lệ hoặc vượt quá 2MB (chỉ chấp nhận .jpg, .jpeg, .png).");
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "logos");
+        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+        var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(fileStream);
+        }
+
+        var relativeUrl = $"/logos/{uniqueFileName}";
+        company.LogoUrl = relativeUrl;
+        await _context.SaveChangesAsync();
+
+        return relativeUrl;
+    }
+
+    public async Task<string?> UploadCompanyCoverAsync(Guid userId, UploadCompanyFileDto dto)
+    {
+        var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (company == null) return null;
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
+        var extension = Path.GetExtension(dto.File.FileName).ToLower();
+        
+        if (!allowedExtensions.Contains(extension) || dto.File.Length > 2 * 1024 * 1024)
+            throw new Exception("Định dạng file không hợp lệ hoặc vượt quá 2MB (chỉ chấp nhận .jpg, .jpeg, .png).");
+
+        var uploadsFolder = Path.Combine(_environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), "covers");
+        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+        var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            await dto.File.CopyToAsync(fileStream);
+        }
+
+        var relativeUrl = $"/covers/{uniqueFileName}";
+        company.CoverUrl = relativeUrl;
         await _context.SaveChangesAsync();
 
         return relativeUrl;

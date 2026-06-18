@@ -8,4 +8,7 @@ public class UpdateEmployerProfileDto
     public string Description { get; set; } = string.Empty;
     public string Address { get; set; } = string.Empty;
     public string LogoUrl { get; set; } = string.Empty;
+    public string CoverUrl { get; set; } = string.Empty;
+    public string ShortDescription { get; set; } = string.Empty;
+    public string CompanySize { get; set; } = string.Empty;
 }

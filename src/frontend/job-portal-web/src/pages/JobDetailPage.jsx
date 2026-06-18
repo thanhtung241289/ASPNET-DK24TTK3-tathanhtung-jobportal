@@ -15,6 +15,14 @@ const JobDetailPage = () => {
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Helper helper to get static file URLs
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const baseUrl = import.meta.env.VITE_API_URL.replace("/api", "");
+    return `${baseUrl}/${path.replace(/^\//, "")}`;
+  };
+
   useEffect(() => {
     const fetchJobDetail = async () => {
       try {
@@ -104,7 +112,7 @@ const JobDetailPage = () => {
             >
               {job.company.logoUrl ? (
                 <img
-                  src={job.company.logoUrl}
+                  src={getFullUrl(job.company.logoUrl)}
                   alt={job.company.companyName}
                   className="object-contain w-full h-full p-1"
                 />
