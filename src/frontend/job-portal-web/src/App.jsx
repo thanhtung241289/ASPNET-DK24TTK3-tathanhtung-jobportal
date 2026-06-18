@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
+import AuthPage from "./pages/AuthPage";
 
 // Định nghĩa cấu trúc các tuyến đường (Routes)
 const router = createBrowserRouter([
@@ -16,10 +17,8 @@ const router = createBrowserRouter([
         index: true, // index: true nghĩa là khi vào url '/' thì render element này
         element: <HomePage />,
       },
-      {
-        path: "login",
-        element: <LoginPage />,
-      },
+      { path: "login", element: <AuthPage /> }, // Đường dẫn đăng nhập trỏ vào AuthPage
+      { path: "register", element: <AuthPage /> },
       {
         path: "jobs", // Thay thế dòng component mockup cũ bằng component thật dưới đây:
         element: <JobsPage />,

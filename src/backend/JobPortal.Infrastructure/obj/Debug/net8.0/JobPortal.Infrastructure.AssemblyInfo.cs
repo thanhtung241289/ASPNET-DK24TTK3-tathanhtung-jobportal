@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("JobPortal.Infrastructure")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22af46c552c7bb727ad8fad79875e1daf2b83c36")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43ddf4ebc0276162bab7dc44c5e00200c6717f85")]
 [assembly: System.Reflection.AssemblyProductAttribute("JobPortal.Infrastructure")]
 [assembly: System.Reflection.AssemblyTitleAttribute("JobPortal.Infrastructure")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
