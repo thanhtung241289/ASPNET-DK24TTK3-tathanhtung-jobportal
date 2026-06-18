@@ -81,7 +81,10 @@ public class JobService : IJobService
         {
             var keyword = filter.Keyword.Trim().ToLower();
             query = query.Where(j => j.Title.ToLower().Contains(keyword) || 
-                                    j.Company.CompanyName.ToLower().Contains(keyword));
+                                    j.Company.CompanyName.ToLower().Contains(keyword) ||
+                                    j.Category.Name.ToLower().Contains(keyword) ||
+                                    j.Skills.Any(s => s.Name.ToLower().Contains(keyword)) ||
+                                    j.Locations.Any(l => l.Name.ToLower().Contains(keyword)));
         }
 
         // 3. Lọc theo Ngành nghề (Category)
