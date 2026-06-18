@@ -1,0 +1,17 @@
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Infrastructure.deps.json
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Infrastructure.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Infrastructure.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Application.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Domain.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Application.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\bin\Debug\net8.0\JobPortal.Domain.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.csproj.AssemblyReference.cache
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.AssemblyInfoInputs.cache
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.AssemblyInfo.cs
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.csproj.CoreCompileInputs.cache
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPorta.9BCA61E9.Up2Date
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\refint\JobPortal.Infrastructure.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\JobPortal.Infrastructure.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Infrastructure\obj\Debug\net8.0\ref\JobPortal.Infrastructure.dll

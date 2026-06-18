@@ -1,0 +1,291 @@
+// File: src/pages/JobDetailPage.jsx
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { jobApi } from "../services/jobApi";
+
+const JobDetailPage = () => {
+  const { id } = useParams(); // Lấy mã Job Id từ thanh URL
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // States quản lý trạng thái mở Modal Ứng tuyển và nộp đơn
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [resumes, setResumes] = useState([]);
+  const [selectedResumeId, setSelectedResumeId] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const fetchJobDetail = async () => {
+      try {
+        const data = await jobApi.getJobDetail(id);
+        setJob(data);
+      } catch (error) {
+        console.error("Lỗi khi tải chi tiết công việc:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchJobDetail();
+  }, [id]);
+
+  // Xử lý khi nhấn nút "Ứng tuyển ngay" -> Mở Modal chọn CV
+  const handleOpenApplyModal = async () => {
+    setIsModalOpen(true);
+    try {
+      // Gọi API lấy kho CV đã tải lên của ứng viên
+      const resumeList = await jobApi.getMyResumes();
+      setResumes(resumeList || []);
+      // Tự động chọn CV mặc định nếu có
+      const defaultResume = resumeList.find((r) => r.isDefault);
+      if (defaultResume) setSelectedResumeId(defaultResume.id);
+    } catch (error) {
+      console.error(
+        "Không thể lấy danh sách CV. Bạn đã đăng nhập chưa?",
+        error,
+      );
+    }
+  };
+
+  // Xử lý gửi đơn ứng tuyển vật lý xuống API Backend
+  const handleSubmitApplication = async (e) => {
+    e.preventDefault();
+    if (!selectedResumeId)
+      return alert("Vui lòng chọn một file CV để ứng tuyển!");
+
+    setIsSubmitting(true);
+    try {
+      await jobApi.applyJob({ jobId: id, resumeId: selectedResumeId });
+      alert(
+        "Nộp đơn ứng tuyển thành công! Nhà tuyển dụng đã nhận được CV của bạn.",
+      );
+      setIsModalOpen(false);
+    } catch (error) {
+      // Lỗi đã được chặn trùng hoặc hết hạn bởi interceptor
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <div className="w-10 h-10 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-gray-500 text-sm">Đang tải chi tiết công việc...</p>
+      </div>
+    );
+  }
+
+  if (!job) {
+    return (
+      <div className="container-custom py-20 text-center">
+        <h2 className="text-xl font-bold text-gray-800">
+          Không tìm thấy thông tin công việc!
+        </h2>
+        <Link
+          to="/jobs"
+          className="text-primary-600 hover:underline mt-4 inline-block"
+        >
+          Quay lại danh sách việc làm
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container-custom py-10">
+      {/* --- BANNER ĐẦU TRANG CHI TIẾT --- */}
+      <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 animate-fade-in">
+        <div className="flex gap-5 items-center">
+          <div className="w-20 h-20 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
+            {job.company?.logoUrl ? (
+              <img
+                src={job.company.logoUrl}
+                alt={job.company.companyName}
+                className="object-contain w-full h-full"
+              />
+            ) : (
+              <span className="text-3xl font-bold text-primary-500">
+                {job.company?.companyName?.charAt(0)}
+              </span>
+            )}
+          </div>
+          <div>
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">
+              {job.title}
+            </h1>
+            <p className="text-lg text-gray-600 font-medium">
+              {job.company?.companyName}
+            </p>
+          </div>
+        </div>
+        <button
+          onClick={handleOpenApplyModal}
+          className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-3.5 rounded-xl transition-all shadow-sm active:scale-95 w-full md:w-auto text-center cursor-pointer"
+        >
+          Ứng tuyển ngay
+        </button>
+      </div>
+
+      {/* --- BỐ CỤC 2 CỘT NỘI DUNG CHI TIẾT --- */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-slide-up">
+        {/* Cột trái: Nội dung chi tiết công việc (70%) */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card space-y-6">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+                Mô tả công việc
+              </h2>
+              <div
+                className="text-gray-700 leading-relaxed space-y-2 prose"
+                dangerouslySetInnerHTML={{ __html: job.description }}
+              />
+            </div>
+
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+                Yêu cầu công việc
+              </h2>
+              <div
+                className="text-gray-700 leading-relaxed space-y-2 prose"
+                dangerouslySetInnerHTML={{ __html: job.requirements }}
+              />
+            </div>
+
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+                Quyền lợi đãi ngộ
+              </h2>
+              <div
+                className="text-gray-700 leading-relaxed space-y-2 prose"
+                dangerouslySetInnerHTML={{ __html: job.benefits }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Cột phải: Thông tin tổng hợp & Công ty (30%) */}
+        <div className="space-y-6">
+          {/* Hộp thông tin chung */}
+          <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card space-y-4">
+            <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">
+              Thông tin chung
+            </h3>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Mức lương:</span>{" "}
+                <span className="font-semibold text-success-600">
+                  {job.isNegotiable
+                    ? "Thỏa thuận"
+                    : `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()} VND`}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Hình thức:</span>{" "}
+                <span className="font-semibold text-gray-800">
+                  {job.workType}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cấp bậc:</span>{" "}
+                <span className="font-semibold text-gray-800">
+                  {job.jobLevel}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Số lượng:</span>{" "}
+                <span className="font-semibold text-gray-800">
+                  {job.quantity} người
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Hạn nộp:</span>{" "}
+                <span className="font-semibold text-danger-500">
+                  {new Date(job.expirationDate).toLocaleDateString("vi-VN")}
+                </span>
+              </div>
+            </div>
+
+            {/* Kỹ năng yêu cầu */}
+            <div className="pt-4 border-t border-gray-100">
+              <h4 className="text-sm font-bold text-gray-900 mb-2.5">
+                Kỹ năng yêu cầu:
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {job.skills?.map((s) => (
+                  <span
+                    key={s.id}
+                    className="bg-primary-50 text-primary-600 text-xs px-2.5 py-1 rounded-md font-medium"
+                  >
+                    {s.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* --- QUICK APPLY POP-UP MODAL --- */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-fade-in">
+          <div className="bg-surface w-full max-w-md p-6 rounded-2xl shadow-card-hover border border-gray-100 relative animate-slide-up">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Ứng tuyển vị trí này
+            </h3>
+
+            <form onSubmit={handleSubmitApplication} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Chọn CV của bạn:
+                </label>
+                {resumes.length === 0 ? (
+                  <div className="text-sm text-gray-500 py-3 text-center border border-dashed border-gray-200 rounded-lg bg-gray-50">
+                    Bạn chưa tải lên CV nào. <br />
+                    <Link
+                      to="/profile"
+                      className="text-primary-600 font-semibold hover:underline"
+                    >
+                      Đến trang cá nhân để thêm CV
+                    </Link>
+                  </div>
+                ) : (
+                  <select
+                    value={selectedResumeId}
+                    onChange={(e) => setSelectedResumeId(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white"
+                  >
+                    <option value="">-- Chọn CV đính kèm --</option>
+                    {resumes.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.fileName} {r.isDefault ? "(Mặc định)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="flex gap-3 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || resumes.length === 0}
+                  className="px-5 py-2 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors cursor-pointer"
+                >
+                  {isSubmitting ? "Đang gửi..." : "Nộp đơn ngay"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default JobDetailPage;

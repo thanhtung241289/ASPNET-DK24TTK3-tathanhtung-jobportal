@@ -1,0 +1,11 @@
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\bin\Debug\net8.0\JobPortal.Domain.deps.json
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\bin\Debug\net8.0\JobPortal.Domain.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\bin\Debug\net8.0\JobPortal.Domain.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.AssemblyInfoInputs.cache
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.AssemblyInfo.cs
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.csproj.CoreCompileInputs.cache
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\refint\JobPortal.Domain.dll
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\JobPortal.Domain.pdb
+D:\dotnet\jobportal\src\backend\JobPortal.Domain\obj\Debug\net8.0\ref\JobPortal.Domain.dll
