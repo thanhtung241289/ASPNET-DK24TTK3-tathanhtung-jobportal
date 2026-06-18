@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { jobApi } from "../services/jobApi";
+import { translateJobLevel, translateWorkType } from "../utils/translators";
 
 const JobDetailPage = () => {
   const { id } = useParams(); // Lấy mã Job Id từ thanh URL
@@ -94,28 +95,46 @@ const JobDetailPage = () => {
   return (
     <div className="container-custom py-10">
       {/* --- BANNER ĐẦU TRANG CHI TIẾT --- */}
-      <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 animate-fade-in">
+      <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 animate-fade-in">
         <div className="flex gap-5 items-center">
-          <div className="w-20 h-20 bg-gray-50 border border-gray-100 rounded-xl flex items-center justify-center overflow-hidden">
-            {job.company?.logoUrl ? (
-              <img
-                src={job.company.logoUrl}
-                alt={job.company.companyName}
-                className="object-contain w-full h-full"
-              />
-            ) : (
-              <span className="text-3xl font-bold text-primary-500">
-                {job.company?.companyName?.charAt(0)}
-              </span>
-            )}
-          </div>
+          {job.company ? (
+            <Link
+              to={`/companies/${job.company.id}`}
+              className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 hover:border-primary-300 transition-colors"
+            >
+              {job.company.logoUrl ? (
+                <img
+                  src={job.company.logoUrl}
+                  alt={job.company.companyName}
+                  className="object-contain w-full h-full p-1"
+                />
+              ) : (
+                <span className="text-3xl font-bold text-primary-500">
+                  {job.company.companyName?.charAt(0)}
+                </span>
+              )}
+            </Link>
+          ) : (
+            <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+              <span className="text-3xl font-bold text-slate-400">?</span>
+            </div>
+          )}
           <div>
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-2">
+            <h1 className="text-2xl font-extrabold text-slate-900 mb-2">
               {job.title}
             </h1>
-            <p className="text-lg text-gray-600 font-medium">
-              {job.company?.companyName}
-            </p>
+            {job.company ? (
+              <Link
+                to={`/companies/${job.company.id}`}
+                className="text-lg text-primary-600 font-semibold hover:underline"
+              >
+                {job.company.companyName}
+              </Link>
+            ) : (
+              <span className="text-lg text-slate-500 font-medium">
+                Doanh nghiệp ẩn danh
+              </span>
+            )}
           </div>
         </div>
         <button
@@ -130,33 +149,33 @@ const JobDetailPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start animate-slide-up">
         {/* Cột trái: Nội dung chi tiết công việc (70%) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card space-y-6">
+          <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-6">
             <div>
-              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+              <h2 className="text-xl font-bold text-slate-900 border-l-4 border-primary-500 pl-3 mb-4">
                 Mô tả công việc
               </h2>
               <div
-                className="text-gray-700 leading-relaxed space-y-2 prose"
+                className="text-slate-700 leading-relaxed space-y-2 prose"
                 dangerouslySetInnerHTML={{ __html: job.description }}
               />
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+              <h2 className="text-xl font-bold text-slate-900 border-l-4 border-primary-500 pl-3 mb-4">
                 Yêu cầu công việc
               </h2>
               <div
-                className="text-gray-700 leading-relaxed space-y-2 prose"
+                className="text-slate-700 leading-relaxed space-y-2 prose"
                 dangerouslySetInnerHTML={{ __html: job.requirements }}
               />
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-gray-900 border-l-4 border-primary-500 pl-3 mb-4">
+              <h2 className="text-xl font-bold text-slate-900 border-l-4 border-primary-500 pl-3 mb-4">
                 Quyền lợi đãi ngộ
               </h2>
               <div
-                className="text-gray-700 leading-relaxed space-y-2 prose"
+                className="text-slate-700 leading-relaxed space-y-2 prose"
                 dangerouslySetInnerHTML={{ __html: job.benefits }}
               />
             </div>
@@ -166,48 +185,48 @@ const JobDetailPage = () => {
         {/* Cột phải: Thông tin tổng hợp & Công ty (30%) */}
         <div className="space-y-6">
           {/* Hộp thông tin chung */}
-          <div className="bg-surface border border-gray-100 p-6 rounded-2xl shadow-card space-y-4">
-            <h3 className="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">
+          <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-4">
+            <h3 className="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">
               Thông tin chung
             </h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">Mức lương:</span>{" "}
-                <span className="font-semibold text-success-600">
+                <span className="text-slate-500">Mức lương:</span>{" "}
+                <span className="font-semibold text-emerald-600">
                   {job.isNegotiable
                     ? "Thỏa thuận"
                     : `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()} VND`}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Hình thức:</span>{" "}
-                <span className="font-semibold text-gray-800">
-                  {job.workType}
+                <span className="text-slate-500">Hình thức:</span>{" "}
+                <span className="font-semibold text-slate-800">
+                  {translateWorkType(job.workType)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Cấp bậc:</span>{" "}
-                <span className="font-semibold text-gray-800">
-                  {job.jobLevel}
+                <span className="text-slate-500">Cấp bậc:</span>{" "}
+                <span className="font-semibold text-slate-800">
+                  {translateJobLevel(job.jobLevel)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Số lượng:</span>{" "}
-                <span className="font-semibold text-gray-800">
+                <span className="text-slate-500">Số lượng:</span>{" "}
+                <span className="font-semibold text-slate-800">
                   {job.quantity} người
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Hạn nộp:</span>{" "}
-                <span className="font-semibold text-danger-500">
+                <span className="text-slate-500">Hạn nộp:</span>{" "}
+                <span className="font-semibold text-rose-500">
                   {new Date(job.expirationDate).toLocaleDateString("vi-VN")}
                 </span>
               </div>
             </div>
 
             {/* Kỹ năng yêu cầu */}
-            <div className="pt-4 border-t border-gray-100">
-              <h4 className="text-sm font-bold text-gray-900 mb-2.5">
+            <div className="pt-4 border-t border-slate-100">
+              <h4 className="text-sm font-bold text-slate-900 mb-2.5">
                 Kỹ năng yêu cầu:
               </h4>
               <div className="flex flex-wrap gap-2">
