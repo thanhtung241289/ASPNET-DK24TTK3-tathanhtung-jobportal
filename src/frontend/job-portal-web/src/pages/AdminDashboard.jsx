@@ -1,8 +1,10 @@
 // File: src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
 import { adminApi } from "../services/adminApi";
+import { useToast } from "../contexts/ToastContext";
 
 const AdminDashboard = () => {
+  const { showToast } = useToast();
   const [pendingJobs, setPendingJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,10 +43,10 @@ const AdminDashboard = () => {
 
     try {
       await adminApi.reviewJob(jobId, { status: "Approved", reason: "" });
-      alert("Đã phê duyệt và xuất bản tin thành công!");
+      showToast("Đã phê duyệt và xuất bản tin thành công!", "success");
       setPendingJobs((prev) => prev.filter((job) => job.id !== jobId)); // Xóa nhanh khỏi danh sách hiển thị
     } catch (error) {
-      alert("Phê duyệt thất bại. Vui lòng thử lại!");
+      showToast("Phê duyệt thất bại. Vui lòng thử lại!", "error");
     }
   };
 
@@ -58,10 +60,13 @@ const AdminDashboard = () => {
   // Xử lý XÁC NHẬN TỪ CHỐI TIN (Reject) kèm lý do bắt buộc
   const handleConfirmReject = async (e) => {
     e.preventDefault();
-    if (!rejectReason.trim())
-      return alert(
+    if (!rejectReason.trim()) {
+      showToast(
         "Bắt buộc phải nhập lý do từ chối để phản hồi cho doanh nghiệp!",
+        "warning",
       );
+      return;
+    }
 
     setActionLoading(true);
     try {
@@ -69,11 +74,14 @@ const AdminDashboard = () => {
         status: "Rejected",
         reason: rejectReason.trim(),
       });
-      alert("Đã từ chối bài viết và gửi phản hồi lý do thành công.");
+      showToast(
+        "Đã từ chối bài viết và gửi phản hồi lý do thành công.",
+        "success",
+      );
       setPendingJobs((prev) => prev.filter((job) => job.id !== selectedJobId));
       setIsRejectModalOpen(false);
     } catch (error) {
-      alert("Gửi yêu cầu từ chối thất bại.");
+      showToast("Gửi yêu cầu từ chối thất bại.", "error");
     } finally {
       setActionLoading(false);
     }

@@ -1,17 +1,16 @@
+// File: src/pages/ProfilePage.jsx
 import { useEffect, useState } from "react";
 import { profileApi } from "../services/profileApi";
+import { useToast } from "../contexts/ToastContext";
 
 const ProfilePage = () => {
+  const { showToast } = useToast();
+
   // --- States quản lý UI ---
   const [loading, setLoading] = useState(true);
   const [savingProfile, setSavingProfile] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [toast, setToast] = useState({
-    show: false,
-    message: "",
-    type: "success",
-  });
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   // --- States Dữ liệu ---
@@ -29,14 +28,6 @@ const ProfilePage = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState("");
-
-  // --- Helper show Toast thông báo ---
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 4000);
-  };
 
   // --- Helper lấy đường dẫn tệp đầy đủ từ Server ---
   const getFullUrl = (path) => {
@@ -77,7 +68,6 @@ const ProfilePage = () => {
       setResumes(resumesData || []);
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu trang cá nhân:", error);
-      showToast("Không thể tải thông tin tài khoản.", "error");
     } finally {
       setLoading(false);
     }
@@ -132,7 +122,7 @@ const ProfilePage = () => {
       setProfile((prev) => ({ ...prev, skillsSummary: skillsJoined }));
       showToast("Cập nhật thông tin cá nhân thành công!", "success");
     } catch (error) {
-      showToast("Cập nhật thất bại. Vui lòng thử lại sau.", "error");
+      console.error(error);
     } finally {
       setSavingProfile(false);
     }
@@ -172,7 +162,6 @@ const ProfilePage = () => {
         }
       } catch (error) {
         console.error("Lỗi khi tải ảnh đại diện lên server:", error);
-        showToast("Tải ảnh đại diện thất bại. Vui lòng thử lại sau.", "error");
       } finally {
         setUploadingAvatar(false);
       }
@@ -209,7 +198,7 @@ const ProfilePage = () => {
       const updatedResumes = await profileApi.getResumes();
       setResumes(updatedResumes || []);
     } catch (error) {
-      showToast("Tải file lên thất bại. Vui lòng thử lại sau.", "error");
+      console.error(error);
     } finally {
       setUploading(false);
     }
@@ -222,7 +211,7 @@ const ProfilePage = () => {
       const updatedResumes = await profileApi.getResumes();
       setResumes(updatedResumes || []);
     } catch (error) {
-      showToast("Lỗi cập nhật CV mặc định.", "error");
+      console.error(error);
     }
   };
 
@@ -237,7 +226,7 @@ const ProfilePage = () => {
       setResumes((prev) => prev.filter((r) => r.id !== deleteConfirmId));
       showToast("Đã xóa CV thành công.", "success");
     } catch (error) {
-      showToast("Lỗi khi xóa CV.", "error");
+      console.error(error);
     } finally {
       setDeleteConfirmId(null);
     }
@@ -275,30 +264,6 @@ const ProfilePage = () => {
 
   return (
     <div className="bg-[#fcfdfe] min-h-screen pb-16 relative">
-      {/* --- TOAST NOTIFICATION BANNER (Premium look) --- */}
-      {toast.show && (
-        <div className="fixed top-20 right-4 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-xl border border-white/20 backdrop-blur-md animate-slide-down text-white transition-all duration-300 bg-slate-900/95 max-w-sm">
-          {toast.type === "success" && (
-            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-              ✓
-            </div>
-          )}
-          {toast.type === "error" && (
-            <div className="w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-              ✕
-            </div>
-          )}
-          {toast.type === "warning" && (
-            <div className="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-              !
-            </div>
-          )}
-          <span className="text-sm font-medium text-slate-100">
-            {toast.message}
-          </span>
-        </div>
-      )}
-
       {/* --- COVER PHOTO & PROFILE HEADER --- */}
       <div className="h-60 bg-gradient-to-r from-primary-600 via-indigo-600 to-violet-700 w-full relative overflow-hidden">
         {/* Decorative glows */}

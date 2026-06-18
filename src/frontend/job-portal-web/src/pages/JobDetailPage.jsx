@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { jobApi } from "../services/jobApi";
 import { translateJobLevel, translateWorkType } from "../utils/translators";
+import { useToast } from "../contexts/ToastContext";
 
 const JobDetailPage = () => {
   const { id } = useParams(); // Lấy mã Job Id từ thanh URL
+  const { showToast } = useToast();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -58,18 +60,24 @@ const JobDetailPage = () => {
   // Xử lý gửi đơn ứng tuyển vật lý xuống API Backend
   const handleSubmitApplication = async (e) => {
     e.preventDefault();
-    if (!selectedResumeId)
-      return alert("Vui lòng chọn một file CV để ứng tuyển!");
+    if (!selectedResumeId) {
+      showToast("Vui lòng chọn một file CV để ứng tuyển!", "warning");
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       await jobApi.applyJob({ jobId: id, resumeId: selectedResumeId });
-      alert(
+      showToast(
         "Nộp đơn ứng tuyển thành công! Nhà tuyển dụng đã nhận được CV của bạn.",
+        "success",
       );
       setIsModalOpen(false);
     } catch (error) {
-      // Lỗi đã được chặn trùng hoặc hết hạn bởi interceptor
+      const errMsg =
+        error.response?.data?.message ||
+        "Ứng tuyển thất bại. Vui lòng thử lại!";
+      showToast(errMsg, "error");
     } finally {
       setIsSubmitting(false);
     }

@@ -1,12 +1,14 @@
 // File: src/pages/AuthPage.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "../services/authApi";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 
 const AuthPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
+  const { showToast } = useToast();
   const [isLogin, setIsLogin] = useState(true); // State điều hướng chế độ Đăng nhập / Đăng ký
   const [loading, setLoading] = useState(false);
 
@@ -17,6 +19,19 @@ const AuthPage = () => {
     fullName: "", // Thêm họ và tên cho đăng ký
     role: "2", // 2 = Seeker, 3 = Employer (Khớp chuẩn với C# Enum)
   });
+
+  // Tự động chuyển hướng nếu người dùng đã đăng nhập sẵn
+  useEffect(() => {
+    if (user && !loading) {
+      if (user.role === "Admin") {
+        navigate("/admin/jobs");
+      } else if (user.role === "Employer") {
+        navigate("/employer/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [user, navigate, loading]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,19 +50,8 @@ const AuthPage = () => {
           password: formData.password,
         });
 
-        // Đăng nhập qua context để đồng bộ hóa ngay lập tức
         login(response.token, response.role);
-
-        alert("Đăng nhập thành công!");
-
-        // Điều hướng thông minh dựa trên Role sau khi nhận token
-        if (response.role === "Admin") {
-          navigate("/admin/jobs");
-        } else if (response.role === "Employer") {
-          navigate("/employer/post-job"); // hoặc trang quản lý của employer
-        } else {
-          navigate("/");
-        }
+        showToast("Đăng nhập thành công!", "success");
       } else {
         // --- XỬ LÝ ĐĂNG KÝ ---
         await authApi.register({
@@ -57,14 +61,14 @@ const AuthPage = () => {
           role: parseInt(formData.role),
         });
 
-        alert("Đăng ký tài khoản thành công! Hãy đăng nhập để tiếp tục.");
+        showToast(
+          "Đăng ký tài khoản thành công! Hãy đăng nhập để tiếp tục.",
+          "success",
+        );
         setIsLogin(true); // Tự động chuyển về tab đăng nhập
       }
     } catch (error) {
       console.error("Lỗi xác thực:", error);
-      alert(
-        error.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại!",
-      );
     } finally {
       setLoading(false);
     }

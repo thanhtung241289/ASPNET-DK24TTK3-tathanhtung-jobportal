@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { employerApi } from "../services/employerApi";
 import { useAuth } from "../contexts/AuthContext";
+import { useToast } from "../contexts/ToastContext";
 
 const EmployerDashboard = () => {
   const navigate = useNavigate();
@@ -20,15 +21,7 @@ const EmployerDashboard = () => {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
 
-  // State for Toast Notifications
-  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
-
-  const showToast = (message, type = "success") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => {
-      setToast((prev) => ({ ...prev, show: false }));
-    }, 4000);
-  };
+  const { showToast } = useToast();
 
   // Helper helper to get static file URLs
   const getFullUrl = (path) => {
@@ -52,7 +45,6 @@ const EmployerDashboard = () => {
       setApplications(appsData || []);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
-      showToast("Không thể tải dữ liệu bảng điều khiển. Vui lòng thử lại!", "danger");
     } finally {
       setLoading(false);
     }
@@ -84,7 +76,6 @@ const EmployerDashboard = () => {
       showToast("Cập nhật thông tin công ty thành công!");
     } catch (error) {
       console.error(error);
-      showToast("Lưu thông tin thất bại. Vui lòng kiểm tra lại!", "danger");
     } finally {
       setSavingSettings(false);
     }
@@ -110,7 +101,6 @@ const EmployerDashboard = () => {
       showToast("Cập nhật Logo công ty thành công!");
     } catch (error) {
       console.error(error);
-      showToast("Tải ảnh logo lên thất bại!", "danger");
     } finally {
       setUploadingLogo(false);
     }
@@ -136,7 +126,6 @@ const EmployerDashboard = () => {
       showToast("Cập nhật ảnh bìa công ty thành công!");
     } catch (error) {
       console.error(error);
-      showToast("Tải ảnh bìa lên thất bại!", "danger");
     } finally {
       setUploadingCover(false);
     }
@@ -159,12 +148,13 @@ const EmployerDashboard = () => {
       await employerApi.updateApplicationStatus(appId, statusInt);
       // Update local state application list
       setApplications((prev) =>
-        prev.map((app) => (app.id === appId ? { ...app, status: newStatusStr } : app))
+        prev.map((app) =>
+          app.id === appId ? { ...app, status: newStatusStr } : app,
+        ),
       );
       showToast("Cập nhật trạng thái xử lý hồ sơ thành công!");
     } catch (error) {
       console.error(error);
-      showToast("Cập nhật trạng thái thất bại!", "danger");
     }
   };
 
@@ -187,20 +177,6 @@ const EmployerDashboard = () => {
 
   return (
     <div className="container-custom py-10 min-h-screen">
-      {/* Toast Notification */}
-      {toast.show && (
-        <div
-          className={`fixed bottom-5 right-5 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-xl transition-all duration-300 transform scale-100 ${
-            toast.type === "success"
-              ? "bg-emerald-500 text-white"
-              : "bg-rose-500 text-white"
-          }`}
-        >
-          <span>{toast.type === "success" ? "✓" : "⚠️"}</span>
-          <p className="text-sm font-bold">{toast.message}</p>
-        </div>
-      )}
-
       {/* Header Banner Section */}
       <div className="relative bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-lg overflow-hidden">
         <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl transform translate-x-12 -translate-y-12"></div>
@@ -348,7 +324,8 @@ const EmployerDashboard = () => {
                     Tin tuyển dụng đã đăng
                   </h2>
                   <p className="text-xs font-semibold text-slate-400 mt-1">
-                    Danh sách các tin tuyển dụng bạn đã đăng tải và trạng thái tương ứng.
+                    Danh sách các tin tuyển dụng bạn đã đăng tải và trạng thái
+                    tương ứng.
                   </p>
                 </div>
               </div>
@@ -360,7 +337,8 @@ const EmployerDashboard = () => {
                     Chưa có tin tuyển dụng nào
                   </h3>
                   <p className="text-xs font-semibold text-slate-400 mt-1">
-                    Hãy đăng tin tuyển dụng đầu tiên của bạn để tiếp cận hàng ngàn ứng viên.
+                    Hãy đăng tin tuyển dụng đầu tiên của bạn để tiếp cận hàng
+                    ngàn ứng viên.
                   </p>
                   <Link
                     to="/employer/post-job"
@@ -396,7 +374,9 @@ const EmployerDashboard = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               ⏳ Hạn:{" "}
-                              {new Date(job.expirationDate).toLocaleDateString("vi-VN")}
+                              {new Date(job.expirationDate).toLocaleDateString(
+                                "vi-VN",
+                              )}
                             </span>
                           </div>
                         </div>
@@ -408,10 +388,10 @@ const EmployerDashboard = () => {
                               job.status === "Published"
                                 ? "bg-emerald-50 text-emerald-600 border-emerald-250"
                                 : job.status === "Pending"
-                                ? "bg-amber-50 text-amber-600 border-amber-250"
-                                : job.status === "Rejected"
-                                ? "bg-rose-50 text-rose-600 border-rose-250"
-                                : "bg-slate-50 text-slate-600 border-slate-200"
+                                  ? "bg-amber-50 text-amber-600 border-amber-250"
+                                  : job.status === "Rejected"
+                                    ? "bg-rose-50 text-rose-600 border-rose-250"
+                                    : "bg-slate-50 text-slate-600 border-slate-200"
                             }`}
                           >
                             <span
@@ -419,19 +399,19 @@ const EmployerDashboard = () => {
                                 job.status === "Published"
                                   ? "bg-emerald-500"
                                   : job.status === "Pending"
-                                  ? "bg-amber-500"
-                                  : job.status === "Rejected"
-                                  ? "bg-rose-500"
-                                  : "bg-slate-500"
+                                    ? "bg-amber-500"
+                                    : job.status === "Rejected"
+                                      ? "bg-rose-500"
+                                      : "bg-slate-500"
                               }`}
                             ></span>
                             {job.status === "Published"
                               ? "Hoạt động"
                               : job.status === "Pending"
-                              ? "Chờ duyệt"
-                              : job.status === "Rejected"
-                              ? "Bị từ chối"
-                              : "Hết hạn"}
+                                ? "Chờ duyệt"
+                                : job.status === "Rejected"
+                                  ? "Bị từ chối"
+                                  : "Hết hạn"}
                           </span>
 
                           {/* Applicant Count */}
@@ -446,12 +426,19 @@ const EmployerDashboard = () => {
                         <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 mt-4 text-xs text-rose-700 flex gap-2">
                           <span>⚠️</span>
                           <div>
-                            <p className="font-bold">Lý do từ chối kiểm duyệt:</p>
+                            <p className="font-bold">
+                              Lý do từ chối kiểm duyệt:
+                            </p>
                             {/* Extract rejection text from Description if prepended */}
                             <p className="mt-0.5">
-                              {job.description && job.description.includes("Lý do từ chối kiểm duyệt:")
+                              {job.description &&
+                              job.description.includes(
+                                "Lý do từ chối kiểm duyệt:",
+                              )
                                 ? job.description
-                                    .split("<p style='color:red;'><b>Lý do từ chối kiểm duyệt:</b>")[1]
+                                    .split(
+                                      "<p style='color:red;'><b>Lý do từ chối kiểm duyệt:</b>",
+                                    )[1]
                                     ?.split("</p>")[0]
                                     ?.trim()
                                 : "Nội dung bài viết không phù hợp hoặc vi phạm điều khoản tuyển dụng."}
@@ -475,7 +462,8 @@ const EmployerDashboard = () => {
                     Quản lý hồ sơ ứng tuyển
                   </h2>
                   <p className="text-xs font-semibold text-slate-400 mt-1">
-                    Theo dõi và cập nhật trạng thái xử lý các hồ sơ ứng tuyển từ seeker.
+                    Theo dõi và cập nhật trạng thái xử lý các hồ sơ ứng tuyển từ
+                    seeker.
                   </p>
                 </div>
               </div>
@@ -487,7 +475,8 @@ const EmployerDashboard = () => {
                     Chưa có đơn ứng tuyển nào
                   </h3>
                   <p className="text-xs font-semibold text-slate-400 mt-1">
-                    Khi ứng viên ứng tuyển vào công việc của bạn, hồ sơ sẽ hiển thị ở đây.
+                    Khi ứng viên ứng tuyển vào công việc của bạn, hồ sơ sẽ hiển
+                    thị ở đây.
                   </p>
                 </div>
               ) : (
@@ -499,17 +488,28 @@ const EmployerDashboard = () => {
                         <th className="py-4 px-3">Vị trí nộp</th>
                         <th className="py-4 px-3">Thời gian</th>
                         <th className="py-4 px-3">CV đính kèm</th>
-                        <th className="py-4 px-3 text-right">Trạng thái xử lý</th>
+                        <th className="py-4 px-3 text-right">
+                          Trạng thái xử lý
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50 text-sm font-semibold">
                       {applications.map((app) => (
-                        <tr key={app.id} className="hover:bg-slate-50/50 transition-colors">
+                        <tr
+                          key={app.id}
+                          className="hover:bg-slate-50/50 transition-colors"
+                        >
                           <td className="py-4 px-3">
-                            <p className="font-extrabold text-slate-800">{app.candidateName}</p>
-                            <p className="text-xs text-slate-400 mt-0.5">{app.candidateEmail}</p>
+                            <p className="font-extrabold text-slate-800">
+                              {app.candidateName}
+                            </p>
+                            <p className="text-xs text-slate-400 mt-0.5">
+                              {app.candidateEmail}
+                            </p>
                             {app.candidatePhone && (
-                              <p className="text-xs text-slate-400">{app.candidatePhone}</p>
+                              <p className="text-xs text-slate-400">
+                                {app.candidatePhone}
+                              </p>
                             )}
                           </td>
                           <td className="py-4 px-3">
@@ -518,7 +518,9 @@ const EmployerDashboard = () => {
                             </span>
                           </td>
                           <td className="py-4 px-3 text-slate-500 text-xs">
-                            {new Date(app.appliedAt).toLocaleDateString("vi-VN")}
+                            {new Date(app.appliedAt).toLocaleDateString(
+                              "vi-VN",
+                            )}
                           </td>
                           <td className="py-4 px-3">
                             {app.resumeUrl ? (
@@ -539,19 +541,21 @@ const EmployerDashboard = () => {
                           <td className="py-4 px-3 text-right">
                             <select
                               value={app.status}
-                              onChange={(e) => handleStatusChange(app.id, e.target.value)}
+                              onChange={(e) =>
+                                handleStatusChange(app.id, e.target.value)
+                              }
                               className={`text-xs font-bold px-3 py-1.5 rounded-xl border outline-none cursor-pointer ${
                                 app.status === "New"
                                   ? "bg-blue-50 text-blue-600 border-blue-200"
                                   : app.status === "Viewed"
-                                  ? "bg-purple-50 text-purple-600 border-purple-200"
-                                  : app.status === "Contacted"
-                                  ? "bg-amber-50 text-amber-600 border-amber-200"
-                                  : app.status === "Interviewing"
-                                  ? "bg-indigo-50 text-indigo-600 border-indigo-200"
-                                  : app.status === "Offered"
-                                  ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                  : "bg-rose-50 text-rose-600 border-rose-200"
+                                    ? "bg-purple-50 text-purple-600 border-purple-200"
+                                    : app.status === "Contacted"
+                                      ? "bg-amber-50 text-amber-600 border-amber-200"
+                                      : app.status === "Interviewing"
+                                        ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+                                        : app.status === "Offered"
+                                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                                          : "bg-rose-50 text-rose-600 border-rose-200"
                               }`}
                             >
                               <option value="New">Mới nộp</option>
@@ -575,9 +579,12 @@ const EmployerDashboard = () => {
           {activeTab === "settings" && (
             <div className="space-y-8">
               <div className="border-b border-slate-100 pb-4">
-                <h2 className="text-xl font-extrabold text-slate-800">Thông tin doanh nghiệp</h2>
+                <h2 className="text-xl font-extrabold text-slate-800">
+                  Thông tin doanh nghiệp
+                </h2>
                 <p className="text-xs font-semibold text-slate-400 mt-1">
-                  Thiết lập Logo, ảnh bìa và các thông tin mô tả chi tiết cho trang doanh nghiệp.
+                  Thiết lập Logo, ảnh bìa và các thông tin mô tả chi tiết cho
+                  trang doanh nghiệp.
                 </p>
               </div>
 
@@ -597,7 +604,9 @@ const EmployerDashboard = () => {
                     />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-r from-slate-100 to-slate-200 flex items-center justify-center">
-                      <span className="text-slate-400 text-xs font-bold">Chưa cấu hình ảnh bìa</span>
+                      <span className="text-slate-400 text-xs font-bold">
+                        Chưa cấu hình ảnh bìa
+                      </span>
                     </div>
                   )}
 
@@ -605,7 +614,9 @@ const EmployerDashboard = () => {
                   <label className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <div className="text-center text-white">
                       <span className="block text-2xl mb-1">📷</span>
-                      <span className="text-xs font-bold">Tải ảnh bìa mới (Max 2MB)</span>
+                      <span className="text-xs font-bold">
+                        Tải ảnh bìa mới (Max 2MB)
+                      </span>
                     </div>
                     <input
                       type="file"
@@ -662,7 +673,9 @@ const EmployerDashboard = () => {
                       {profile?.companyName || "Tên công ty"}
                     </h3>
                     <p className="text-xs text-slate-400 font-semibold">
-                      {profile?.isVerified ? "✓ Đã xác minh" : "Chưa xác minh thương hiệu"}
+                      {profile?.isVerified
+                        ? "✓ Đã xác minh"
+                        : "Chưa xác minh thương hiệu"}
                     </p>
                   </div>
                 </div>
@@ -677,13 +690,18 @@ const EmployerDashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Company Name */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-600 block">Tên doanh nghiệp *</label>
+                    <label className="text-xs font-bold text-slate-600 block">
+                      Tên doanh nghiệp *
+                    </label>
                     <input
                       type="text"
                       required
                       value={profile?.companyName || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({ ...prev, companyName: e.target.value }))
+                        setProfile((prev) => ({
+                          ...prev,
+                          companyName: e.target.value,
+                        }))
                       }
                       placeholder="Ví dụ: Công ty TNHH Giải pháp Công nghệ ABC"
                       className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-3 rounded-2xl text-sm font-semibold outline-none transition-all"
@@ -692,12 +710,17 @@ const EmployerDashboard = () => {
 
                   {/* Company Size */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-600 block">Quy mô nhân sự</label>
+                    <label className="text-xs font-bold text-slate-600 block">
+                      Quy mô nhân sự
+                    </label>
                     <input
                       type="text"
                       value={profile?.companySize || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({ ...prev, companySize: e.target.value }))
+                        setProfile((prev) => ({
+                          ...prev,
+                          companySize: e.target.value,
+                        }))
                       }
                       placeholder="Ví dụ: 50-100 nhân viên"
                       className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-3 rounded-2xl text-sm font-semibold outline-none transition-all"
@@ -706,12 +729,17 @@ const EmployerDashboard = () => {
 
                   {/* Website */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-600 block">Trang web công ty</label>
+                    <label className="text-xs font-bold text-slate-600 block">
+                      Trang web công ty
+                    </label>
                     <input
                       type="url"
                       value={profile?.website || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({ ...prev, website: e.target.value }))
+                        setProfile((prev) => ({
+                          ...prev,
+                          website: e.target.value,
+                        }))
                       }
                       placeholder="Ví dụ: https://company.com"
                       className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-3 rounded-2xl text-sm font-semibold outline-none transition-all"
@@ -720,12 +748,17 @@ const EmployerDashboard = () => {
 
                   {/* Address */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-600 block">Trụ sở chính</label>
+                    <label className="text-xs font-bold text-slate-600 block">
+                      Trụ sở chính
+                    </label>
                     <input
                       type="text"
                       value={profile?.address || ""}
                       onChange={(e) =>
-                        setProfile((prev) => ({ ...prev, address: e.target.value }))
+                        setProfile((prev) => ({
+                          ...prev,
+                          address: e.target.value,
+                        }))
                       }
                       placeholder="Ví dụ: 123 Đường Nguyễn Huệ, Quận 1, TP. HCM"
                       className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-3 rounded-2xl text-sm font-semibold outline-none transition-all"
@@ -735,12 +768,17 @@ const EmployerDashboard = () => {
 
                 {/* Short Description */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 block">Giới thiệu ngắn</label>
+                  <label className="text-xs font-bold text-slate-600 block">
+                    Giới thiệu ngắn
+                  </label>
                   <input
                     type="text"
                     value={profile?.shortDescription || ""}
                     onChange={(e) =>
-                      setProfile((prev) => ({ ...prev, shortDescription: e.target.value }))
+                      setProfile((prev) => ({
+                        ...prev,
+                        shortDescription: e.target.value,
+                      }))
                     }
                     placeholder="Tóm tắt lĩnh vực hoạt động chính, sứ mệnh của công ty..."
                     className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-3 rounded-2xl text-sm font-semibold outline-none transition-all"
@@ -749,12 +787,17 @@ const EmployerDashboard = () => {
 
                 {/* Detailed Description */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-slate-600 block">Mô tả chi tiết doanh nghiệp</label>
+                  <label className="text-xs font-bold text-slate-600 block">
+                    Mô tả chi tiết doanh nghiệp
+                  </label>
                   <textarea
                     rows={6}
                     value={profile?.description || ""}
                     onChange={(e) =>
-                      setProfile((prev) => ({ ...prev, description: e.target.value }))
+                      setProfile((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
                     }
                     placeholder="Mô tả chi tiết về lịch sử phát triển, văn hóa công ty, chế độ đãi ngộ..."
                     className="w-full bg-slate-50 border border-slate-200 focus:border-primary-500 focus:bg-white px-4 py-4 rounded-2xl text-sm font-semibold outline-none transition-all resize-none"
