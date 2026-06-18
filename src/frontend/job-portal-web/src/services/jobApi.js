@@ -8,4 +8,5 @@ export const jobApi = {
 
   getMyResumes: () => axiosClient.get("/candidate/resume"),
   applyJob: (data) => axiosClient.post("/candidate/apply", data),
+  getMyApplications: () => axiosClient.get("/candidate/applications"),
 };

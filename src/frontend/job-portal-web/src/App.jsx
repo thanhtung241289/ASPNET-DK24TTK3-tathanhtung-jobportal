@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import JobsPage from "./pages/JobsPage";
 import JobDetailPage from "./pages/JobDetailPage";
 import AuthPage from "./pages/AuthPage";
+import ApplicationsTracker from "./pages/ApplicationsTracker";
 
 // Định nghĩa cấu trúc các tuyến đường (Routes)
 const router = createBrowserRouter([
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
         element: <JobsPage />,
       },
       { path: "jobs/:id", element: <JobDetailPage /> },
+      { path: "my-applications", element: <ApplicationsTracker /> },
     ],
   },
   // Nếu sau này bạn có Layout dành riêng cho Admin (không có Footer chẳng hạn),
