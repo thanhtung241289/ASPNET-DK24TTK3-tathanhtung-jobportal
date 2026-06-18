@@ -1,5 +1,4 @@
 // File: JobPortal.API/Controllers/AuthController.cs
-using JobPortal.Application.DTOs;
 using JobPortal.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -29,10 +28,14 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        var token = await _authService.LoginAsync(request.Email, request.Password);
-        if (token == null)
+        var loginResponse = await _authService.LoginAsync(request.Email, request.Password);
+        if (loginResponse == null)
             return Unauthorized(new { message = "Email hoặc mật khẩu không chính xác." });
 
-        return Ok(new { token = token, message = "Đăng nhập thành công!" });
+        return Ok(new { 
+            token = loginResponse.Token, 
+            role = loginResponse.Role, 
+            message = "Đăng nhập thành công!" 
+        });
     }
 }

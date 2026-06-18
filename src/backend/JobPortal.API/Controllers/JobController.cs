@@ -20,7 +20,7 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "3")] // Chỉ Employer mới được gọi API này
+    [Authorize(Roles = "Employer")] // Chỉ Employer mới được gọi API này
     public async Task<IActionResult> CreateJob([FromBody] CreateJobPostRequest request)
     {
         // Trích xuất UserId từ Token (claim NameIdentifier được lưu lúc Login)
@@ -44,7 +44,37 @@ public class JobController : ControllerBase
     public async Task<IActionResult> SearchJobs([FromQuery] JobSearchFilter filter)
     {
         var result = await _jobService.SearchJobsAsync(filter);
-        return Ok(result);
+        
+        var projectedItems = result.Items.Select(j => new {
+            j.Id,
+            j.Title,
+            j.Quantity,
+            j.SalaryMin,
+            j.SalaryMax,
+            j.IsNegotiable,
+            j.Description,
+            j.Requirements,
+            j.Benefits,
+            j.CreatedAt,
+            j.ExpirationDate,
+            Status = j.Status.ToString(),
+            JobLevel = j.JobLevel.ToString(),
+            WorkType = j.WorkType.ToString(),
+            Category = j.Category != null ? new { j.Category.Id, j.Category.Name } : null,
+            Company = j.Company != null ? new { j.Company.Id, j.Company.CompanyName, j.Company.LogoUrl, j.Company.Website, j.Company.Address } : null,
+            Skills = j.Skills != null ? j.Skills.Select(s => new { s.Id, s.Name }) : Enumerable.Empty<object>(),
+            Locations = j.Locations != null ? j.Locations.Select(l => new { l.Id, l.Name }) : Enumerable.Empty<object>()
+        }).ToList();
+
+        var response = new {
+            Items = projectedItems,
+            result.TotalItems,
+            result.PageNumber,
+            result.PageSize,
+            result.TotalPages
+        };
+
+        return Ok(response);
     }
 
     // Thêm vào JobController.cs

@@ -21,13 +21,14 @@ public class AuthService : IAuthService
         _config = config;
     }
 
-    public async Task<string?> LoginAsync(string email, string password)
+    public async Task<LoginResponse?> LoginAsync(string email, string password)
     {
         var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             return null;
 
-        return GenerateJwtToken(user);
+        var token = GenerateJwtToken(user);
+        return new LoginResponse(token, user.Role.ToString());
     }
 
     private string GenerateJwtToken(User user)
