@@ -1,0 +1,34 @@
+# Dockerfile cho Backend ASP.NET Core 8 Web API
+# Multi-stage build
+
+# 1. Build Stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy các file project (.csproj) và restore dependencies
+COPY src/backend/JobPortal.Domain/*.csproj ./src/backend/JobPortal.Domain/
+COPY src/backend/JobPortal.Application/*.csproj ./src/backend/JobPortal.Application/
+COPY src/backend/JobPortal.Infrastructure/*.csproj ./src/backend/JobPortal.Infrastructure/
+COPY src/backend/JobPortal.API/*.csproj ./src/backend/JobPortal.API/
+COPY src/backend/JobPortal.sln ./src/backend/
+
+RUN dotnet restore ./src/backend/JobPortal.sln
+
+# Copy toàn bộ mã nguồn backend và build
+COPY src/backend/ ./src/backend/
+WORKDIR /app/src/backend/JobPortal.API
+RUN dotnet publish -c Release -o /app/publish
+
+# 2. Runtime Stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Tạo các thư mục tĩnh cho CV và ảnh để tránh lỗi 500/404
+RUN mkdir -p wwwroot/avatars wwwroot/resumes wwwroot/logos wwwroot/covers
+
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+ENTRYPOINT ["dotnet", "JobPortal.API.dll"]

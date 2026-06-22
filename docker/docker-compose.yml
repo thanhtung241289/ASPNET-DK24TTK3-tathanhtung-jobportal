@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: jobportal-db
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourStrong@Password123
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    networks:
+      - jobportal-network
+
+  backend:
+    image: jobportal-backend:latest
+    container_name: jobportal-api
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=JobPortalDb;User Id=sa;Password=YourStrong@Password123;TrustServerCertificate=True;
+      - ASPNETCORE_ENVIRONMENT=Production
+      - Jwt__Key=CaiNayPhaiDaiHon32KyTuDeBaoMatCaoNhat!
+      - Jwt__Issuer=JobPortalApi
+      - Jwt__Audience=JobPortalApp
+    ports:
+      - "5067:8080"
+    depends_on:
+      - sqlserver
+    volumes:
+      - backend-uploads:/app/wwwroot
+    networks:
+      - jobportal-network
+
+  frontend:
+    image: jobportal-frontend:latest
+    container_name: jobportal-web
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - jobportal-network
+
+networks:
+  jobportal-network:
+    driver: bridge
+
+volumes:
+  mssql-data:
+  backend-uploads:

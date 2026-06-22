@@ -274,7 +274,7 @@ const AdminDashboard = () => {
       <div className="border-b border-slate-200 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">
-            Trang Quản Trị Hệ Thống (Admin Portal)
+            Trang Quản Trị Hệ Thống
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Quản trị viên kiểm duyệt tin tuyển dụng của doanh nghiệp và thiết

@@ -108,4 +108,20 @@ app.UseAuthorization();
 // [SỬA LỖI 2]: Định tuyến đường đi cho các API Controller của bạn
 app.MapControllers(); 
 
+// Tự động khởi chạy Migration và Seed dữ liệu khi khởi động ứng dụng
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<JobPortalDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Đã xảy ra lỗi khi tự động chạy Migration / Cấu hình CSDL.");
+    }
+}
+
 app.Run();

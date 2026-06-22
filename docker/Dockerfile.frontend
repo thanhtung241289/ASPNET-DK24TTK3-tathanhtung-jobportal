@@ -1,0 +1,28 @@
+# Dockerfile cho Frontend ReactJS (Vite)
+# Multi-stage build
+
+# 1. Build Stage
+FROM node:18-alpine AS build
+WORKDIR /app
+
+# Sao chép package.json và package-lock.json
+COPY src/frontend/job-portal-web/package*.json ./
+RUN npm ci
+
+# Sao chép toàn bộ mã nguồn frontend
+COPY src/frontend/job-portal-web/ ./
+
+# Cấu hình biến môi trường cho build React
+# Vì sử dụng Nginx Reverse Proxy làm cổng chung, ta chỉ cần gọi relative path
+ENV VITE_API_URL=/api
+ENV VITE_BASE_URL=
+
+RUN npm run build
+
+# 2. Runtime Stage (Serve bằng Nginx)
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
