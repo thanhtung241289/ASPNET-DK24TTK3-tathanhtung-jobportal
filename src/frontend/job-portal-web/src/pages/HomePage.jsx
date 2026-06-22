@@ -1,9 +1,10 @@
 // File: src/pages/HomePage.jsx
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { masterDataApi } from "../services/masterDataApi";
 import { jobApi } from "../services/jobApi";
 import JobCard from "../components/JobCard";
+import { formatSalary } from "../utils/translators";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -11,8 +12,16 @@ const HomePage = () => {
   // 1. Quản lý State cho Master Data & Tuyển dụng
   const [categories, setCategories] = useState([]);
   const [locations, setLocations] = useState([]);
-  const [featuredJobs, setFeaturedJobs] = useState([]);
+  const [hotJobs, setHotJobs] = useState([]);
+  const [latestJobs, setLatestJobs] = useState([]);
+  const [stats, setStats] = useState({
+    activeJobsCount: 0,
+    companiesCount: 0,
+    applicationsCount: 0,
+  });
   const [loadingJobs, setLoadingJobs] = useState(true);
+  const [loadingHot, setLoadingHot] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   // 2. Quản lý State cho Form Tìm kiếm
   const [searchForm, setSearchForm] = useState({
@@ -23,25 +32,49 @@ const HomePage = () => {
 
   // 3. Gọi API lấy dữ liệu khi Trang chủ vừa load xong
   useEffect(() => {
-    const fetchMasterDataAndJobs = async () => {
+    const fetchMasterDataAndStats = async () => {
       try {
-        const [categoriesData, locationsData, jobsData] = await Promise.all([
+        const [categoriesData, locationsData, statsData] = await Promise.all([
           masterDataApi.getCategories(),
           masterDataApi.getLocations(),
-          jobApi.searchJobs({ pageSize: 4 }),
+          masterDataApi.getStats(),
         ]);
-
         setCategories(categoriesData || []);
         setLocations(locationsData || []);
-        setFeaturedJobs(jobsData?.items || []);
+        setStats(
+          statsData || {
+            activeJobsCount: 0,
+            companiesCount: 0,
+            applicationsCount: 0,
+          },
+        );
       } catch (error) {
-        console.error("Lỗi khi tải dữ liệu trang chủ:", error);
+        console.error("Lỗi khi tải master data và thống kê:", error);
       } finally {
-        setLoadingJobs(false);
+        setLoadingStats(false);
       }
     };
 
-    fetchMasterDataAndJobs();
+    const fetchJobs = async () => {
+      setLoadingJobs(true);
+      setLoadingHot(true);
+      try {
+        const [hotJobsData, latestJobsData] = await Promise.all([
+          jobApi.searchJobs({ isHot: true, pageSize: 6 }),
+          jobApi.searchJobs({ pageSize: 5 }),
+        ]);
+        setHotJobs(hotJobsData?.items || []);
+        setLatestJobs(latestJobsData?.items || []);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách việc làm trang chủ:", error);
+      } finally {
+        setLoadingJobs(false);
+        setLoadingHot(false);
+      }
+    };
+
+    fetchMasterDataAndStats();
+    fetchJobs();
   }, []);
 
   // 4. Xử lý sự kiện khi gõ/chọn trên form
@@ -80,6 +113,14 @@ const HomePage = () => {
   // Điều hướng khi click vào danh mục nghề nghiệp
   const handleCategoryClick = (catId) => {
     navigate(`/jobs?categoryId=${catId}`);
+  };
+
+  // Helper helper to get static file URLs
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const baseUrl = import.meta.env.VITE_API_URL.replace("/api", "");
+    return `${baseUrl}/${path.replace(/^\//, "")}`;
   };
 
   // Icon SVG đẹp cho từng Category ID
@@ -416,47 +457,59 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- STATISTICS COUNTER SECTION --- */}
+      {/* --- STATISTICS COUNTER SECTION (Real database counts) --- */}
       <section className="py-12 -mt-6 relative z-20">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Stat Item 1 */}
-            <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl shadow-sm">
-                💼
+          {loadingStats ? (
+            <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center text-slate-400 text-xs">
+              Đang kết nối số liệu thực tế...
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Stat Item 1 */}
+              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl shadow-sm">
+                  💼
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {stats.activeJobsCount}
+                  </h3>
+                  <p className="text-sm text-slate-500 font-medium">
+                    Việc làm đang tuyển dụng
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900">1,200+</h3>
-                <p className="text-sm text-slate-500 font-medium">
-                  Việc làm Active
-                </p>
+              {/* Stat Item 2 */}
+              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl shadow-sm">
+                  🏢
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {stats.companiesCount}
+                  </h3>
+                  <p className="text-sm text-slate-500 font-medium">
+                    Nhà tuyển dụng tin cậy
+                  </p>
+                </div>
+              </div>
+              {/* Stat Item 3 */}
+              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm">
+                  🤝
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-900">
+                    {stats.applicationsCount}
+                  </h3>
+                  <p className="text-sm text-slate-500 font-medium">
+                    Lượt kết nối ứng tuyển
+                  </p>
+                </div>
               </div>
             </div>
-            {/* Stat Item 2 */}
-            <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl shadow-sm">
-                🏢
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900">450+</h3>
-                <p className="text-sm text-slate-500 font-medium">
-                  Nhà tuyển dụng tin cậy
-                </p>
-              </div>
-            </div>
-            {/* Stat Item 3 */}
-            <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm">
-                🤝
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-slate-900">98%</h3>
-                <p className="text-sm text-slate-500 font-medium">
-                  Lượt kết nối thành công
-                </p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -490,8 +543,155 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- FEATURED JOBS SECTION (Dynamic) --- */}
-      <section className="py-16 bg-slate-50/50 border-t border-b border-slate-100">
+      {/* --- FEATURED/HOT JOBS SECTION (3-Column Grid) --- */}
+      <section className="py-16 bg-gradient-to-b from-slate-50/20 to-indigo-50/20 border-t border-b border-slate-100">
+        <div className="container-custom">
+          <div className="flex justify-between items-end mb-10">
+            <div>
+              <span className="text-[10px] font-black text-rose-600 uppercase bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full tracking-wider">
+                🔥 Hot Job / Khuyên dùng
+              </span>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-2.5">
+                Việc Làm Nổi Bật
+              </h2>
+              <p className="text-slate-500 text-sm mt-1">
+                Tin tuyển dụng chất lượng cao, phản hồi nhanh chóng từ các tập
+                đoàn hàng đầu.
+              </p>
+            </div>
+          </div>
+
+          {loadingHot ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((n) => (
+                <div
+                  key={n}
+                  className="bg-white border border-slate-150 p-6 rounded-3xl animate-pulse h-48 space-y-4"
+                >
+                  <div className="flex justify-between items-center">
+                    <div className="w-10 h-10 bg-slate-100 rounded-xl" />
+                    <div className="w-16 h-5 bg-slate-100 rounded-md" />
+                  </div>
+                  <div className="h-4 bg-slate-200 rounded-md w-3/4" />
+                  <div className="h-3 bg-slate-150 rounded-md w-1/2" />
+                  <div className="flex gap-2">
+                    <div className="w-12 h-5 bg-slate-100 rounded-md" />
+                    <div className="w-12 h-5 bg-slate-100 rounded-md" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : hotJobs.length === 0 ? (
+            <div className="text-center py-10 bg-white rounded-3xl border border-slate-100 text-slate-500 font-semibold text-sm">
+              Hiện tại chưa có việc làm nổi bật nào.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {hotJobs.map((job) => (
+                <div
+                  key={job.id}
+                  className="bg-white border border-slate-150 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between min-h-[220px] relative group overflow-hidden"
+                >
+                  {/* Decorative glowing top line */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-amber-500" />
+
+                  <div>
+                    {/* Top Row: Logo & Level Tag */}
+                    <div className="flex justify-between items-start gap-4 mb-4">
+                      {job.company ? (
+                        <Link
+                          to={`/companies/${job.company.id}`}
+                          className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 hover:scale-105 transition-transform"
+                        >
+                          {job.company.logoUrl ? (
+                            <img
+                              src={getFullUrl(job.company.logoUrl)}
+                              alt={job.company.companyName}
+                              className="object-contain w-full h-full p-1"
+                            />
+                          ) : (
+                            <span className="text-lg font-bold text-primary-500">
+                              {job.company.companyName?.charAt(0)}
+                            </span>
+                          )}
+                        </Link>
+                      ) : (
+                        <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                          <span className="text-lg font-bold text-slate-400">
+                            ?
+                          </span>
+                        </div>
+                      )}
+
+                      <span className="bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border border-rose-100 animate-pulse-slow">
+                        HOT
+                      </span>
+                    </div>
+
+                    {/* Middle: Title & Company */}
+                    <Link
+                      to={`/jobs/${job.id}`}
+                      className="text-base font-bold text-slate-900 hover:text-rose-600 transition-colors block mb-1 line-clamp-1"
+                      title={job.title}
+                    >
+                      {job.title}
+                    </Link>
+
+                    {job.company ? (
+                      <Link
+                        to={`/companies/${job.company.id}`}
+                        className="text-slate-600 text-xs font-semibold hover:text-rose-600 transition-colors hover:underline block mb-3.5"
+                      >
+                        {job.company.companyName}
+                      </Link>
+                    ) : (
+                      <span className="text-slate-400 text-xs font-medium block mb-3.5">
+                        Doanh nghiệp ẩn danh
+                      </span>
+                    )}
+
+                    {/* Tags */}
+                    <div className="flex flex-wrap gap-1 mb-4">
+                      {job.locations?.slice(0, 1).map((loc) => (
+                        <span
+                          key={loc.id}
+                          className="bg-slate-50 text-slate-500 text-[10px] px-2 py-0.5 rounded-lg border border-slate-150 font-medium"
+                        >
+                          📍 {loc.name}
+                        </span>
+                      ))}
+                      {job.skills?.slice(0, 2).map((skill) => (
+                        <span
+                          key={skill.id}
+                          className="bg-emerald-50 text-emerald-600 text-[10px] px-2 py-0.5 rounded-lg border border-emerald-100 font-semibold"
+                        >
+                          {skill.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bottom: Salary & Button */}
+                  <div className="flex justify-between items-center border-t border-slate-100 pt-3 mt-2">
+                    <span className="text-emerald-600 font-black text-sm">
+                      {formatSalary(job)}
+                    </span>
+                    <Link
+                      to={`/jobs/${job.id}`}
+                      className="text-xs font-bold text-slate-900 group-hover:text-rose-600 flex items-center gap-1 transition-colors"
+                    >
+                      Chi tiết <span>➔</span>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* --- LATEST JOBS SECTION (Dynamic List) --- */}
+      <section className="py-16 bg-[#fcfdfe]">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
             <div>
@@ -499,8 +699,8 @@ const HomePage = () => {
                 Việc Làm Mới Nhất
               </h2>
               <p className="text-slate-500 text-sm mt-1.5">
-                Các vị trí hot với mức lương hấp dẫn đang chờ hồ sơ ứng tuyển
-                của bạn
+                Các vị trí vừa đăng tuyển với mức lương hấp dẫn đang chờ hồ sơ
+                của bạn.
               </p>
             </div>
             <button
@@ -540,7 +740,7 @@ const HomePage = () => {
                 </div>
               ))}
             </div>
-          ) : featuredJobs.length === 0 ? (
+          ) : latestJobs.length === 0 ? (
             /* Empty State */
             <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3">
               <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-2xl text-slate-400">
@@ -556,7 +756,7 @@ const HomePage = () => {
           ) : (
             /* Jobs List */
             <div className="grid grid-cols-1 gap-4">
-              {featuredJobs.map((job) => (
+              {latestJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
@@ -565,7 +765,7 @@ const HomePage = () => {
       </section>
 
       {/* --- HOW IT WORKS SECTION --- */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white border-t border-slate-100">
         <div className="container-custom">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">

@@ -14,6 +14,8 @@ const PostJob = () => {
   const [categories, setCategories] = useState([]);
   const [locations, setLocations] = useState([]);
   const [skills, setSkills] = useState([]);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [creatingSkill, setCreatingSkill] = useState(false);
 
   // State quản lý toàn bộ dữ liệu người dùng nhập
   const [formData, setFormData] = useState({
@@ -73,6 +75,44 @@ const PostJob = () => {
           : [...currentIds, id], // Nếu chưa chọn -> thêm vào
       };
     });
+  };
+
+  const handleCreateSkill = async () => {
+    if (!newSkillName.trim()) {
+      showToast("Vui lòng nhập tên kỹ năng!", "warning");
+      return;
+    }
+    setCreatingSkill(true);
+    try {
+      const response = await employerApi.createSkill({
+        name: newSkillName.trim(),
+      });
+      const newSkill = response; // Trả về { id, name } từ API
+
+      // Bổ sung vào kho skills nếu chưa tồn tại
+      setSkills((prev) => {
+        if (prev.some((s) => s.id === newSkill.id)) return prev;
+        return [...prev, newSkill];
+      });
+
+      // Tự động kích hoạt chọn kỹ năng vừa tạo
+      setFormData((prev) => ({
+        ...prev,
+        skillIds: prev.skillIds.includes(newSkill.id)
+          ? prev.skillIds
+          : [...prev.skillIds, newSkill.id],
+      }));
+
+      setNewSkillName("");
+      showToast(
+        `Đã thêm kỹ năng "${newSkill.name}" vào danh sách chọn!`,
+        "success",
+      );
+    } catch (error) {
+      console.error("Lỗi khi tạo kỹ năng mới:", error);
+    } finally {
+      setCreatingSkill(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -404,6 +444,35 @@ const PostJob = () => {
                   </button>
                 );
               })}
+            </div>
+
+            {/* Tạo kỹ năng mới nhanh */}
+            <div className="mt-3 flex gap-2 items-center max-w-sm">
+              <input
+                type="text"
+                placeholder="Nhập tên kỹ năng mới (ví dụ: Swift, Angular...)"
+                value={newSkillName}
+                onChange={(e) => setNewSkillName(e.target.value)}
+                className="flex-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl text-xs font-semibold outline-none transition-all"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleCreateSkill();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                onClick={handleCreateSkill}
+                disabled={creatingSkill}
+                className="bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white text-xs font-extrabold px-4 py-2.5 rounded-2xl cursor-pointer transition-colors whitespace-nowrap active:scale-95 shadow-sm shadow-emerald-500/10 flex items-center gap-1.5"
+              >
+                {creatingSkill ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <span>+ Tạo Kỹ năng</span>
+                )}
+              </button>
             </div>
           </div>
 

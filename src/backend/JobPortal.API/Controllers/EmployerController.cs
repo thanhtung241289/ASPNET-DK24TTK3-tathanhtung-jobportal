@@ -100,4 +100,20 @@ public class EmployerController : ControllerBase
 
         return Ok(new { message = "Cập nhật trạng thái xử lý hồ sơ thành công!" });
     }
+
+    [HttpPost("skills")]
+    public async Task<IActionResult> CreateSkill([FromBody] CreateSkillDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+            return BadRequest(new { message = "Tên kỹ năng không được để trống." });
+        }
+        var skill = await _jobService.CreateSkillAsync(dto.Name);
+        return Ok(new { id = skill.Id, name = skill.Name });
+    }
+}
+
+public class CreateSkillDto
+{
+    public string Name { get; set; } = string.Empty;
 }

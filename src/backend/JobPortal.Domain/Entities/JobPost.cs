@@ -20,6 +20,7 @@ public class JobPost
     public string Benefits { get; set; } = string.Empty;
     public DateTime ExpirationDate { get; set; }
     public JobStatus Status { get; set; } = JobStatus.Pending;
+    public bool IsHot { get; set; } = false;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Navigation Properties

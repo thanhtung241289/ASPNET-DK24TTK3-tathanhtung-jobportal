@@ -23,4 +23,18 @@ public class MasterDataController : ControllerBase
 
     [HttpGet("locations")]
     public async Task<IActionResult> GetLocations() => Ok(await _context.Locations.ToListAsync());
+
+    [HttpGet("stats")]
+    public async Task<IActionResult> GetStats()
+    {
+        var activeJobs = await _context.JobPosts.CountAsync(j => j.Status == Domain.Enums.JobStatus.Published);
+        var companies = await _context.Companies.CountAsync();
+        var applications = await _context.Applications.CountAsync();
+
+        return Ok(new {
+            activeJobsCount = activeJobs,
+            companiesCount = companies,
+            applicationsCount = applications
+        });
+    }
 }

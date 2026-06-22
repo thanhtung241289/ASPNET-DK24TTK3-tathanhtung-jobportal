@@ -36,4 +36,7 @@ export const employerApi = {
   // Cập nhật trạng thái xử lý hồ sơ
   updateApplicationStatus: (id, status) =>
     axiosClient.put(`/employer/applications/${id}/status`, { status }),
+
+  // Tạo kỹ năng mới
+  createSkill: (data) => axiosClient.post("/employer/skills", data),
 };

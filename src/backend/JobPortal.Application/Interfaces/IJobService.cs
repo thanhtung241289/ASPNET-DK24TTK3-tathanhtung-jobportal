@@ -13,4 +13,5 @@ public interface IJobService
     Task<IEnumerable<object>> GetPendingJobsAsync();
     Task<object?> GetJobPostDetailAsync(Guid jobId);
     Task<IEnumerable<object>> GetEmployerJobsAsync(Guid userId);
+    Task<Skill> CreateSkillAsync(string name);
 }

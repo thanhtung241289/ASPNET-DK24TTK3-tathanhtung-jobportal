@@ -11,6 +11,7 @@ public class JobSearchFilter
     public WorkType? WorkType { get; set; }     // Lọc theo hình thức (Full-time, Remote...)
     public int? LocationId { get; set; }       // Lọc theo tỉnh thành
     public decimal? MinSalary { get; set; }     // Lọc mức lương tối thiểu
+    public bool? IsHot { get; set; }            // Lọc tin nổi bật (Hot)
     
     // Cấu hình phân trang (Mặc định trang 1, mỗi trang 10 bài)
     public int PageNumber { get; set; } = 1;

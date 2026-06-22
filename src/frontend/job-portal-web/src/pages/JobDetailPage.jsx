@@ -2,7 +2,11 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { jobApi } from "../services/jobApi";
-import { translateJobLevel, translateWorkType } from "../utils/translators";
+import {
+  translateJobLevel,
+  translateWorkType,
+  formatTextToHtml,
+} from "../utils/translators";
 import { useToast } from "../contexts/ToastContext";
 
 const JobDetailPage = () => {
@@ -172,7 +176,9 @@ const JobDetailPage = () => {
               </h2>
               <div
                 className="text-slate-700 leading-relaxed space-y-2 prose"
-                dangerouslySetInnerHTML={{ __html: job.description }}
+                dangerouslySetInnerHTML={{
+                  __html: formatTextToHtml(job.description),
+                }}
               />
             </div>
 
@@ -182,7 +188,9 @@ const JobDetailPage = () => {
               </h2>
               <div
                 className="text-slate-700 leading-relaxed space-y-2 prose"
-                dangerouslySetInnerHTML={{ __html: job.requirements }}
+                dangerouslySetInnerHTML={{
+                  __html: formatTextToHtml(job.requirements),
+                }}
               />
             </div>
 
@@ -192,7 +200,9 @@ const JobDetailPage = () => {
               </h2>
               <div
                 className="text-slate-700 leading-relaxed space-y-2 prose"
-                dangerouslySetInnerHTML={{ __html: job.benefits }}
+                dangerouslySetInnerHTML={{
+                  __html: formatTextToHtml(job.benefits),
+                }}
               />
             </div>
           </div>

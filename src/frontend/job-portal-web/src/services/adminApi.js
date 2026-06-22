@@ -13,4 +13,12 @@ export const adminApi = {
     };
     return axiosClient.put(`/admin/jobs/${id}/approve`, apiData);
   },
+
+  // Tạo ngành nghề mới (chỉ Admin)
+  createCategory: (name) => axiosClient.post("/admin/categories", { name }),
+  // Sửa ngành nghề (chỉ Admin)
+  updateCategory: (id, name) =>
+    axiosClient.put(`/admin/categories/${id}`, { name }),
+  // Xóa ngành nghề (chỉ Admin)
+  deleteCategory: (id) => axiosClient.delete(`/admin/categories/${id}`),
 };

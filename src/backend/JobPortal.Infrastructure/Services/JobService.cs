@@ -117,6 +117,12 @@ public class JobService : IJobService
             query = query.Where(j => j.IsNegotiable || j.SalaryMax >= filter.MinSalary.Value);
         }
 
+        // 7b. Lọc theo tin nổi bật (Hot)
+        if (filter.IsHot.HasValue)
+        {
+            query = query.Where(j => j.IsHot == filter.IsHot.Value);
+        }
+
         // 8. Đếm tổng số bản ghi thỏa mãn điều kiện lọc (trước khi phân trang)
         var totalItems = await query.CountAsync();
 
@@ -238,5 +244,18 @@ public class JobService : IJobService
                 ApplicantCount = j.Applications.Count()
             })
             .ToListAsync();
+    }
+
+    public async Task<Skill> CreateSkillAsync(string name)
+    {
+        var trimmedName = name.Trim();
+        var skill = await _context.Skills.FirstOrDefaultAsync(s => s.Name.ToLower() == trimmedName.ToLower());
+        if (skill == null)
+        {
+            skill = new Skill { Name = trimmedName };
+            _context.Skills.Add(skill);
+            await _context.SaveChangesAsync();
+        }
+        return skill;
     }
 }
