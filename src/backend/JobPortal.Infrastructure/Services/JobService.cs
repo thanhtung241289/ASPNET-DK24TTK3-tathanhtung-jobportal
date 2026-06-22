@@ -207,7 +207,17 @@ public class JobService : IJobService
             JobLevel = job.JobLevel.ToString(),
             WorkType = job.WorkType.ToString(),
             Category = new { job.Category.Id, job.Category.Name },
-            Company = new { job.Company.Id, job.Company.CompanyName, job.Company.LogoUrl, job.Company.Website, job.Company.Address },
+            Company = new { 
+                job.Company.Id, 
+                job.Company.CompanyName, 
+                job.Company.LogoUrl, 
+                job.Company.Website, 
+                job.Company.Address,
+                job.Company.ShortDescription,
+                job.Company.CompanySize,
+                job.Company.IsVerified,
+                job.Company.CoverUrl
+            },
             Skills = job.Skills.Select(s => new { s.Id, s.Name }),
             Locations = job.Locations.Select(l => new { l.Id, l.Name })
         };
@@ -235,6 +245,7 @@ public class JobService : IJobService
                 j.IsNegotiable,
                 j.CreatedAt,
                 j.ExpirationDate,
+                j.Description, // Bao gồm mô tả (có thể chứa lý do từ chối ở đầu)
                 Status = j.Status.ToString(),
                 JobLevel = j.JobLevel.ToString(),
                 WorkType = j.WorkType.ToString(),
@@ -244,6 +255,69 @@ public class JobService : IJobService
                 ApplicantCount = j.Applications.Count()
             })
             .ToListAsync();
+    }
+
+    public async Task<bool> UpdateJobPostAsync(Guid userId, Guid jobId, CreateJobPostRequest request)
+    {
+        var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (company == null) return false;
+
+        var jobPost = await _context.JobPosts
+            .Include(j => j.Skills)
+            .Include(j => j.Locations)
+            .FirstOrDefaultAsync(j => j.Id == jobId && j.CompanyId == company.Id);
+
+        if (jobPost == null) return false;
+
+        // Cập nhật thông tin cơ bản
+        jobPost.CategoryId = request.CategoryId;
+        jobPost.Title = request.Title;
+        jobPost.JobLevel = request.JobLevel;
+        jobPost.WorkType = request.WorkType;
+        jobPost.Quantity = request.Quantity;
+        jobPost.SalaryMin = request.SalaryMin;
+        jobPost.SalaryMax = request.SalaryMax;
+        jobPost.IsNegotiable = request.IsNegotiable;
+        jobPost.Description = request.Description;
+        jobPost.Requirements = request.Requirements;
+        jobPost.Benefits = request.Benefits;
+        jobPost.ExpirationDate = request.ExpirationDate;
+        jobPost.Status = Domain.Enums.JobStatus.Pending; // Trở về trạng thái chờ duyệt
+
+        // Cập nhật Skills
+        jobPost.Skills.Clear();
+        if (request.SkillIds.Any())
+        {
+            var skills = await _context.Skills.Where(s => request.SkillIds.Contains(s.Id)).ToListAsync();
+            jobPost.Skills = skills;
+        }
+
+        // Cập nhật Locations
+        jobPost.Locations.Clear();
+        if (request.LocationIds.Any())
+        {
+            var locations = await _context.Locations.Where(l => request.LocationIds.Contains(l.Id)).ToListAsync();
+            jobPost.Locations = locations;
+        }
+
+        _context.JobPosts.Update(jobPost);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> DeleteJobPostAsync(Guid userId, Guid jobId)
+    {
+        var company = await _context.Companies.FirstOrDefaultAsync(c => c.UserId == userId);
+        if (company == null) return false;
+
+        var jobPost = await _context.JobPosts
+            .FirstOrDefaultAsync(j => j.Id == jobId && j.CompanyId == company.Id);
+
+        if (jobPost == null) return false;
+
+        _context.JobPosts.Remove(jobPost);
+        await _context.SaveChangesAsync();
+        return true;
     }
 
     public async Task<Skill> CreateSkillAsync(string name)

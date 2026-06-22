@@ -1,7 +1,8 @@
 // File: src/layouts/MainLayout.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { profileApi } from "../services/profileApi";
 import {
   User,
   Briefcase,
@@ -10,6 +11,12 @@ import {
   FileText,
   LayoutDashboard,
   Plus,
+  MapPin,
+  Mail,
+  Phone,
+  ChevronRight,
+  QrCode,
+  Heart,
 } from "lucide-react";
 
 const MainLayout = () => {
@@ -18,194 +25,186 @@ const MainLayout = () => {
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Hàm xử lý Đăng xuất (Logout) xóa sạch dấu vết token
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
+
+  // Synchronize database bookmarked jobs with localStorage for candidates
+  useEffect(() => {
+    const syncBookmarks = async () => {
+      if (user && user.role === "Seeker") {
+        try {
+          const savedIds = await profileApi.getSavedJobIds();
+          localStorage.setItem(
+            "bookmarkedJobs",
+            JSON.stringify(savedIds || []),
+          );
+          window.dispatchEvent(new Event("bookmarksChanged"));
+        } catch (error) {
+          console.error("Lỗi đồng bộ danh sách việc làm đã lưu:", error);
+        }
+      } else if (!user) {
+        localStorage.removeItem("bookmarkedJobs");
+        window.dispatchEvent(new Event("bookmarksChanged"));
+      }
+    };
+    syncBookmarks();
+  }, [user]);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
-  // Helper check active route
   const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
+    if (path === "/") return location.pathname === "/";
     return location.pathname.startsWith(path);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      {/* 1. Header Navbar */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-100/80 sticky top-0 z-50 shadow-xs">
-        <div className="container-custom h-16 flex items-center justify-between">
-          {/* Khối bên trái: Logo */}
+    <div className="min-h-screen flex flex-col bg-slate-50">
+      {/* --- HEADER NAVBAR --- */}
+      <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-50 transition-all duration-300 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)]">
+        <div className="container-custom h-[72px] flex items-center justify-between">
           <Link
             to="/"
-            className="text-2xl font-bold text-primary-600 tracking-tight flex-shrink-0 hover:scale-[1.02] transition-transform duration-200"
+            className="text-2xl font-extrabold text-primary-600 tracking-tight flex-shrink-0 hover:opacity-90 transition-opacity flex items-center gap-2"
           >
-            JobPortal<span className="text-gray-800">.</span>
+            <img
+              src="/favicon.svg"
+              alt="Logo"
+              className="w-8 h-8 rounded-lg shadow-sm"
+            />
+            <span>
+              ViệcLàm<span className="text-slate-900">Việt</span>
+            </span>
           </Link>
 
-          {/* Khối ở giữa: Điều hướng Menu thông minh dựa theo Vai trò (Role) */}
-          <nav className="hidden md:flex gap-8 font-semibold text-sm">
+          <nav className="hidden md:flex items-center gap-1">
             <Link
               to="/"
-              className={`transition-colors py-1 relative group font-bold text-sm ${
+              className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                 isActive("/")
-                  ? "text-primary-600"
-                  : "text-slate-600 hover:text-primary-600"
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
               Trang chủ
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
-                  isActive("/") ? "w-full" : "w-0 group-hover:w-full"
-                }`}
-              ></span>
             </Link>
             <Link
               to="/jobs"
-              className={`transition-colors py-1 relative group font-bold text-sm ${
+              className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                 isActive("/jobs")
-                  ? "text-primary-600"
-                  : "text-slate-600 hover:text-primary-600"
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
-              Việc làm
-              <span
-                className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
-                  isActive("/jobs") ? "w-full" : "w-0 group-hover:w-full"
-                }`}
-              ></span>
+              Việc làm IT
             </Link>
 
-            {/* Nếu là Ứng viên (Seeker) -> Hiện menu theo dõi đơn nộp */}
-            {user && user.role === "Seeker" && (
-              <Link
-                to="/my-applications"
-                className={`transition-colors py-1 relative group font-bold text-sm ${
-                  isActive("/my-applications")
-                    ? "text-primary-600"
-                    : "text-slate-600 hover:text-primary-600"
-                }`}
-              >
-                Đơn đã nộp
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
+            {user?.role === "Seeker" && (
+              <>
+                <Link
+                  to="/my-applications"
+                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
                     isActive("/my-applications")
-                      ? "w-full"
-                      : "w-0 group-hover:w-full"
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   }`}
-                ></span>
-              </Link>
+                >
+                  Đơn đã nộp
+                </Link>
+                <Link
+                  to="/saved-jobs"
+                  className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                    isActive("/saved-jobs")
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`}
+                >
+                  Việc làm đã lưu
+                </Link>
+              </>
             )}
 
-            {/* Nếu là Nhà tuyển dụng (Employer) -> Hiện menu quản lý tin */}
-            {user && user.role === "Employer" && (
+            {user?.role === "Employer" && (
               <Link
                 to="/employer/dashboard"
-                className={`transition-colors py-1 relative group font-bold text-sm ${
-                  isActive("/employer/dashboard")
-                    ? "text-primary-600"
-                    : "text-slate-600 hover:text-primary-600"
+                className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                  isActive("/employer")
+                    ? "bg-primary-50 text-primary-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
                 Quản lý tuyển dụng
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
-                    isActive("/employer/dashboard")
-                      ? "w-full"
-                      : "w-0 group-hover:w-full"
-                  }`}
-                ></span>
               </Link>
             )}
 
-            {/* Nếu là Quản trị viên (Admin) -> Hiện cổng duyệt bài */}
-            {user && user.role === "Admin" && (
+            {user?.role === "Admin" && (
               <Link
                 to="/admin/jobs"
-                className={`transition-colors py-1 relative group font-bold text-sm ${
-                  isActive("/admin/jobs")
-                    ? "text-amber-600"
-                    : "text-slate-650 hover:text-amber-600"
+                className={`px-4 py-2 rounded-full font-semibold text-sm transition-all duration-300 ${
+                  isActive("/admin")
+                    ? "bg-amber-50 text-amber-700"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
-                Hàng đợi duyệt bài
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-amber-500 transition-all duration-300 ${
-                    isActive("/admin/jobs")
-                      ? "w-full"
-                      : "w-0 group-hover:w-full"
-                  }`}
-                ></span>
+                Quản trị hệ thống
               </Link>
             )}
           </nav>
 
-          {/* Khối bên phải: Cụm nút bấm logic động */}
-          <div className="flex items-center gap-4">
-            {/* TRƯỜNG HỢP 1: CHƯA ĐĂNG NHẬP -> Hiện cặp nút Auth gốc */}
+          <div className="flex items-center gap-3">
             {!user ? (
               <>
                 <Link
                   to="/login"
-                  className="text-slate-600 font-semibold text-sm hover:text-primary-600 transition-colors"
+                  className="px-4 py-2.5 rounded-xl font-semibold text-sm text-slate-700 hover:bg-slate-100 hover:text-primary-600 transition-all"
                 >
                   Đăng nhập
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-primary-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all active:scale-[0.98] shadow-sm shadow-primary-500/10"
+                  className="bg-primary-600 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-700 shadow-md shadow-primary-600/20 hover:shadow-lg hover:shadow-primary-600/30 hover:-translate-y-0.5 active:scale-95 transition-all"
                 >
                   Đăng ký
                 </Link>
+                <div className="hidden lg:block w-px h-6 bg-slate-200 mx-1"></div>
                 <Link
                   to="/employer/post-job"
-                  className="hidden md:block bg-slate-900 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-slate-800 transition-all active:scale-[0.98]"
+                  className="hidden md:flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-800 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 transition-all"
                 >
-                  Đăng tin tuyển dụng
+                  Đăng tin <ChevronRight className="w-4 h-4" />
                 </Link>
               </>
             ) : (
-              // TRƯỜNG HỢP 2: ĐÃ ĐĂNG NHẬP THÀNH CÔNG -> Hiện avatar tròn click mở Dropdown
-              <div className="relative flex items-center gap-3">
-                {/* Nút đăng tin nhanh cho Employer ngay bên cạnh avatar */}
+              <div className="relative flex items-center gap-4">
                 {user.role === "Employer" && (
                   <Link
                     to="/employer/post-job"
-                    className="hidden sm:inline-flex bg-primary-600 hover:bg-primary-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
+                    className="hidden sm:flex items-center gap-1.5 bg-primary-50 text-primary-700 hover:bg-primary-100 border border-primary-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all active:scale-95"
                   >
-                    + Đăng tin mới
+                    <Plus className="w-4 h-4" /> Đăng tin mới
                   </Link>
                 )}
 
-                {/* Avatar container */}
                 <div className="relative">
-                  {/* Avatar tròn kích hoạt Dropdown */}
+                  {/* Nút Avatar nguyên bản của bạn */}
                   <button
                     type="button"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-extrabold text-sm shadow border border-slate-100 hover:scale-105 transition-all duration-200 cursor-pointer outline-none"
-                    title="Menu tài khoản"
+                    className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-extrabold text-sm shadow border border-white/30 hover:scale-105 transition-all duration-200 cursor-pointer outline-none"
                   >
                     {user.email ? user.email.charAt(0).toUpperCase() : "U"}
                   </button>
-                  {/* Badge hiển thị role nằm gọn góc phải dưới của avatar sử dụng icon Lucide */}
                   <span
-                    className={`absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm select-none ${
+                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm select-none ${
                       user.role === "Admin"
                         ? "bg-amber-500"
                         : user.role === "Employer"
-                          ? "bg-primary-600"
+                          ? "bg-primary-700"
                           : "bg-emerald-500"
                     }`}
-                    title={
-                      user.role === "Admin"
-                        ? "Quản trị viên"
-                        : user.role === "Employer"
-                          ? "Nhà tuyển dụng"
-                          : "Ứng viên"
-                    }
                   >
                     {user.role === "Admin" ? (
                       <Shield className="w-2.5 h-2.5" />
@@ -216,69 +215,57 @@ const MainLayout = () => {
                     )}
                   </span>
 
-                  {/* Dropdown Menu */}
+                  {/* Dropdown Menu Mới - Không có lớp mờ, thiết kế gọn gàng hơn */}
                   {dropdownOpen && (
                     <>
-                      {/* Lớp phủ click ra ngoài để đóng */}
+                      {/* Vùng vô hình để click ra ngoài đóng menu */}
                       <div
-                        className="fixed inset-0 z-40 bg-transparent"
+                        className="fixed inset-0 z-40"
                         onClick={() => setDropdownOpen(false)}
                       ></div>
 
-                      {/* Khung nội dung Dropdown */}
-                      <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-100/80 py-3 z-50 animate-scale-up">
-                        {/* Tiêu đề & Thông tin tài khoản */}
-                        <div className="px-4 py-2 border-b border-slate-100/80 mb-2">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Xin chào,
-                          </p>
+                      <div className="absolute right-0 top-full mt-3 w-60 bg-white rounded-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden z-50 animate-slide-up origin-top-right">
+                        {/* Header của Menu */}
+                        <div className="px-4 py-3 bg-slate-50/50 border-b border-slate-100">
                           <p
-                            className="text-xs font-bold text-slate-800 truncate mt-0.5"
+                            className="text-sm font-bold text-slate-800 truncate"
                             title={user.email}
                           >
                             {user.email}
                           </p>
-
-                          {/* Premium role badges with icons */}
-                          {user.role === "Admin" && (
-                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-200 mt-1.5">
-                              <Shield className="w-2.5 h-2.5" />
-                              Quản trị viên
-                            </span>
-                          )}
-                          {user.role === "Employer" && (
-                            <span className="inline-flex items-center gap-1 bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-primary-200 mt-1.5">
-                              <Briefcase className="w-2.5 h-2.5 text-primary-600" />
-                              Nhà tuyển dụng
-                            </span>
-                          )}
-                          {user.role === "Seeker" && (
-                            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-emerald-200 mt-1.5">
-                              <User className="w-2.5 h-2.5 text-emerald-600" />
-                              Ứng viên
-                            </span>
-                          )}
+                          <p className="text-xs font-medium text-slate-500 mt-0.5">
+                            {user.role === "Admin"
+                              ? "Quản trị viên"
+                              : user.role === "Employer"
+                                ? "Nhà tuyển dụng"
+                                : "Ứng viên"}
+                          </p>
                         </div>
 
-                        {/* Các lựa chọn Menu động theo Role */}
-                        <div className="space-y-0.5">
+                        {/* Danh sách Links */}
+                        <div className="p-1.5 flex flex-col">
                           {user.role === "Seeker" && (
                             <>
                               <Link
                                 to="/profile"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl transition-colors"
                               >
-                                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                                <FileText className="w-4 h-4 text-slate-400" />{" "}
                                 Hồ sơ của tôi
                               </Link>
                               <Link
                                 to="/my-applications"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl transition-colors"
                               >
-                                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                                <Briefcase className="w-4 h-4 text-slate-400" />{" "}
                                 Đơn đã ứng tuyển
+                              </Link>
+                              <Link
+                                to="/saved-jobs"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl transition-colors"
+                              >
+                                <Heart className="w-4 h-4 text-slate-400" />{" "}
+                                Việc làm đã lưu
                               </Link>
                             </>
                           )}
@@ -287,19 +274,17 @@ const MainLayout = () => {
                             <>
                               <Link
                                 to="/employer/dashboard"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl transition-colors"
                               >
-                                <LayoutDashboard className="w-3.5 h-3.5 text-slate-400" />
+                                <LayoutDashboard className="w-4 h-4 text-slate-400" />{" "}
                                 Bảng điều khiển
                               </Link>
                               <Link
                                 to="/employer/post-job"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-primary-600 rounded-xl transition-colors"
                               >
-                                <Plus className="w-3.5 h-3.5 text-slate-400" />
-                                Đăng tin tuyển dụng
+                                <Plus className="w-4 h-4 text-slate-400" /> Đăng
+                                tin tuyển dụng
                               </Link>
                             </>
                           )}
@@ -307,27 +292,22 @@ const MainLayout = () => {
                           {user.role === "Admin" && (
                             <Link
                               to="/admin/jobs"
-                              onClick={() => setDropdownOpen(false)}
-                              className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-amber-600 transition-colors"
+                              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-amber-50 hover:text-amber-600 rounded-xl transition-colors"
                             >
-                              <Shield className="w-3.5 h-3.5 text-slate-400" />
-                              Hàng đợi duyệt bài
+                              <Shield className="w-4 h-4 text-slate-400" />{" "}
+                              Trang quản trị
                             </Link>
                           )}
                         </div>
 
-                        {/* Ngăn cách đăng xuất */}
-                        <div className="border-t border-slate-100/80 mt-2 pt-2 px-2">
+                        {/* Nút Đăng xuất */}
+                        <div className="p-1.5 border-t border-slate-100">
                           <button
                             type="button"
-                            onClick={() => {
-                              setDropdownOpen(false);
-                              handleLogout();
-                            }}
-                            className="w-full text-left px-3 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                           >
-                            <LogOut className="w-3.5 h-3.5" />
-                            Đăng xuất
+                            <LogOut className="w-4 h-4" /> Đăng xuất
                           </button>
                         </div>
                       </div>
@@ -340,18 +320,175 @@ const MainLayout = () => {
         </div>
       </header>
 
-      {/* 2. Main Content */}
+      {/* --- MAIN CONTENT --- */}
       <main className="flex-grow animate-fade-in">
         <Outlet />
       </main>
 
-      {/* 3. Footer */}
-      <footer className="bg-surface border-t border-gray-200 mt-auto">
-        <div className="container-custom py-8 text-center text-gray-500 text-sm">
-          <p>
-            © {new Date().getFullYear()} Job Portal. Nền tảng kết nối việc làm
-            chuyên nghiệp.
-          </p>
+      {/* --- FOOTER --- */}
+      <footer className="bg-slate-900 text-slate-300 mt-auto">
+        <div className="container-custom py-14">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-slate-800">
+            {/* Brand */}
+            <div className="space-y-5 md:col-span-1">
+              <Link
+                to="/"
+                className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2 hover:opacity-90 transition-opacity"
+              >
+                <img
+                  src="/favicon.svg"
+                  alt="Logo"
+                  className="w-8 h-8 rounded-lg brightness-0 invert"
+                />
+                <span>
+                  ViệcLàm<span className="text-primary-500">Việt</span>
+                </span>
+              </Link>
+              <p className="text-slate-400 text-sm leading-relaxed">
+                Nền tảng kết nối tài năng và cơ hội nghề nghiệp hàng đầu Việt
+                Nam — nhanh chóng, hiệu quả, tin cậy.
+              </p>
+              <div className="flex gap-3 pt-2">
+                {[
+                  {
+                    icon: Briefcase,
+                    hoverClass: "hover:bg-blue-600",
+                    title: "Facebook",
+                  },
+                  {
+                    icon: QrCode,
+                    hoverClass: "hover:bg-sky-500",
+                    title: "Twitter",
+                  },
+                  {
+                    icon: FileText,
+                    hoverClass: "hover:bg-blue-700",
+                    title: "LinkedIn",
+                  },
+                  {
+                    icon: Mail,
+                    hoverClass: "hover:bg-pink-500",
+                    title: "Instagram",
+                  },
+                ].map(({ icon: Icon, hoverClass, title }) => (
+                  <a
+                    key={title}
+                    href="#"
+                    title={title}
+                    className={`w-9 h-9 rounded-xl bg-slate-800 ${hoverClass} text-slate-400 hover:text-white flex items-center justify-center transition-all duration-300 hover:-translate-y-1`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* For Candidates */}
+            <div className="space-y-5">
+              <h4 className="text-white font-bold text-sm tracking-wide">
+                Dành cho Ứng viên
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { to: "/jobs", label: "Tìm kiếm việc làm" },
+                  { to: "/register", label: "Tạo tài khoản ứng viên" },
+                  { to: "/profile", label: "Quản lý hồ sơ" },
+                  { to: "/my-applications", label: "Đơn ứng tuyển của tôi" },
+                ].map(({ to, label }) => (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className="text-slate-400 hover:text-primary-400 text-sm font-medium flex items-center gap-2 transition-colors group"
+                    >
+                      <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* For Employers */}
+            <div className="space-y-5">
+              <h4 className="text-white font-bold text-sm tracking-wide">
+                Dành cho Nhà tuyển dụng
+              </h4>
+              <ul className="space-y-3">
+                {[
+                  { to: "/employer/post-job", label: "Đăng tin tuyển dụng" },
+                  { to: "/employer/dashboard", label: "Bảng điều khiển" },
+                  { to: "/register", label: "Đăng ký doanh nghiệp" },
+                ].map(({ to, label }) => (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className="text-slate-400 hover:text-primary-400 text-sm font-medium flex items-center gap-2 transition-colors group"
+                    >
+                      <ChevronRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300" />
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div className="space-y-5">
+              <h4 className="text-white font-bold text-sm tracking-wide">
+                Liên hệ & Hỗ trợ
+              </h4>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3 text-slate-400 text-sm">
+                  <div className="bg-slate-800 p-2 rounded-lg shrink-0">
+                    <MapPin className="w-4 h-4 text-primary-400" />
+                  </div>
+                  <span className="mt-1">
+                    123 Đường Nguyễn Huệ, Quận 1,
+                    <br />
+                    TP. Hồ Chí Minh
+                  </span>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400 text-sm">
+                  <div className="bg-slate-800 p-2 rounded-lg shrink-0">
+                    <Mail className="w-4 h-4 text-primary-400" />
+                  </div>
+                  <a
+                    href="mailto:support@vieclamviet.vn"
+                    className="hover:text-white transition-colors"
+                  >
+                    support@vieclamviet.vn
+                  </a>
+                </li>
+                <li className="flex items-center gap-3 text-slate-400 text-sm">
+                  <div className="bg-slate-800 p-2 rounded-lg shrink-0">
+                    <Phone className="w-4 h-4 text-primary-400" />
+                  </div>
+                  <a
+                    href="tel:02838123456"
+                    className="hover:text-white transition-colors"
+                  >
+                    028 3812 3456
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
+            <p>© {new Date().getFullYear()} ViệcLàmViệt. Bảo lưu mọi quyền.</p>
+            <div className="flex flex-wrap justify-center gap-6">
+              <a href="#" className="hover:text-white transition-colors">
+                Điều khoản sử dụng
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Chính sách bảo mật
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Cookies
+              </a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

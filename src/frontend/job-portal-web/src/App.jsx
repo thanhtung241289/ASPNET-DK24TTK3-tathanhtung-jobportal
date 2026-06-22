@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProfilePage from "./pages/ProfilePage";
 import CompanyPage from "./pages/CompanyPage";
 import EmployerDashboard from "./pages/EmployerDashboard";
+import SavedJobs from "./pages/SavedJobs";
 
 // Định nghĩa cấu trúc các tuyến đường (Routes)
 const router = createBrowserRouter([
@@ -32,7 +33,9 @@ const router = createBrowserRouter([
       { path: "jobs/:id", element: <JobDetailPage /> },
       { path: "companies/:id", element: <CompanyPage /> },
       { path: "my-applications", element: <ApplicationsTracker /> },
+      { path: "saved-jobs", element: <SavedJobs /> },
       { path: "employer/post-job", element: <PostJob /> },
+      { path: "employer/edit-job/:id", element: <PostJob /> },
       { path: "employer/dashboard", element: <EmployerDashboard /> },
       { path: "admin/jobs", element: <AdminDashboard /> },
       { path: "profile", element: <ProfilePage /> },

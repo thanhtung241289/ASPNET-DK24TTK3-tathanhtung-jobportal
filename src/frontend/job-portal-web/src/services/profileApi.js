@@ -3,8 +3,15 @@ import axiosClient from "../config/axiosClient";
 
 export const profileApi = {
   getMyProfile: () => axiosClient.get("/candidate/profile"),
+  getProfile: (id) => axiosClient.get(`/candidate/${id}/profile`),
   updateProfile: (data) => axiosClient.put("/candidate/profile", data),
   getResumes: () => axiosClient.get("/candidate/resume"),
+
+  // Quản lý việc làm yêu thích
+  getSavedJobs: () => axiosClient.get("/candidate/saved-jobs"),
+  getSavedJobIds: () => axiosClient.get("/candidate/saved-jobs/ids"),
+  saveJob: (jobId) => axiosClient.post(`/candidate/saved-jobs/${jobId}`),
+  unsaveJob: (jobId) => axiosClient.delete(`/candidate/saved-jobs/${jobId}`),
 
   // Tải lên CV cần chỉ định rõ Content-Type là multipart/form-data để ghi đè cấu hình mặc định của axiosClient
   uploadResume: (formData) =>

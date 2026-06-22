@@ -23,10 +23,18 @@ export const translateWorkType = (type) => {
 };
 
 export const formatSalary = (job) => {
-  if (job.isNegotiable) return "Thỏa thuận";
-  if (job.salaryMin && job.salaryMax)
-    return `${(job.salaryMin / 1000000).toFixed(0)} - ${(job.salaryMax / 1000000).toFixed(0)} triệu`;
-  if (job.salaryMin) return `Từ ${(job.salaryMin / 1000000).toFixed(0)} triệu`;
+  if (!job) return "Cạnh tranh";
+
+  const isNegotiable = job.isNegotiable ?? job.IsNegotiable;
+  const salaryMin =
+    job.salaryMin ?? job.SalaryMin ?? job.minSalary ?? job.MinSalary;
+  const salaryMax =
+    job.salaryMax ?? job.SalaryMax ?? job.maxSalary ?? job.MaxSalary;
+
+  if (isNegotiable) return "Thỏa thuận";
+  if (salaryMin && salaryMax)
+    return `${(salaryMin / 1000000).toFixed(0)} - ${(salaryMax / 1000000).toFixed(0)} triệu`;
+  if (salaryMin) return `Từ ${(salaryMin / 1000000).toFixed(0)} triệu`;
   return "Cạnh tranh";
 };
 

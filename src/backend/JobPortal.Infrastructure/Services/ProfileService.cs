@@ -23,7 +23,26 @@ public class ProfileService : IProfileService
     {
         if (role == "Candidate" || role == "Seeker" || role == "2")
         {
-            return await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
+            var profile = await _context.SeekerProfiles
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == userId);
+            
+            if (profile == null) return null;
+
+            // Trả về object có thêm email từ User
+            return new
+            {
+                profile.Id,
+                profile.UserId,
+                profile.FullName,
+                profile.Phone,
+                profile.Title,
+                profile.Experience,
+                profile.Education,
+                profile.SkillsSummary,
+                profile.AvatarUrl,
+                Email = profile.User?.Email
+            };
         }
         if (role == "Employer" || role == "3")
         {
@@ -91,9 +110,19 @@ public class ProfileService : IProfileService
 
     public async Task<string?> UploadAvatarAsync(Guid userId, UploadAvatarDto dto)
     {
-        // 1. Kiểm tra ứng viên đã có Profile chưa
+        // 1. Kiểm tra ứng viên đã có Profile chưa, nếu chưa tự động khởi tạo hồ sơ trống
         var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-        if (profile == null) return null;
+        if (profile == null)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            profile = new SeekerProfile 
+            { 
+                UserId = userId,
+                FullName = user?.Email.Split('@')[0] ?? "Ứng viên mới"
+            };
+            _context.SeekerProfiles.Add(profile);
+            await _context.SaveChangesAsync();
+        }
 
         // 2. Validate File (Chỉ nhận ảnh .jpg, .jpeg, .png và < 2MB)
         var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };

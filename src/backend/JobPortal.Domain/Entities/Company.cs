@@ -13,6 +13,7 @@ public class Company
     public string? CompanySize { get; set; }
     public string? Website { get; set; }
     public bool IsVerified { get; set; } = false;
+    public bool IsLocked { get; set; } = false; // Admin có thể khóa tài khoản công ty
 
     public string? Description { get; set; } // Mô tả chi tiết về công ty, có thể chứa HTML hoặc Markdown
 

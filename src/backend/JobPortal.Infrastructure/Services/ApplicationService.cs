@@ -22,9 +22,19 @@ public class ApplicationService : IApplicationService
 
     public async Task<Guid?> UploadResumeAsync(Guid userId, UploadResumeDto dto)
     {
-        // 1. Kiểm tra ứng viên đã có Profile chưa
+        // 1. Kiểm tra ứng viên đã có Profile chưa, nếu chưa tự động khởi tạo hồ sơ trống
         var profile = await _context.SeekerProfiles.FirstOrDefaultAsync(p => p.UserId == userId);
-        if (profile == null) return null;
+        if (profile == null)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            profile = new SeekerProfile 
+            { 
+                UserId = userId,
+                FullName = user?.Email.Split('@')[0] ?? "Ứng viên mới"
+            };
+            _context.SeekerProfiles.Add(profile);
+            await _context.SaveChangesAsync();
+        }
 
         // 2. Validate File (Chỉ nhận PDF, DOC, DOCX và < 5MB)
         var allowedExtensions = new[] { ".pdf", ".doc", ".docx" };
@@ -108,10 +118,12 @@ public class ApplicationService : IApplicationService
             .Select(a => new
             {
                 a.Id,
+                JobId = a.JobId,
                 JobTitle = a.JobPost.Title,
                 CompanyName = a.JobPost.Company.CompanyName,
                 LogoUrl = a.JobPost.Company.LogoUrl,
                 a.AppliedAt,
+                ExpirationDate = a.JobPost.ExpirationDate,
                 Status = a.Status.ToString() // Trả về text trạng thái (New, Viewed, Interviewing...)
             })
             .ToListAsync();
@@ -226,6 +238,7 @@ public async Task<IEnumerable<object>> GetApplicationsForEmployerAsync(Guid user
 
     return await _context.Applications
         .Include(a => a.JobPost)
+            .ThenInclude(jp => jp.Skills)
         .Include(a => a.SeekerProfile)
             .ThenInclude(s => s.User)
         .Include(a => a.Resume)
@@ -239,6 +252,10 @@ public async Task<IEnumerable<object>> GetApplicationsForEmployerAsync(Guid user
             CandidateName = a.SeekerProfile.FullName,
             CandidateEmail = a.SeekerProfile.User.Email,
             CandidatePhone = a.SeekerProfile.Phone,
+            CandidateAvatarUrl = a.SeekerProfile.AvatarUrl,
+            CandidateUserId = a.SeekerProfile.UserId, // Để employer có thể xem profile chi tiết
+            CandidateSkills = a.SeekerProfile.SkillsSummary,
+            JobSkills = a.JobPost.Skills.Select(s => s.Name).ToList(),
             ResumeUrl = a.Resume.FileUrl,
             ResumeFileName = a.Resume.FileName,
             a.AppliedAt,
@@ -246,4 +263,83 @@ public async Task<IEnumerable<object>> GetApplicationsForEmployerAsync(Guid user
         })
         .ToListAsync();
 }
+
+    public async Task<bool> SaveJobAsync(Guid userId, Guid jobId)
+    {
+        var seeker = await _context.SeekerProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
+        if (seeker == null) return false;
+
+        var jobExists = await _context.JobPosts.AnyAsync(j => j.Id == jobId);
+        if (!jobExists) return false;
+
+        var alreadySaved = await _context.SavedJobs.AnyAsync(sj => sj.SeekerId == seeker.Id && sj.JobId == jobId);
+        if (alreadySaved) return true;
+
+        var savedJob = new SavedJob
+        {
+            SeekerId = seeker.Id,
+            JobId = jobId,
+            SavedAt = DateTime.UtcNow
+        };
+
+        _context.SavedJobs.Add(savedJob);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UnsaveJobAsync(Guid userId, Guid jobId)
+    {
+        var seeker = await _context.SeekerProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
+        if (seeker == null) return false;
+
+        var savedJob = await _context.SavedJobs.FirstOrDefaultAsync(sj => sj.SeekerId == seeker.Id && sj.JobId == jobId);
+        if (savedJob == null) return false;
+
+        _context.SavedJobs.Remove(savedJob);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<IEnumerable<object>> GetSavedJobsAsync(Guid userId)
+    {
+        var seeker = await _context.SeekerProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
+        if (seeker == null) return Enumerable.Empty<object>();
+
+        return await _context.SavedJobs
+            .Include(sj => sj.JobPost)
+                .ThenInclude(jp => jp.Company)
+            .Include(sj => sj.JobPost)
+                .ThenInclude(jp => jp.Category)
+            .Include(sj => sj.JobPost)
+                .ThenInclude(jp => jp.Locations)
+            .Where(sj => sj.SeekerId == seeker.Id)
+            .OrderByDescending(sj => sj.SavedAt)
+            .Select(sj => new
+            {
+                sj.JobPost.Id,
+                sj.JobPost.Title,
+                CompanyName = sj.JobPost.Company.CompanyName,
+                LogoUrl = sj.JobPost.Company.LogoUrl,
+                CategoryName = sj.JobPost.Category != null ? sj.JobPost.Category.Name : null,
+                LocationName = sj.JobPost.Locations.Select(l => l.Name).FirstOrDefault(),
+                MinSalary = sj.JobPost.SalaryMin,
+                MaxSalary = sj.JobPost.SalaryMax,
+                JobLevel = sj.JobPost.JobLevel.ToString(),
+                WorkType = sj.JobPost.WorkType.ToString(),
+                sj.JobPost.ExpirationDate,
+                SavedAt = sj.SavedAt
+            })
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Guid>> GetSavedJobIdsAsync(Guid userId)
+    {
+        var seeker = await _context.SeekerProfiles.FirstOrDefaultAsync(s => s.UserId == userId);
+        if (seeker == null) return Enumerable.Empty<Guid>();
+
+        return await _context.SavedJobs
+            .Where(sj => sj.SeekerId == seeker.Id)
+            .Select(sj => sj.JobId)
+            .ToListAsync();
+    }
 }

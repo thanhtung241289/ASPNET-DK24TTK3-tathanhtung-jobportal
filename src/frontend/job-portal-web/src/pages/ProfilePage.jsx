@@ -272,10 +272,13 @@ const ProfilePage = () => {
 
   return (
     <div className="bg-[#fcfdfe] min-h-screen pb-16 relative">
-      {/* --- COVER PHOTO & PROFILE HEADER --- */}
-      <div className="h-60 bg-primary-600 w-full relative overflow-hidden">
-        <div className="container-custom relative h-full">
-          <div className="absolute -bottom-10 left-4 md:left-8 flex items-end gap-5">
+      {/* --- COVER PHOTO --- */}
+      <div className="h-48 md:h-56 bg-primary-600 w-full relative"></div>
+
+      {/* --- PROFILE HEADER OVERLAP --- */}
+      <div className="container-custom relative z-10 -mt-16 md:-mt-20 mb-8">
+        <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex flex-col md:flex-row justify-between items-end gap-6">
+          <div className="flex flex-col md:flex-row items-end gap-5 w-full">
             {/* Avatar block */}
             <div
               onClick={triggerAvatarInput}
@@ -330,10 +333,10 @@ const ProfilePage = () => {
 
             {/* Header user text info */}
             <div className="mb-2">
-              <h1 className="text-2xl font-bold text-white drop-shadow-sm">
+              <h1 className="text-2xl font-bold text-slate-900">
                 {profile.fullName || "Ứng viên mới"}
               </h1>
-              <p className="text-primary-100 text-sm font-medium mt-0.5 drop-shadow-sm">
+              <p className="text-slate-500 text-sm font-medium mt-0.5">
                 {profile.title || "Chưa cập nhật vị trí chuyên môn"}
               </p>
             </div>
@@ -342,7 +345,7 @@ const ProfilePage = () => {
       </div>
 
       {/* --- MAIN CONTENT GRID --- */}
-      <div className="container-custom mt-20">
+      <div className="container-custom mt-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* CỘT TRÁI: FORM THÔNG TIN CÁ NHÂN (CHIẾM 2/3) */}
           <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">

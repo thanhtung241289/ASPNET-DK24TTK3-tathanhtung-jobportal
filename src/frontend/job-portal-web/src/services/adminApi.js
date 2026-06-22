@@ -26,4 +26,17 @@ export const adminApi = {
   getAllJobs: () => axiosClient.get("/admin/jobs"),
   // Bật/tắt trạng thái nổi bật (IsHot) cho tin tuyển dụng
   toggleJobHot: (id) => axiosClient.put(`/admin/jobs/${id}/toggle-hot`),
+
+  // ===== QUẢN LÝ CÔNG TY =====
+  // Lấy danh sách tất cả công ty
+  getCompanies: () => axiosClient.get("/admin/companies"),
+  // Khóa/Mở khóa tài khoản công ty
+  toggleLockCompany: (id) =>
+    axiosClient.put(`/admin/companies/${id}/toggle-lock`),
+  // Xác thực/Hủy xác thực công ty
+  toggleVerifyCompany: (id) =>
+    axiosClient.put(`/admin/companies/${id}/toggle-verify`),
+
+  // Lấy dữ liệu thống kê giám sát hệ thống (Dashboard)
+  getDashboardStats: () => axiosClient.get("/admin/jobs/dashboard-stats"),
 };

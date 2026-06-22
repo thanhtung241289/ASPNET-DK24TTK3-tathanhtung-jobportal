@@ -3,6 +3,7 @@
 /* Định nghĩa Design System / Design Tokens theo chuẩn Tailwind v4 */
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 
   /* Hệ màu Primary - Forest Green Premium */
   --color-primary-50: #f0fdf4;

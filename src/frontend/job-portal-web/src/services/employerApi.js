@@ -39,4 +39,14 @@ export const employerApi = {
 
   // Tạo kỹ năng mới
   createSkill: (data) => axiosClient.post("/employer/skills", data),
+
+  // Xem profile ứng viên (public view dành cho employer)
+  getCandidateProfile: (userId) =>
+    axiosClient.get(`/employer/candidate/${userId}`),
+
+  // Cập nhật tin tuyển dụng
+  updateJobPost: (id, jobData) => axiosClient.put(`/job/${id}`, jobData),
+
+  // Xóa tin tuyển dụng
+  deleteJobPost: (id) => axiosClient.delete(`/job/${id}`),
 };

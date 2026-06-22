@@ -122,4 +122,41 @@ public class CandidateController : ControllerBase
         var list = await _appService.GetApplicationTrackerAsync(userId);
         return Ok(list);
     }
+
+    // ==========================================
+    // 4. QUẢN LÝ VIỆC LÀM YÊU THÍCH (SAVED JOBS)
+    // ==========================================
+    [HttpPost("saved-jobs/{jobId}")]
+    public async Task<IActionResult> SaveJob(Guid jobId)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var success = await _appService.SaveJobAsync(userId, jobId);
+        if (!success) return BadRequest(new { message = "Lưu việc làm thất bại." });
+        return Ok(new { message = "Lưu việc làm thành công." });
+    }
+
+    [HttpDelete("saved-jobs/{jobId}")]
+    public async Task<IActionResult> UnsaveJob(Guid jobId)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var success = await _appService.UnsaveJobAsync(userId, jobId);
+        if (!success) return BadRequest(new { message = "Bỏ lưu việc làm thất bại." });
+        return Ok(new { message = "Bỏ lưu việc làm thành công." });
+    }
+
+    [HttpGet("saved-jobs")]
+    public async Task<IActionResult> GetSavedJobs()
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var list = await _appService.GetSavedJobsAsync(userId);
+        return Ok(list);
+    }
+
+    [HttpGet("saved-jobs/ids")]
+    public async Task<IActionResult> GetSavedJobIds()
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var ids = await _appService.GetSavedJobIdsAsync(userId);
+        return Ok(ids);
+    }
 }

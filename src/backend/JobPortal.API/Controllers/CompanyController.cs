@@ -53,7 +53,17 @@ public class CompanyController : ControllerBase
                 JobLevel = j.JobLevel.ToString(),
                 WorkType = j.WorkType.ToString(),
                 Category = j.Category != null ? new { j.Category.Id, j.Category.Name } : null,
-                Company = new { company.Id, company.CompanyName, company.LogoUrl, company.Website, company.Address }, // Cần gán Company khớp với DTO của JobCard.jsx ở client
+                Company = new { 
+                    company.Id, 
+                    company.CompanyName, 
+                    company.LogoUrl, 
+                    company.Website, 
+                    company.Address,
+                    company.ShortDescription,
+                    company.CompanySize,
+                    company.IsVerified,
+                    company.CoverUrl
+                },
                 Skills = j.Skills.Select(s => new { s.Id, s.Name }),
                 Locations = j.Locations.Select(l => new { l.Id, l.Name })
             })
@@ -73,5 +83,29 @@ public class CompanyController : ControllerBase
             company.IsVerified,
             JobPosts = publishedJobs
         });
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetCompanies([FromQuery] int limit = 8)
+    {
+        var companies = await _context.Companies
+            .AsNoTracking()
+            .Where(c => !c.IsLocked)
+            .Select(c => new
+            {
+                c.Id,
+                c.CompanyName,
+                c.LogoUrl,
+                c.ShortDescription,
+                c.Address,
+                c.Website,
+                JobsCount = _context.JobPosts.Count(j => j.CompanyId == c.Id && j.Status == JobStatus.Published && j.ExpirationDate >= DateTime.UtcNow)
+            })
+            .OrderByDescending(c => c.JobsCount)
+            .Take(limit)
+            .ToListAsync();
+
+        return Ok(companies);
     }
 }

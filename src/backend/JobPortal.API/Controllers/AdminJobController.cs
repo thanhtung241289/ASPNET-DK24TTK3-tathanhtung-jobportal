@@ -93,4 +93,60 @@ public class AdminJobController : ControllerBase
         var message = job.IsHot ? "Đã đặt làm tin tuyển dụng nổi bật!" : "Đã hủy trạng thái nổi bật.";
         return Ok(new { isHot = job.IsHot, message });
     }
+
+    [HttpGet("dashboard-stats")]
+    public async Task<IActionResult> GetDashboardStats()
+    {
+        var totalJobs = await _context.JobPosts.CountAsync();
+        var pendingJobs = await _context.JobPosts.CountAsync(j => j.Status == Domain.Enums.JobStatus.Pending);
+        var publishedJobs = await _context.JobPosts.CountAsync(j => j.Status == Domain.Enums.JobStatus.Published);
+        var rejectedJobs = await _context.JobPosts.CountAsync(j => j.Status == Domain.Enums.JobStatus.Rejected);
+
+        var totalCompanies = await _context.Companies.CountAsync();
+        var verifiedCompanies = await _context.Companies.CountAsync(c => c.IsVerified);
+        var lockedCompanies = await _context.Companies.CountAsync(c => c.IsLocked);
+
+        var totalCandidates = await _context.SeekerProfiles.CountAsync();
+        var totalResumes = await _context.Resumes.CountAsync();
+
+        var totalApplications = await _context.Applications.CountAsync();
+        var newApplications = await _context.Applications.CountAsync(a => a.Status == Domain.Enums.ApplicationStatus.New);
+        var interviewingApplications = await _context.Applications.CountAsync(a => a.Status == Domain.Enums.ApplicationStatus.Interviewing);
+        var rejectedApplications = await _context.Applications.CountAsync(a => a.Status == Domain.Enums.ApplicationStatus.Rejected);
+        var acceptedApplications = await _context.Applications.CountAsync(a => a.Status == Domain.Enums.ApplicationStatus.Offered);
+
+        var categoryStats = await _context.JobPosts
+            .Include(j => j.Category)
+            .GroupBy(j => j.Category.Name)
+            .Select(g => new
+            {
+                CategoryName = g.Key ?? "Chưa phân loại",
+                Count = g.Count()
+            })
+            .ToListAsync();
+
+        var recentJobs = await _context.JobPosts
+            .Include(j => j.Company)
+            .OrderByDescending(j => j.CreatedAt)
+            .Take(5)
+            .Select(j => new
+            {
+                j.Id,
+                j.Title,
+                CompanyName = j.Company.CompanyName,
+                Status = j.Status.ToString(),
+                j.CreatedAt
+            })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            Jobs = new { Total = totalJobs, Pending = pendingJobs, Published = publishedJobs, Rejected = rejectedJobs },
+            Companies = new { Total = totalCompanies, Verified = verifiedCompanies, Locked = lockedCompanies },
+            Candidates = new { Total = totalCandidates, Resumes = totalResumes },
+            Applications = new { Total = totalApplications, New = newApplications, Interviewing = interviewingApplications, Rejected = rejectedApplications, Accepted = acceptedApplications },
+            CategoryStats = categoryStats,
+            RecentJobs = recentJobs
+        });
+    }
 }

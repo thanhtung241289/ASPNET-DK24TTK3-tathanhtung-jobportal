@@ -31,6 +31,7 @@ const AdminDashboard = () => {
   const [selectedJobId, setSelectedJobId] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [pendingSearchKeyword, setPendingSearchKeyword] = useState("");
 
   // 2. States for Categories Management
   const [categories, setCategories] = useState([]);
@@ -91,6 +92,17 @@ const AdminDashboard = () => {
   useEffect(() => {
     loadPendingJobs();
   }, []);
+
+  const filteredPendingJobs = pendingJobs.filter(
+    (job) =>
+      job.title?.toLowerCase().includes(pendingSearchKeyword.toLowerCase()) ||
+      (job.companyName || "Doanh nghiệp ẩn danh")
+        .toLowerCase()
+        .includes(pendingSearchKeyword.toLowerCase()) ||
+      job.categoryName
+        ?.toLowerCase()
+        .includes(pendingSearchKeyword.toLowerCase()),
+  );
 
   // Approve Job Post
   const handleApprove = async (jobId) => {
@@ -336,64 +348,92 @@ const AdminDashboard = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 animate-slide-up">
-              {pendingJobs.map((job) => (
-                <div
-                  key={job.id}
-                  className="bg-white border border-slate-100 shadow-sm hover:shadow-md rounded-2xl p-5 flex flex-col lg:flex-row justify-between gap-5 relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500" />
+            <div className="space-y-4">
+              {/* Tìm kiếm nhanh hàng đợi */}
+              <div className="relative max-w-md w-full">
+                <input
+                  type="text"
+                  placeholder="Tìm nhanh theo tiêu đề, tên doanh nghiệp..."
+                  value={pendingSearchKeyword}
+                  onChange={(e) => setPendingSearchKeyword(e.target.value)}
+                  className="w-full bg-white border border-slate-200 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 rounded-xl py-2.5 pl-10 pr-4 text-xs font-semibold text-slate-700 outline-none transition-all shadow-xs"
+                />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              </div>
 
-                  {/* Cột trái: Nội dung tóm tắt bài đăng */}
-                  <div className="flex-1 space-y-3 pl-2">
-                    <div className="flex items-center gap-3">
-                      <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-100">
-                        Chờ kiểm duyệt
-                      </span>
-                      <span className="text-slate-400 text-xs">
-                        Đăng lúc:{" "}
-                        {new Date(job.createdAt).toLocaleDateString("vi-VN")}
-                      </span>
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-900">
-                      {job.title}
-                    </h2>
-                    <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
-                      <span className="text-primary-600 flex items-center gap-1">
-                        <Building2 className="w-3.5 h-3.5 text-slate-400" />{" "}
-                        {job.companyName || "Doanh nghiệp ẩn danh"}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Layers className="w-3.5 h-3.5 text-slate-400" />{" "}
-                        {job.categoryName}
-                      </span>
-                      <span className="text-rose-500 flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-rose-450" /> Hạn
-                        nộp:{" "}
-                        {new Date(job.expirationDate).toLocaleDateString(
-                          "vi-VN",
-                        )}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Cột phải: Cụm nút bấm phê duyệt/từ chối */}
-                  <div className="flex lg:flex-col justify-end items-center lg:items-end gap-3 border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0 flex-shrink-0">
-                    <button
-                      onClick={() => handleApprove(job.id)}
-                      className="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      Phê Duyệt <Check className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleOpenRejectModal(job.id)}
-                      className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-5 py-2.5 rounded-xl transition-all border border-rose-200 active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      Từ Chối <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+              {filteredPendingJobs.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm max-w-2xl mx-auto w-full animate-fade-in flex flex-col items-center justify-center gap-2">
+                  <Search className="w-10 h-10 text-slate-300" />
+                  <p className="text-slate-600 font-bold text-sm">
+                    Không tìm thấy kết quả phù hợp
+                  </p>
+                  <p className="text-slate-400 text-xs">
+                    Thử thay đổi từ khóa tìm kiếm của bạn.
+                  </p>
                 </div>
-              ))}
+              ) : (
+                <div className="grid grid-cols-1 gap-4 animate-slide-up">
+                  {filteredPendingJobs.map((job) => (
+                    <div
+                      key={job.id}
+                      className="bg-white border border-slate-100 shadow-sm hover:shadow-md rounded-2xl p-5 flex flex-col lg:flex-row justify-between gap-5 relative overflow-hidden"
+                    >
+                      <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-500" />
+
+                      {/* Cột trái: Nội dung tóm tắt bài đăng */}
+                      <div className="flex-1 space-y-3 pl-2">
+                        <div className="flex items-center gap-3">
+                          <span className="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-100">
+                            Chờ kiểm duyệt
+                          </span>
+                          <span className="text-slate-400 text-xs">
+                            Đăng lúc:{" "}
+                            {new Date(job.createdAt).toLocaleDateString(
+                              "vi-VN",
+                            )}
+                          </span>
+                        </div>
+                        <h2 className="text-lg font-bold text-slate-900">
+                          {job.title}
+                        </h2>
+                        <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
+                          <span className="text-primary-600 flex items-center gap-1">
+                            <Building2 className="w-3.5 h-3.5 text-slate-400" />{" "}
+                            {job.companyName || "Doanh nghiệp ẩn danh"}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Layers className="w-3.5 h-3.5 text-slate-400" />{" "}
+                            {job.categoryName}
+                          </span>
+                          <span className="text-rose-500 flex items-center gap-1">
+                            <Calendar className="w-3.5 h-3.5 text-rose-450" />{" "}
+                            Hạn nộp:{" "}
+                            {new Date(job.expirationDate).toLocaleDateString(
+                              "vi-VN",
+                            )}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Cột phải: Cụm nút bấm phê duyệt/từ chối */}
+                      <div className="flex lg:flex-col justify-end items-center lg:items-end gap-3 border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0 flex-shrink-0">
+                        <button
+                          onClick={() => handleApprove(job.id)}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
+                        >
+                          Phê Duyệt <Check className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenRejectModal(job.id)}
+                          className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-5 py-2.5 rounded-xl transition-all border border-rose-200 active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
+                        >
+                          Từ Chối <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

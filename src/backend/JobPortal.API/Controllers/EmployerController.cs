@@ -111,6 +111,16 @@ public class EmployerController : ControllerBase
         var skill = await _jobService.CreateSkillAsync(dto.Name);
         return Ok(new { id = skill.Id, name = skill.Name });
     }
+
+    // Xem profile công khai của ứng viên (chỉ Employer mới truy cập được)
+    [HttpGet("candidate/{userId}")]
+    public async Task<IActionResult> GetCandidateProfile(Guid userId)
+    {
+        var profile = await _profileService.GetProfileAsync(userId, "2");
+        if (profile == null)
+            return NotFound(new { message = "Không tìm thấy hồ sơ ứng viên." });
+        return Ok(profile);
+    }
 }
 
 public class CreateSkillDto

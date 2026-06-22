@@ -7,6 +7,13 @@ const ApplicationsTracker = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const getFullUrl = (path) => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) return path;
+    const baseUrl = import.meta.env.VITE_API_URL.replace("/api", "");
+    return `${baseUrl}/${path.replace(/^\//, "")}`;
+  };
+
   useEffect(() => {
     const fetchApplications = async () => {
       try {
@@ -21,9 +28,32 @@ const ApplicationsTracker = () => {
     fetchApplications();
   }, []);
 
-  // Hàm phụ trợ xuất thẻ Badge màu sắc dựa trên trạng thái thực tế của đơn hồ sơ
-  const renderStatusBadge = (status) => {
-    switch (status) {
+  // Hàm phụ trợ xuất thẻ Badge màu sắc dựa trên trạng thái thực tế của đơn hồ sơ và hạn nộp
+  const renderStatusBadge = (app) => {
+    const isExpired =
+      app.expirationDate && new Date(app.expirationDate) < new Date();
+
+    if (isExpired && app.status !== "Accepted" && app.status !== "Rejected") {
+      return (
+        <div className="flex flex-col gap-1 items-start">
+          <span className="bg-rose-50 text-rose-600 text-xs font-semibold px-2.5 py-1 rounded-md border border-rose-100">
+            Tin tuyển dụng hết hạn
+          </span>
+          <span className="text-[11px] text-gray-400">
+            Trạng thái lúc đóng:{" "}
+            {app.status === "New"
+              ? "Đã nộp đơn"
+              : app.status === "Viewed"
+                ? "Đã xem hồ sơ"
+                : app.status === "Interviewing"
+                  ? "Hẹn phỏng vấn"
+                  : app.status}
+          </span>
+        </div>
+      );
+    }
+
+    switch (app.status) {
       case "New":
         return (
           <span className="bg-blue-50 text-blue-600 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-100">
@@ -57,7 +87,7 @@ const ApplicationsTracker = () => {
       default:
         return (
           <span className="bg-gray-50 text-gray-600 text-xs font-semibold px-2.5 py-1 rounded-md border border-gray-100">
-            {status}
+            {app.status}
           </span>
         );
     }
@@ -124,10 +154,10 @@ const ApplicationsTracker = () => {
                     {/* Cột 1: Thông tin công ty & việc làm */}
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center text-primary-500 font-bold overflow-hidden shrink-0">
+                        <div className="w-12 h-12 bg-gray-50 border border-gray-100 rounded-lg flex items-center justify-center text-primary-500 font-bold overflow-hidden flex-shrink-0">
                           {app.logoUrl ? (
                             <img
-                              src={app.logoUrl}
+                              src={getFullUrl(app.logoUrl)}
                               alt={app.companyName}
                               className="object-contain w-full h-full"
                             />
@@ -137,7 +167,7 @@ const ApplicationsTracker = () => {
                         </div>
                         <div>
                           <Link
-                            to={`/jobs/${app.jobId}`}
+                            to={`/jobs/${app.jobId || app.JobId}`}
                             className="font-bold text-gray-900 hover:text-primary-600 block mb-0.5 transition-colors"
                           >
                             {app.jobTitle}
@@ -159,14 +189,12 @@ const ApplicationsTracker = () => {
                     </td>
 
                     {/* Cột 3: Trạng thái Huy hiệu Badge */}
-                    <td className="py-4 px-6">
-                      {renderStatusBadge(app.status)}
-                    </td>
+                    <td className="py-4 px-6">{renderStatusBadge(app)}</td>
 
                     {/* Cột 4: Thao tác phụ */}
                     <td className="py-4 px-6 text-right">
                       <Link
-                        to={`/jobs/${app.jobId}`}
+                        to={`/jobs/${app.jobId || app.JobId}`}
                         className="text-primary-600 hover:text-primary-700 font-semibold text-sm transition-colors"
                       >
                         Xem lại bài đăng

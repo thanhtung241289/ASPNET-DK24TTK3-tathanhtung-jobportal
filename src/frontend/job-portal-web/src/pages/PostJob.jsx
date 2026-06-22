@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Briefcase, MapPin, Sparkles, Plus, Check } from "lucide-react";
 import { masterDataApi } from "../services/masterDataApi";
 import { employerApi } from "../services/employerApi";
+import { jobApi } from "../services/jobApi";
 import { useToast } from "../contexts/ToastContext";
 
 const PostJob = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -54,6 +56,48 @@ const PostJob = () => {
     };
     fetchMasterData();
   }, []);
+
+  useEffect(() => {
+    if (id) {
+      const fetchJobDetails = async () => {
+        try {
+          const data = await jobApi.getById(id);
+          if (data) {
+            setFormData({
+              title: data.title || "",
+              categoryId: data.category?.id || "",
+              quantity: data.quantity || 1,
+              salaryMin:
+                data.salaryMin !== null && data.salaryMin !== undefined
+                  ? data.salaryMin
+                  : "",
+              salaryMax:
+                data.salaryMax !== null && data.salaryMax !== undefined
+                  ? data.salaryMax
+                  : "",
+              isNegotiable: data.isNegotiable || false,
+              jobLevel: data.jobLevel || "Fresher",
+              workType: data.workType || "FullTime",
+              description: data.description || "",
+              requirements: data.requirements || "",
+              benefits: data.benefits || "",
+              expirationDate: data.expirationDate
+                ? data.expirationDate.split("T")[0]
+                : "",
+              locationIds: data.locations
+                ? data.locations.map((l) => l.id)
+                : [],
+              skillIds: data.skills ? data.skills.map((s) => s.id) : [],
+            });
+          }
+        } catch (error) {
+          console.error("Lỗi khi tải thông tin chi tiết bài đăng:", error);
+          showToast("Không thể tải thông tin tin tuyển dụng này.", "danger");
+        }
+      };
+      fetchJobDetails();
+    }
+  }, [id]);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -172,11 +216,19 @@ const PostJob = () => {
         workType: formData.workType,
       };
 
-      await employerApi.createJobPost(payload);
-      showToast(
-        "Đăng tin tuyển dụng thành công! Đang chuyển hướng...",
-        "success",
-      );
+      if (id) {
+        await employerApi.updateJobPost(id, payload);
+        showToast(
+          "Cập nhật tin tuyển dụng thành công! Đang chuyển hướng...",
+          "success",
+        );
+      } else {
+        await employerApi.createJobPost(payload);
+        showToast(
+          "Đăng tin tuyển dụng thành công! Đang chuyển hướng...",
+          "success",
+        );
+      }
       setTimeout(() => {
         navigate("/employer/dashboard");
       }, 1500);
@@ -190,21 +242,30 @@ const PostJob = () => {
   return (
     <div className="container-custom py-10 max-w-4xl min-h-screen">
       {/* Premium Header Accent Card */}
-      <div className="relative bg-primary-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-sm overflow-hidden">
-        <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
-              <Briefcase className="w-3.5 h-3.5" /> Tuyển dụng nhân sự
-            </span>
-            <h1 className="text-3xl font-extrabold tracking-tight">
-              Tạo tin tuyển dụng mới
-            </h1>
-            <p className="text-white/80 text-sm mt-2 max-w-xl">
-              Thu hút nhân tài đa ngành bằng cách cung cấp thông tin vị trí công
-              việc rõ ràng, đầy đủ và chuyên nghiệp. Tin đăng sẽ được duyệt bởi
-              quản trị viên trước khi hiển thị.
-            </p>
-          </div>
+      {/* Thay thế khối Header cũ bằng bố cục 2 cột (Title + Tips) */}
+      <div className="flex flex-col lg:flex-row gap-12 mb-10">
+        <div className="flex-1">
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">
+            {id ? "Chỉnh sửa tin tuyển dụng" : "Tạo tin tuyển dụng"}
+          </h1>
+          <p className="text-slate-500 mt-3 font-medium">
+            {id
+              ? "Bạn đang chỉnh sửa tin tuyển dụng hiện tại. Mọi thay đổi sẽ cần được phê duyệt lại bởi Admin."
+              : "Bạn đang tạo một cơ hội nghề nghiệp mới. Hãy cung cấp thông tin thật chi tiết để thu hút ứng viên chất lượng nhất."}
+          </p>
+        </div>
+
+        {/* Tips Side-card */}
+        <div className="lg:w-80 bg-primary-50 border border-primary-100 p-5 rounded-2xl">
+          <h4 className="text-sm font-bold text-primary-900 flex items-center gap-2 mb-2">
+            <Sparkles className="w-4 h-4 text-primary-500" /> Mẹo đăng tin hiệu
+            quả
+          </h4>
+          <ul className="text-xs text-primary-700/80 space-y-2 list-disc list-inside">
+            <li>Sử dụng tiêu đề rõ ràng, không viết tắt.</li>
+            <li>Mô tả kỹ yêu cầu công việc (JD).</li>
+            <li>Ghi rõ mức lương để tăng tỉ lệ ứng tuyển.</li>
+          </ul>
         </div>
       </div>
 
@@ -539,7 +600,11 @@ const PostJob = () => {
               {loading && (
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
               )}
-              {loading ? "Đang gửi yêu cầu..." : "Đăng Tin Tuyển Dụng"}
+              {loading
+                ? "Đang gửi yêu cầu..."
+                : id
+                  ? "Lưu thay đổi"
+                  : "Đăng Tin Tuyển Dụng"}
             </button>
           </div>
         </form>

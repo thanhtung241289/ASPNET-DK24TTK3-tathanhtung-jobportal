@@ -17,4 +17,10 @@ public interface IApplicationService
     Task<object?> GetResumesByUserIdAsync(Guid userId);
     Task<bool> SetDefaultResumeAsync(Guid userId, Guid resumeId);
     Task<bool> DeleteResumeAsync(Guid userId, Guid resumeId);
+
+    // Quản lý việc làm yêu thích
+    Task<bool> SaveJobAsync(Guid userId, Guid jobId);
+    Task<bool> UnsaveJobAsync(Guid userId, Guid jobId);
+    Task<IEnumerable<object>> GetSavedJobsAsync(Guid userId);
+    Task<IEnumerable<Guid>> GetSavedJobIdsAsync(Guid userId);
 }

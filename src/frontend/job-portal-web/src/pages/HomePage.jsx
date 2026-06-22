@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { masterDataApi } from "../services/masterDataApi";
 import { jobApi } from "../services/jobApi";
+import { companyApi } from "../services/companyApi";
 import JobCard from "../components/JobCard";
 import { formatSalary } from "../utils/translators";
 import {
@@ -42,10 +43,13 @@ const HomePage = () => {
   const [loadingJobs, setLoadingJobs] = useState(true);
   const [loadingHot, setLoadingHot] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [featuredCompanies, setFeaturedCompanies] = useState([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
 
   // Email đăng ký bản tin tuyển dụng
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
+  const [logoErrors, setLogoErrors] = useState({});
 
   // 2. Quản lý State cho Form Tìm kiếm
   const [searchForm, setSearchForm] = useState({
@@ -97,8 +101,68 @@ const HomePage = () => {
       }
     };
 
+    const fetchCompanies = async () => {
+      setLoadingCompanies(true);
+      try {
+        const data = await companyApi.getCompanies({ limit: 4 });
+        let list = data || [];
+        if (list.length < 4) {
+          const needed = 4 - list.length;
+          const mockPool = [
+            {
+              id: "44444444-4444-4444-4444-444444444444",
+              companyName: "FPT Software",
+              logoUrl:
+                "https://upload.wikimedia.org/wikipedia/commons/1/11/FPT_logo.svg",
+              address: "Hà Nội, Việt Nam",
+              shortDescription:
+                "Doanh nghiệp chuyển đổi số toàn cầu hàng đầu Việt Nam.",
+              jobsCount: 3,
+            },
+            {
+              id: "44444444-4444-4444-4444-444444444445",
+              companyName: "Vingroup",
+              logoUrl:
+                "https://upload.wikimedia.org/wikipedia/commons/a/ad/Vingroup_Logo.png",
+              address: "Hồ Chí Minh, Việt Nam",
+              shortDescription:
+                "Tập đoàn kinh tế tư nhân đa ngành lớn nhất Việt Nam.",
+              jobsCount: 1,
+            },
+            {
+              id: "44444444-4444-4444-4444-444444444446",
+              companyName: "Shopee Vietnam",
+              logoUrl:
+                "https://upload.wikimedia.org/wikipedia/commons/f/fe/Shopee.svg",
+              address: "Hồ Chí Minh, Việt Nam",
+              shortDescription:
+                "Nền tảng thương mại điện tử hàng đầu Đông Nam Á.",
+              jobsCount: 2,
+            },
+            {
+              id: "44444444-4444-4444-4444-444444444447",
+              companyName: "EY Vietnam",
+              logoUrl:
+                "https://upload.wikimedia.org/wikipedia/commons/3/34/Ernst_%26_Young_logo.svg",
+              address: "Hà Nội, Việt Nam",
+              shortDescription:
+                "Một trong bốn hãng kiểm toán Big Four hàng đầu thế giới.",
+              jobsCount: 1,
+            },
+          ];
+          list = [...list, ...mockPool.slice(0, needed)];
+        }
+        setFeaturedCompanies(list);
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách doanh nghiệp:", error);
+      } finally {
+        setLoadingCompanies(false);
+      }
+    };
+
     fetchMasterDataAndStats();
     fetchJobs();
+    fetchCompanies();
   }, []);
 
   // 4. Xử lý sự kiện khi gõ/chọn trên form
@@ -197,41 +261,7 @@ const HomePage = () => {
     }
   };
 
-  // Mock logo cho Employers để hiển thị chuyên nghiệp
-  const featuredEmployers = [
-    {
-      id: "44444444-4444-4444-4444-444444444444",
-      name: "FPT Software",
-      logo: "https://img.vietnamworks.com/pictureprofile/vnw/logo_fpt_software.png",
-      industry: "Công nghệ thông tin",
-      desc: "Doanh nghiệp chuyển đổi số toàn cầu hàng đầu Việt Nam.",
-      jobsCount: 3,
-    },
-    {
-      id: "44444444-4444-4444-4444-444444444445",
-      name: "Vingroup",
-      logo: "https://img.vietnamworks.com/pictureprofile/vnw/logo_vingroup.png",
-      industry: "Đa ngành",
-      desc: "Tập đoàn kinh tế tư nhân lớn nhất Việt Nam.",
-      jobsCount: 1,
-    },
-    {
-      id: "44444444-4444-4444-4444-444444444446",
-      name: "Shopee Vietnam",
-      logo: "https://logodownload.org/wp-content/uploads/2020/09/shopee-logo-1.png",
-      industry: "Thương mại điện tử",
-      desc: "Nền tảng mua sắm trực tuyến hàng đầu Đông Nam Á.",
-      jobsCount: 2,
-    },
-    {
-      id: "44444444-4444-4444-4444-444444444447",
-      name: "EY Vietnam",
-      logo: "https://logodownload.org/wp-content/uploads/2021/03/ey-ernst-young-logo-0.png",
-      industry: "Kiểm toán & Tư vấn tài chính",
-      desc: "Một trong 4 hãng kiểm toán Big Four lớn nhất hành tinh.",
-      jobsCount: 1,
-    },
-  ];
+  // Danh sách doanh nghiệp nổi bật được lấy trực tiếp từ API thực tế hoặc mock padding
 
   return (
     <div className="w-full bg-[#fcfdfe]">
@@ -255,7 +285,7 @@ const HomePage = () => {
           </div>
 
           {/* Premium Search Box with Solid Brand Colors */}
-          <div className="bg-white border border-slate-150 p-6 md:p-7 rounded-[28px] shadow-sm max-w-5xl mx-auto animate-fade-in">
+          <div className="bg-white border border-slate-100 p-6 md:p-7 rounded-[28px] shadow-sm max-w-5xl mx-auto animate-fade-in">
             <form
               onSubmit={handleSearch}
               className="flex flex-col lg:flex-row gap-4"
@@ -382,44 +412,46 @@ const HomePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Stat Item 1 */}
-              <div className="bg-white border border-slate-150 shadow-sm hover:shadow rounded-2xl p-6 flex items-center gap-5 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center shadow-inner">
-                  <Briefcase className="w-5 h-5" />
+              {/* Stat Item 1: Việc làm */}
+              <div className="group bg-white border border-slate-200/60 rounded-2xl p-6 flex items-center gap-5 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 hover:border-violet-200 transition-all duration-300 cursor-default">
+                <div className="w-14 h-14 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-violet-100 transition-all duration-300">
+                  <Briefcase className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900">
+                  <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                     {stats.activeJobsCount}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
-                    Việc làm đang mở tuyển
+                  <p className="text-sm font-medium text-slate-500 mt-1">
+                    Việc làm đang mở
                   </p>
                 </div>
               </div>
-              {/* Stat Item 2 */}
-              <div className="bg-white border border-slate-150 shadow-sm hover:shadow rounded-2xl p-6 flex items-center gap-5 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
-                  <Building2 className="w-5 h-5" />
+
+              {/* Stat Item 2: Doanh nghiệp */}
+              <div className="group bg-white border border-slate-200/60 rounded-2xl p-6 flex items-center gap-5 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 hover:border-blue-200 transition-all duration-300 cursor-default">
+                <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-100 transition-all duration-300">
+                  <Building2 className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900">
+                  <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                     {stats.companiesCount}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
+                  <p className="text-sm font-medium text-slate-500 mt-1">
                     Doanh nghiệp tin cậy
                   </p>
                 </div>
               </div>
-              {/* Stat Item 3 */}
-              <div className="bg-white border border-slate-150 shadow-sm hover:shadow rounded-2xl p-6 flex items-center gap-5 transition-all duration-300">
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner">
-                  <Users className="w-5 h-5" />
+
+              {/* Stat Item 3: Ứng tuyển */}
+              <div className="group bg-white border border-slate-200/60 rounded-2xl p-6 flex items-center gap-5 hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 hover:border-emerald-200 transition-all duration-300 cursor-default">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-100 transition-all duration-300">
+                  <Users className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-black text-slate-900">
+                  <h3 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                     {stats.applicationsCount}
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
+                  <p className="text-sm font-medium text-slate-500 mt-1">
                     Lượt kết nối ứng tuyển
                   </p>
                 </div>
@@ -442,15 +474,19 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
             {categories.map((cat) => (
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
-                className="bg-white border border-slate-150 rounded-2xl p-5 text-center cursor-pointer transition-all duration-300 hover:shadow hover:border-primary-300 group flex flex-col items-center gap-3.5"
+                className="group bg-white border border-slate-200/60 rounded-2xl p-5 md:p-6 flex flex-col items-center gap-4 cursor-pointer hover:shadow-xl hover:shadow-slate-200/40 hover:-translate-y-1 hover:border-primary-200 transition-all duration-300"
               >
-                {getCategoryIcon(cat.id)}
-                <h3 className="font-bold text-slate-805 text-xs group-hover:text-primary-600 transition-colors line-clamp-2 min-h-[36px] flex items-center justify-center">
+                {/* Bọc Icon vào một khối nền mềm để tạo sự đồng bộ và điểm nhấn */}
+                <div className="w-14 h-14 rounded-2xl bg-slate-50 text-slate-500 flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 group-hover:scale-110 transition-all duration-300">
+                  {getCategoryIcon(cat.id)}
+                </div>
+
+                <h3 className="font-semibold text-sm text-slate-700 text-center group-hover:text-primary-600 transition-colors line-clamp-2 min-h-[40px] flex items-center justify-center leading-snug">
                   {cat.name}
                 </h3>
               </div>
@@ -460,92 +496,118 @@ const HomePage = () => {
       </section>
 
       {/* --- FEATURED/HOT JOBS SECTION (3-Column Grid with Solid Accent) --- */}
-      <section className="py-16 bg-slate-50/50 border-t border-b border-slate-100/80">
+      <section className="py-16 md:py-24 bg-slate-50/50 border-t border-slate-200/60">
         <div className="container-custom">
-          <div className="flex justify-between items-end mb-10">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-10">
             <div>
-              <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full tracking-wider uppercase">
-                <TrendingUp className="w-3 h-3 text-rose-500" /> Hot Job / Đề
-                xuất tuyển gấp
+              <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 bg-rose-50 border border-rose-100/50 px-3 py-1.5 rounded-full tracking-wide">
+                <TrendingUp className="w-3.5 h-3.5" /> HOT JOB / ĐỀ XUẤT TUYỂN
+                GẤP
               </span>
-              <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mt-3">
-                Việc Làm Nổi Bật hàng tuần
+              <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight mt-4">
+                Việc Làm Nổi Bật Tuần Này
               </h2>
-              <p className="text-slate-500 text-xs font-semibold mt-1">
-                Các chiến dịch tuyển dụng tiêu điểm với quyền lợi tốt và phản
-                hồi nhanh từ HR.
+              <p className="text-slate-500 text-sm font-medium mt-2">
+                Các chiến dịch tuyển dụng tiêu điểm với quyền lợi hấp dẫn và
+                phản hồi cực nhanh từ HR.
               </p>
             </div>
+
+            {/* Nút Xem tất cả (Tùy chọn thêm cho đẹp) */}
+            <Link
+              to="/jobs?hot=true"
+              className="text-primary-600 font-semibold text-sm flex items-center gap-1 hover:text-primary-700 transition-colors group hidden md:flex"
+            >
+              Xem tất cả{" "}
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
 
           {loadingHot ? (
+            /* Skeleton Loading chuẩn mực hơn */
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((n) => (
                 <div
                   key={n}
-                  className="bg-white border border-slate-150 p-6 rounded-2xl animate-pulse h-48 space-y-4"
+                  className="bg-white border border-slate-200/60 p-6 rounded-3xl animate-pulse h-[240px] flex flex-col justify-between"
                 >
-                  <div className="flex justify-between items-center">
-                    <div className="w-10 h-10 bg-slate-105 rounded-xl" />
-                    <div className="w-16 h-5 bg-slate-105 rounded-md" />
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div className="w-14 h-14 bg-slate-100 rounded-2xl" />
+                      <div className="w-16 h-6 bg-slate-50 rounded-full" />
+                    </div>
+                    <div className="mt-5 space-y-3">
+                      <div className="h-5 bg-slate-200 rounded-md w-4/5" />
+                      <div className="h-4 bg-slate-100 rounded-md w-1/2" />
+                    </div>
                   </div>
-                  <div className="h-4 bg-slate-200 rounded-md w-3/4" />
-                  <div className="h-3 bg-slate-150 rounded-md w-1/2" />
+                  <div className="h-4 bg-slate-100 rounded-md w-1/3 mt-4" />
                 </div>
               ))}
             </div>
           ) : hotJobs.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-2xl border border-slate-150 text-slate-400 font-semibold text-xs">
-              Hiện chưa có việc làm nổi bật nào được thiết lập.
+            /* Trạng thái Empty State */
+            <div className="text-center py-16 bg-white rounded-3xl border border-dashed border-slate-200 flex flex-col items-center justify-center">
+              <span className="text-4xl mb-3">🔍</span>
+              <h3 className="text-slate-700 font-semibold">
+                Chưa có việc làm nổi bật
+              </h3>
+              <p className="text-slate-400 text-sm mt-1">
+                Các chiến dịch hot sẽ sớm được cập nhật trên hệ thống.
+              </p>
             </div>
           ) : (
+            /* Danh sách Job Cards */
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {hotJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs hover:shadow transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between min-h-[220px] relative group overflow-hidden"
+                  className="group bg-white border border-slate-200/60 rounded-3xl p-6 hover:shadow-xl hover:shadow-primary-500/5 hover:-translate-y-1 hover:border-primary-200 transition-all duration-300 flex flex-col justify-between min-h-[240px]"
                 >
-                  {/* Solid Brand accent line */}
-                  <div className="absolute top-0 left-0 w-full h-[3px] bg-primary-600" />
-
                   <div>
-                    {/* Top Row: Logo & Tag */}
-                    <div className="flex justify-between items-start gap-4 mb-3.5">
+                    {/* Top Row: Logo & Badge */}
+                    <div className="flex justify-between items-start gap-4 mb-5">
                       {job.company ? (
                         <Link
                           to={`/companies/${job.company.id}`}
-                          className="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 hover:scale-105 transition-transform"
+                          className="w-14 h-14 bg-white border border-slate-100 shadow-sm rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 group-hover:scale-105 group-hover:shadow-md transition-all duration-300"
                         >
-                          {job.company.logoUrl ? (
+                          {job.company.logoUrl && !logoErrors[job.id] ? (
                             <img
                               src={getFullUrl(job.company.logoUrl)}
                               alt={job.company.companyName}
-                              className="object-contain w-full h-full p-1"
+                              className="object-contain w-full h-full p-1.5"
+                              onError={() =>
+                                setLogoErrors((prev) => ({
+                                  ...prev,
+                                  [job.id]: true,
+                                }))
+                              }
                             />
                           ) : (
-                            <span className="text-base font-bold text-primary-600">
+                            <span className="text-xl font-black text-primary-600 bg-primary-50 w-full h-full flex items-center justify-center">
                               {job.company.companyName?.charAt(0)}
                             </span>
                           )}
                         </Link>
                       ) : (
-                        <div className="w-11 h-11 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                          <span className="text-base font-bold text-slate-405">
+                        <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                          <span className="text-xl font-black text-slate-300">
                             ?
                           </span>
                         </div>
                       )}
 
-                      <span className="bg-rose-50 text-rose-600 text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border border-rose-100 flex items-center gap-0.5">
-                        <TrendingUp className="w-2.5 h-2.5 text-rose-500" /> Nổi
-                        bật
+                      <span className="bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border border-rose-100/50 flex items-center gap-1">
+                        <TrendingUp className="w-3 h-3 text-rose-500" /> Nổi bật
                       </span>
                     </div>
 
                     {/* Middle: Title & Company */}
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="text-sm md:text-base font-bold text-slate-900 hover:text-primary-600 transition-colors block mb-1 truncate"
+                      className="text-base font-bold text-slate-900 group-hover:text-primary-600 transition-colors block mb-1.5 line-clamp-2 leading-snug"
                       title={job.title}
                     >
                       {job.title}
@@ -554,31 +616,31 @@ const HomePage = () => {
                     {job.company ? (
                       <Link
                         to={`/companies/${job.company.id}`}
-                        className="text-slate-500 text-xs font-semibold hover:text-primary-600 transition-colors hover:underline block mb-3.5 truncate"
+                        className="text-slate-500 text-sm font-medium hover:text-primary-600 transition-colors block mb-4 truncate"
                       >
                         {job.company.companyName}
                       </Link>
                     ) : (
-                      <span className="text-slate-400 text-xs font-medium block mb-3.5">
+                      <span className="text-slate-400 text-sm font-medium block mb-4">
                         Doanh nghiệp ẩn danh
                       </span>
                     )}
 
-                    {/* Tags */}
-                    <div className="flex flex-wrap gap-1 mb-3.5">
+                    {/* Tags (Skills & Locations) */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
                       {job.locations?.slice(0, 1).map((loc) => (
                         <span
                           key={loc.id}
-                          className="bg-slate-50 text-slate-500 text-[9px] px-2 py-0.5 rounded-lg border border-slate-150 font-medium flex items-center gap-0.5"
+                          className="bg-slate-50 text-slate-600 text-xs px-2.5 py-1 rounded-md border border-slate-200/60 font-medium flex items-center gap-1"
                         >
-                          <MapPin className="w-2.5 h-2.5 text-slate-400" />{" "}
+                          <MapPin className="w-3 h-3 text-slate-400" />{" "}
                           {loc.name}
                         </span>
                       ))}
                       {job.skills?.slice(0, 2).map((skill) => (
                         <span
                           key={skill.id}
-                          className="bg-emerald-50 text-emerald-600 text-[9px] px-2 py-0.5 rounded-lg border border-emerald-100 font-semibold"
+                          className="bg-emerald-50/50 text-emerald-700 text-xs px-2.5 py-1 rounded-md border border-emerald-100 font-semibold"
                         >
                           {skill.name}
                         </span>
@@ -586,18 +648,17 @@ const HomePage = () => {
                     </div>
                   </div>
 
-                  {/* Bottom: Salary & Button */}
-                  <div className="flex justify-between items-center border-t border-slate-100 pt-3 mt-2 flex-shrink-0">
-                    <span className="text-emerald-600 font-black text-xs md:text-sm flex items-center gap-1">
-                      <DollarSign className="w-3.5 h-3.5 text-emerald-500" />{" "}
+                  {/* Bottom: Salary & Call-to-action */}
+                  <div className="flex justify-between items-center pt-4 border-t border-slate-100 mt-2">
+                    <span className="text-emerald-600 font-black text-sm md:text-base flex items-center gap-1">
+                      <DollarSign className="w-4 h-4 text-emerald-500" />{" "}
                       {formatSalary(job)}
                     </span>
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="text-[11px] font-extrabold text-slate-905 group-hover:text-primary-600 flex items-center gap-0.5 transition-colors"
+                      className="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors"
                     >
-                      Chi tiết{" "}
-                      <ArrowRight className="w-3 h-3 text-slate-550 ml-0.5" />
+                      <ArrowRight className="w-4 h-4 group-hover:-rotate-45 transition-transform duration-300" />
                     </Link>
                   </div>
                 </div>
@@ -608,10 +669,10 @@ const HomePage = () => {
       </section>
 
       {/* --- TOP EMPLOYERS SECTION --- */}
-      <section className="py-16 bg-white">
+      <section className="py-20 bg-white border-t border-slate-100/80">
         <div className="container-custom">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="inline-flex items-center gap-1 text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full tracking-wider uppercase">
+            <span className="inline-flex items-center gap-1 text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-full tracking-wider uppercase">
               <Building2 className="w-3.5 h-3.5 text-indigo-500" /> Nhà tuyển
               dụng hàng đầu
             </span>
@@ -624,40 +685,80 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {featuredEmployers.map((emp) => (
-              <div
-                key={emp.id}
-                className="bg-white border border-slate-150 rounded-2xl p-5 shadow-xs hover:shadow transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between items-center text-center relative overflow-hidden group"
-              >
-                <div className="flex flex-col items-center">
-                  <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center p-2 mb-3 group-hover:scale-105 transition-transform duration-300">
-                    <img
-                      src={emp.logo}
-                      alt={emp.name}
-                      className="object-contain w-full h-full"
-                    />
-                  </div>
-                  <h3 className="font-extrabold text-slate-900 text-xs md:text-sm mb-1">
-                    {emp.name}
-                  </h3>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-3 block">
-                    {emp.industry}
-                  </span>
-                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4 px-2">
-                    {emp.desc}
-                  </p>
-                </div>
-
-                <Link
-                  to={`/companies/${emp.id}`}
-                  className="w-full bg-slate-50 hover:bg-primary-50 group-hover:text-primary-650 text-slate-650 text-xs font-bold py-2 rounded-xl border border-slate-150 hover:border-primary-200 transition-all cursor-pointer block"
+          {loadingCompanies ? (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map((n) => (
+                <div
+                  key={n}
+                  className="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_4px_20px_rgba(0,0,0,0.01)] animate-pulse h-[260px] flex flex-col justify-between items-center"
                 >
-                  Xem {emp.jobsCount} vị trí tuyển
-                </Link>
-              </div>
-            ))}
-          </div>
+                  <div className="w-14 h-14 bg-slate-105 rounded-2xl" />
+                  <div className="space-y-2 w-full flex flex-col items-center">
+                    <div className="h-4 bg-slate-200 rounded-md w-3/4" />
+                    <div className="h-3 bg-slate-100 rounded-md w-1/2" />
+                  </div>
+                  <div className="h-8 bg-slate-100 rounded-xl w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {featuredCompanies.map((emp) => (
+                <div
+                  key={emp.id}
+                  className="bg-white border border-slate-100 hover:border-primary-100 rounded-3xl p-6 shadow-[0_4px_25px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_30px_rgba(99,102,241,0.05)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between items-center text-center relative overflow-hidden group"
+                >
+                  <div className="flex flex-col items-center w-full">
+                    {/* Logo */}
+                    <div className="w-16 h-16 bg-slate-50/50 border border-slate-100 rounded-2xl flex items-center justify-center p-2.5 mb-4 group-hover:scale-105 transition-transform duration-300">
+                      {emp.logoUrl && !logoErrors[emp.id] ? (
+                        <img
+                          src={getFullUrl(emp.logoUrl)}
+                          alt={emp.companyName}
+                          className="object-contain w-full h-full"
+                          onError={() =>
+                            setLogoErrors((prev) => ({
+                              ...prev,
+                              [emp.id]: true,
+                            }))
+                          }
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-primary-50 text-primary-600 flex items-center justify-center font-bold text-xl rounded-xl">
+                          {emp.companyName?.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+                    {/* Name & Location */}
+                    <h3 className="font-bold text-slate-800 text-sm md:text-base mb-1 leading-snug line-clamp-1 group-hover:text-primary-650 transition-colors w-full">
+                      {emp.companyName}
+                    </h3>
+                    <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1 mb-3">
+                      <MapPin size={10} className="text-slate-400" />
+                      {emp.address
+                        ? emp.address.includes(",")
+                          ? emp.address.split(",").slice(-1)[0].trim()
+                          : emp.address
+                        : "Toàn quốc"}
+                    </span>
+                    {/* Description */}
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4 px-1">
+                      {emp.shortDescription ||
+                        "Hệ thống việc làm liên kết chính thức, uy tín và bảo mật."}
+                    </p>
+                  </div>
+
+                  {/* Action Link */}
+                  <Link
+                    to={`/companies/${emp.id}`}
+                    className="w-full bg-slate-50 group-hover:bg-primary-600 group-hover:text-white text-slate-700 text-xs font-bold py-2.5 rounded-xl border border-slate-100 group-hover:border-primary-600 transition-all duration-300 block text-center"
+                  >
+                    Xem {emp.jobsCount || 0} vị trí tuyển
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -731,7 +832,7 @@ const HomePage = () => {
             <div className="space-y-5">
               <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full tracking-wider uppercase">
                 <Award className="w-3.5 h-3.5 text-emerald-500" /> Lý do chọn
-                JobPortal
+                ViệcLàmViệt
               </span>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight">
                 Giải pháp tìm kiếm việc làm hàng đầu cho thế hệ mới

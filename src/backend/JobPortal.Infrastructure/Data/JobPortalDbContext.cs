@@ -38,7 +38,12 @@ public class JobPortalDbContext : DbContext
             new Category { Id = 2, Name = "Marketing / Truyền thông" },
             new Category { Id = 3, Name = "Kế toán / Kiểm toán" },
             new Category { Id = 4, Name = "Quản trị nhân sự" },
-            new Category { Id = 5, Name = "Kinh doanh / Bán hàng" }
+            new Category { Id = 5, Name = "Kinh doanh / Bán hàng" },
+            new Category { Id = 6, Name = "Thiết kế đồ họa / UI-UX" },
+            new Category { Id = 7, Name = "Dịch vụ khách hàng / CSKH" },
+            new Category { Id = 8, Name = "Ngân hàng / Tài chính" },
+            new Category { Id = 9, Name = "Giáo dục / Đào tạo" },
+            new Category { Id = 10, Name = "Logistics / Chuỗi cung ứng" }
         );
 
         // 2. Seed dữ liệu bảng Địa điểm (Locations)
@@ -82,6 +87,18 @@ public class JobPortalDbContext : DbContext
         var employerEYId = Guid.Parse("22222222-2222-2222-2222-222222222225");
         var companyEYId = Guid.Parse("44444444-4444-4444-4444-444444444447");
 
+        var employerTechcombankId = Guid.Parse("22222222-2222-2222-2222-222222222226");
+        var companyTechcombankId = Guid.Parse("44444444-4444-4444-4444-444444444448");
+
+        var employerVinamilkId = Guid.Parse("22222222-2222-2222-2222-222222222227");
+        var companyVinamilkId = Guid.Parse("44444444-4444-4444-4444-444444444449");
+
+        var employerGrabId = Guid.Parse("22222222-2222-2222-2222-222222222228");
+        var companyGrabId = Guid.Parse("44444444-4444-4444-4444-444444444450");
+
+        var employerVNGId = Guid.Parse("22222222-2222-2222-2222-222222222229");
+        var companyVNGId = Guid.Parse("44444444-4444-4444-4444-444444444451");
+
         // Chuỗi PasswordHash tương ứng với mật khẩu gốc "Abc@123456" sau khi băm mã hóa
         string mockHashPassword = "$2a$11$wK7A6fXN93vL7uX7m1Sze.mO6Pj12Wp8N3Zz9gRzFqZz5xM7m.Tqm";
         var baseDate = new DateTime(2026, 5, 21, 0, 0, 0, DateTimeKind.Utc);
@@ -95,7 +112,11 @@ public class JobPortalDbContext : DbContext
             new User { Id = candidateUserId, Email = "an.nguyen@gmail.com", PasswordHash = mockHashPassword, Role = UserRole.Seeker, CreatedAt = baseDate },
             new User { Id = employerVingroupId, Email = "hr@vingroup.net", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
             new User { Id = employerShopeeId, Email = "hr@shopee.vn", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
-            new User { Id = employerEYId, Email = "hr@ey.com", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate }
+            new User { Id = employerEYId, Email = "hr@ey.com", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
+            new User { Id = employerTechcombankId, Email = "hr@techcombank.com.vn", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
+            new User { Id = employerVinamilkId, Email = "recruitment@vinamilk.com.vn", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
+            new User { Id = employerGrabId, Email = "careers@grab.com", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate },
+            new User { Id = employerVNGId, Email = "jobs@vng.com.vn", PasswordHash = mockHashPassword, Role = UserRole.Employer, CreatedAt = baseDate }
         );
 
         // ----------------------------------------------------
@@ -109,6 +130,7 @@ public class JobPortalDbContext : DbContext
                 CompanyName = "FPT Software",
                 Website = "https://fpt-software.com",
                 LogoUrl = "https://img.vietnamworks.com/pictureprofile/vnw/logo_fpt_software.png",
+                CoverUrl = "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&auto=format&fit=crop&q=80",
                 Address = "Khu Công Nghệ Cao, Quận 9, TP. Hồ Chí Minh",
                 ShortDescription = "Tập đoàn công nghệ hàng đầu, tiên phong trong chuyển đổi số toàn cầu.",
                 CompanySize = "10,000+ nhân viên",
@@ -156,6 +178,62 @@ public class JobPortalDbContext : DbContext
                 CompanySize = "1,000 - 2,000 nhân viên",
                 IsVerified = true,
                 Description = "EY là tổ chức hàng đầu thế giới về dịch vụ kiểm toán, thuế, giao dịch tài chính và tư vấn, xây dựng niềm tin vào các thị trường vốn và nền kinh tế toàn cầu."
+            },
+            new Company
+            {
+                Id = companyTechcombankId,
+                UserId = employerTechcombankId,
+                CompanyName = "Techcombank",
+                Website = "https://techcombank.com",
+                LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/e/e8/Techcombank_logo.svg",
+                CoverUrl = "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80",
+                ShortDescription = "Ngân hàng Thương mại Cổ phần Kỹ thương Việt Nam.",
+                Address = "119 Trần Hưng Đạo, Quận Hoàn Kiếm, Hà Nội",
+                CompanySize = "5,000 - 10,000 nhân viên",
+                IsVerified = true,
+                Description = "Techcombank là một trong những ngân hàng cổ phần lớn nhất Việt Nam và là một trong những ngân hàng hàng đầu ở Châu Á, dẫn đầu về cung cấp các giải pháp tài chính số hóa."
+            },
+            new Company
+            {
+                Id = companyVinamilkId,
+                UserId = employerVinamilkId,
+                CompanyName = "Vinamilk",
+                Website = "https://vinamilk.com.vn",
+                LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/2/29/Vinamilk_logo.svg",
+                CoverUrl = "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=1200&auto=format&fit=crop&q=80",
+                ShortDescription = "Công ty Cổ phần Sữa Việt Nam - Dinh dưỡng vươn cao Việt Nam.",
+                Address = "10 Tân Trào, Tân Phú, Quận 7, TP. Hồ Chí Minh",
+                CompanySize = "5,000 - 10,000 nhân viên",
+                IsVerified = true,
+                Description = "Vinamilk là doanh nghiệp sản xuất sữa hàng đầu Việt Nam. Nằm trong top 40 công ty sữa lớn nhất thế giới về doanh thu, thương hiệu Vinamilk được người tiêu dùng tin tưởng lựa chọn."
+            },
+            new Company
+            {
+                Id = companyGrabId,
+                UserId = employerGrabId,
+                CompanyName = "Grab Vietnam",
+                Website = "https://grab.com/vn",
+                LogoUrl = "https://freelogopng.com/images/all_img/1655829871grab-logo-png.png",
+                CoverUrl = "https://images.unsplash.com/photo-1494959764136-6be9eb3c261e?w=1200&auto=format&fit=crop&q=80",
+                ShortDescription = "Siêu ứng dụng hàng đầu Đông Nam Á về giao nhận và di chuyển.",
+                Address = "Tòa nhà Mapletree Business Centre, 1060 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+                CompanySize = "1,000 - 5,000 nhân viên",
+                IsVerified = true,
+                Description = "Grab là siêu ứng dụng hàng đầu Đông Nam Á cung cấp các dịch vụ thiết yếu hàng ngày bao gồm giao nhận, vận chuyển, giao đồ ăn và các dịch vụ tài chính số."
+            },
+            new Company
+            {
+                Id = companyVNGId,
+                UserId = employerVNGId,
+                CompanyName = "VNG Corporation",
+                Website = "https://vng.com.vn",
+                LogoUrl = "https://upload.wikimedia.org/wikipedia/commons/2/22/VNG_logo.svg",
+                CoverUrl = "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80",
+                ShortDescription = "Công ty công nghệ kỳ lân đầu tiên của Việt Nam.",
+                Address = "Z06 Đường số 13, Phường Tân Thuận Đông, Quận 7, TP. Hồ Chí Minh",
+                CompanySize = "2,000 - 5,000 nhân viên",
+                IsVerified = true,
+                Description = "Kiến tạo công nghệ và Phát triển con người. VNG là công ty Internet hàng đầu Việt Nam sở hữu Zalo, Zing MP3 và phát triển mảng game, dịch vụ điện toán đám mây toàn cầu."
             }
         );
 
@@ -298,9 +376,85 @@ public class JobPortalDbContext : DbContext
                 Status = JobStatus.Published,
                 CreatedAt = baseDate.AddDays(-1),
                 ExpirationDate = baseDate.AddMonths(1)
+            },
+            new JobPost
+            {
+                Id = Guid.Parse("aaaaaaaa-6666-6666-6666-aaaaaaaaaaaa"),
+                CompanyId = companyTechcombankId,
+                CategoryId = 8,
+                Title = "Chuyên Viên Quan Hệ Khách Hàng Doanh Nghiệp (RM)",
+                Quantity = 5,
+                SalaryMin = 18000000,
+                SalaryMax = 35000000,
+                IsNegotiable = false,
+                JobLevel = JobLevel.Junior,
+                WorkType = WorkType.FullTime,
+                Description = "Quản lý danh mục khách hàng doanh nghiệp, thẩm định tín dụng và phát triển quan hệ đối tác kinh doanh.",
+                Requirements = "Tốt nghiệp chuyên ngành Tài chính, Ngân hàng, Kinh tế. Kỹ năng phân tích báo cáo tài chính và giao tiếp xuất sắc.",
+                Benefits = "Tháng lương 13-15 + thưởng doanh số không giới hạn. Lộ trình thăng tiến rõ ràng trong môi trường chuyên nghiệp.",
+                Status = JobStatus.Published,
+                IsHot = true,
+                CreatedAt = baseDate.AddDays(-2),
+                ExpirationDate = baseDate.AddMonths(1)
+            },
+            new JobPost
+            {
+                Id = Guid.Parse("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa"),
+                CompanyId = companyVinamilkId,
+                CategoryId = 10,
+                Title = "Nhân Viên Quản Lý Chuỗi Cung Ứng (Logistics Specialist)",
+                Quantity = 2,
+                SalaryMin = 15000000,
+                SalaryMax = 25000000,
+                IsNegotiable = false,
+                JobLevel = JobLevel.Junior,
+                WorkType = WorkType.FullTime,
+                Description = "Giám sát chuỗi cung ứng sữa nguyên liệu và thành phẩm, tối ưu chi phí vận tải và quản trị kho vận.",
+                Requirements = "Có kinh nghiệm 2 năm làm việc trong mảng Logistics hoặc SCM. Thành thạo tiếng Anh và Excel nâng cao.",
+                Benefits = "Môi trường làm việc thuộc top 1 nơi làm việc tốt nhất Việt Nam. Trợ cấp sữa, cơm trưa và BHXH đóng full lương.",
+                Status = JobStatus.Published,
+                CreatedAt = baseDate.AddDays(-3),
+                ExpirationDate = baseDate.AddMonths(2)
+            },
+            new JobPost
+            {
+                Id = Guid.Parse("aaaaaaaa-8888-8888-8888-aaaaaaaaaaaa"),
+                CompanyId = companyGrabId,
+                CategoryId = 7,
+                Title = "Customer Experience Specialist (Chăm sóc Khách hàng)",
+                Quantity = 3,
+                SalaryMin = 10000000,
+                SalaryMax = 16000000,
+                IsNegotiable = false,
+                JobLevel = JobLevel.Junior,
+                WorkType = WorkType.FullTime,
+                Description = "Giải quyết các khiếu nại, phản hồi của người",
+                Requirements = "Có kinh nghiệm 2 năm làm việc trong mảng Logistics hoặc SCM. Thành thạo tiếng Anh và Excel nâng cao.",
+                Benefits = "Môi trường làm việc thuộc top 1 nơi làm việc tốt nhất Việt Nam. Trợ cấp sữa, cơm trưa và BHXH đóng full lương.",
+                Status = JobStatus.Published,
+                CreatedAt = baseDate.AddDays(-3),
+                ExpirationDate = baseDate.AddMonths(2)
+            },
+            new JobPost
+            {
+                Id = Guid.Parse("aaaaaaaa-9999-9999-9999-aaaaaaaaaaaa"),
+                CompanyId = companyVNGId,
+                CategoryId = 4,
+                Title = "UI/UX Designer (Làm việc tại Quận 7)",
+                Quantity = 1,
+                SalaryMin = 12000000,
+                SalaryMax = 20000000,
+                IsNegotiable = false,
+                JobLevel = JobLevel.Junior,
+                WorkType = WorkType.FullTime,
+                Description = "Thiết kế giao diện cho các sản phẩm game và ứng dụng di động của VNG. Tham gia vào toàn bộ quy trình từ wireframe, mockup đến prototyping.",
+                Requirements = "Kinh nghiệm 1-2 năm ở vị trí tương đương. Thành thạo Figma, Sketch, Adobe XD. Có portfolio thể hiện rõ phong cách thiết kế.",
+                Benefits = "Được làm việc trong môi trường công nghệ hàng đầu Việt Nam. Thỏa sức sáng tạo với các dự án quy mô lớn. Hưởng lương tháng 13 và các phúc lợi hấp dẫn khác.",
+                Status = JobStatus.Published,
+                CreatedAt = baseDate.AddDays(-4),
+                ExpirationDate = baseDate.AddMonths(1)
             }
         );
-
         // ----------------------------------------------------
         // 5. SEED DATA BẢNG LIÊN KẾT NHIỀU - NHIỀU (JOB SKILLS & JOB LOCATIONS)
         // ----------------------------------------------------
@@ -328,26 +482,56 @@ public class JobPortalDbContext : DbContext
             new { JobPostsId = Guid.Parse("aaaaaaaa-4444-4444-4444-aaaaaaaaaaaa"), SkillsId = 13 },
             // Job 7: Shopee HR Recruitment
             new { JobPostsId = Guid.Parse("aaaaaaaa-5555-5555-5555-aaaaaaaaaaaa"), SkillsId = 11 },
-            new { JobPostsId = Guid.Parse("aaaaaaaa-5555-5555-5555-aaaaaaaaaaaa"), SkillsId = 12 }
+            new { JobPostsId = Guid.Parse("aaaaaaaa-5555-5555-5555-aaaaaaaaaaaa"), SkillsId = 12 },
+            // Job 8: RM Techcombank
+            new { JobPostsId = Guid.Parse("aaaaaaaa-6666-6666-6666-aaaaaaaaaaaa"), SkillsId = 10 },
+            new { JobPostsId = Guid.Parse("aaaaaaaa-6666-6666-6666-aaaaaaaaaaaa"), SkillsId = 12 },
+            // Job 9: Logistics Vinamilk
+            new { JobPostsId = Guid.Parse("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa"), SkillsId = 14 },
+            new { JobPostsId = Guid.Parse("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa"), SkillsId = 13 },
+            // Job 10: Grab Customer Support
+            new { JobPostsId = Guid.Parse("aaaaaaaa-8888-8888-8888-aaaaaaaaaaaa"), SkillsId = 12 },
+            new { JobPostsId = Guid.Parse("aaaaaaaa-8888-8888-8888-aaaaaaaaaaaa"), SkillsId = 13 },
+            // Job 11: VNG UI/UX
+            new { JobPostsId = Guid.Parse("aaaaaaaa-9999-9999-9999-aaaaaaaaaaaa"), SkillsId = 2 },
+            new { JobPostsId = Guid.Parse("aaaaaaaa-9999-9999-9999-aaaaaaaaaaaa"), SkillsId = 12 }
         );
 
         modelBuilder.Entity("JobPostLocation").HasData(
             // Job 1: .NET Software
             new { JobPostsId = Guid.Parse("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa"), LocationsId = 1 },
             new { JobPostsId = Guid.Parse("aaaaaaaa-1111-1111-1111-aaaaaaaaaaaa"), LocationsId = 2 },
+
             // Job 2: Frontend
             new { JobPostsId = Guid.Parse("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb"), LocationsId = 1 },
             new { JobPostsId = Guid.Parse("bbbbbbbb-2222-2222-2222-bbbbbbbbbbbb"), LocationsId = 5 },
+
             // Job 3: Cloud DevOps
             new { JobPostsId = Guid.Parse("cccccccc-3333-3333-3333-cccccccccccc"), LocationsId = 1 },
+
             // Job 4: Vingroup Sales Manager
             new { JobPostsId = Guid.Parse("aaaaaaaa-2222-2222-2222-aaaaaaaaaaaa"), LocationsId = 2 },
+
             // Job 5: Shopee SEO Marketing
             new { JobPostsId = Guid.Parse("aaaaaaaa-3333-3333-3333-aaaaaaaaaaaa"), LocationsId = 1 },
+
             // Job 6: EY Audit Assistant
             new { JobPostsId = Guid.Parse("aaaaaaaa-4444-4444-4444-aaaaaaaaaaaa"), LocationsId = 2 },
+
             // Job 7: Shopee HR Recruitment
-            new { JobPostsId = Guid.Parse("aaaaaaaa-5555-5555-5555-aaaaaaaaaaaa"), LocationsId = 1 }
+            new { JobPostsId = Guid.Parse("aaaaaaaa-5555-5555-5555-aaaaaaaaaaaa"), LocationsId = 1 },
+
+            // Job 8: RM Techcombank
+            new { JobPostsId = Guid.Parse("aaaaaaaa-6666-6666-6666-aaaaaaaaaaaa"), LocationsId = 2 },
+
+            // Job 9: Logistics Vinamilk
+            new { JobPostsId = Guid.Parse("aaaaaaaa-7777-7777-7777-aaaaaaaaaaaa"), LocationsId = 1 },
+
+            // Job 10: Grab Customer Support
+            new { JobPostsId = Guid.Parse("aaaaaaaa-8888-8888-8888-aaaaaaaaaaaa"), LocationsId = 1 },
+
+            // Job 11: VNG UI/UX
+            new { JobPostsId = Guid.Parse("aaaaaaaa-9999-9999-9999-aaaaaaaaaaaa"), LocationsId = 1 }
         );
     }
 }

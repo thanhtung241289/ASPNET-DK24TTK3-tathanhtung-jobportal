@@ -88,4 +88,34 @@ public class JobController : ControllerBase
 
         return Ok(jobDetail);
     }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Employer")]
+    public async Task<IActionResult> UpdateJob(Guid id, [FromBody] CreateJobPostRequest request)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out Guid userId))
+            return Unauthorized(new { message = "Không xác định được danh tính người dùng." });
+
+        var success = await _jobService.UpdateJobPostAsync(userId, id, request);
+        if (!success)
+            return BadRequest(new { message = "Cập nhật tin tuyển dụng thất bại. Tin không tồn tại hoặc không thuộc sở hữu của công ty bạn." });
+
+        return Ok(new { message = "Cập nhật tin tuyển dụng thành công! Tin đăng đang chờ Admin phê duyệt." });
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Employer")]
+    public async Task<IActionResult> DeleteJob(Guid id)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdString, out Guid userId))
+            return Unauthorized(new { message = "Không xác định được danh tính người dùng." });
+
+        var success = await _jobService.DeleteJobPostAsync(userId, id);
+        if (!success)
+            return BadRequest(new { message = "Xóa tin tuyển dụng thất bại. Tin không tồn tại hoặc không thuộc sở hữu của công ty bạn." });
+
+        return Ok(new { message = "Xóa tin tuyển dụng thành công!" });
+    }
 }
