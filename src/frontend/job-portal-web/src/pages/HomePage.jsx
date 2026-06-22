@@ -23,6 +23,10 @@ const HomePage = () => {
   const [loadingHot, setLoadingHot] = useState(true);
   const [loadingStats, setLoadingStats] = useState(true);
 
+  // Email đăng ký bản tin tuyển dụng
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
   // 2. Quản lý State cho Form Tìm kiếm
   const [searchForm, setSearchForm] = useState({
     keyword: "",
@@ -61,7 +65,7 @@ const HomePage = () => {
       try {
         const [hotJobsData, latestJobsData] = await Promise.all([
           jobApi.searchJobs({ isHot: true, pageSize: 6 }),
-          jobApi.searchJobs({ pageSize: 5 }),
+          jobApi.searchJobs({ pageSize: 6 }), // Lấy 6 bài cho chẵn khi chia 2 cột
         ]);
         setHotJobs(hotJobsData?.items || []);
         setLatestJobs(latestJobsData?.items || []);
@@ -115,7 +119,15 @@ const HomePage = () => {
     navigate(`/jobs?categoryId=${catId}`);
   };
 
-  // Helper helper to get static file URLs
+  // Đăng ký bản tin
+  const handleSubscribeNewsletter = (e) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    setSubscribed(true);
+    setNewsletterEmail("");
+  };
+
+  // Helper to get static file URLs
   const getFullUrl = (path) => {
     if (!path) return "";
     if (path.startsWith("http://") || path.startsWith("https://")) return path;
@@ -128,7 +140,7 @@ const HomePage = () => {
     switch (catId) {
       case 1: // CNTT
         return (
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:bg-primary-600 group-hover:text-white transition-all duration-300 shadow-sm">
             <svg
               className="w-6 h-6"
               fill="none"
@@ -146,7 +158,7 @@ const HomePage = () => {
         );
       case 2: // Marketing
         return (
-          <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-sm">
+          <div className="w-12 h-12 rounded-xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center group-hover:bg-fuchsia-600 group-hover:text-white transition-all duration-300 shadow-sm">
             <svg
               className="w-6 h-6"
               fill="none"
@@ -237,217 +249,256 @@ const HomePage = () => {
     }
   };
 
+  // Mock logo cho Employers để hiển thị chuyên nghiệp
+  const featuredEmployers = [
+    {
+      id: "44444444-4444-4444-4444-444444444444",
+      name: "FPT Software",
+      logo: "https://img.vietnamworks.com/pictureprofile/vnw/logo_fpt_software.png",
+      industry: "Công nghệ thông tin",
+      desc: "Doanh nghiệp chuyển đổi số toàn cầu hàng đầu Việt Nam.",
+      jobsCount: 3,
+    },
+    {
+      id: "44444444-4444-4444-4444-444444444445",
+      name: "Vingroup",
+      logo: "https://img.vietnamworks.com/pictureprofile/vnw/logo_vingroup.png",
+      industry: "Đa ngành",
+      desc: "Tập đoàn kinh tế tư nhân lớn nhất Việt Nam.",
+      jobsCount: 1,
+    },
+    {
+      id: "44444444-4444-4444-4444-444444444446",
+      name: "Shopee Vietnam",
+      logo: "https://logodownload.org/wp-content/uploads/2020/09/shopee-logo-1.png",
+      industry: "Thương mại điện tử",
+      desc: "Nền tảng mua sắm trực tuyến hàng đầu Đông Nam Á.",
+      jobsCount: 2,
+    },
+    {
+      id: "44444444-4444-4444-4444-444444444447",
+      name: "EY Vietnam",
+      logo: "https://logodownload.org/wp-content/uploads/2021/03/ey-ernst-young-logo-0.png",
+      industry: "Kiểm toán & Tư vấn tài chính",
+      desc: "Một trong 4 hãng kiểm toán Big Four lớn nhất hành tinh.",
+      jobsCount: 1,
+    },
+  ];
+
   return (
     <div className="w-full bg-[#fcfdfe]">
-      {/* --- HERO BANNER SECTION (Light Mesh Gradient & Premium Glassmorphism) --- */}
-      <section className="relative overflow-hidden bg-gradient-to-tr from-blue-50/70 via-indigo-50/50 to-purple-50/40 py-20 md:py-28 text-slate-900 border-b border-slate-100">
+      {/* --- HERO BANNER SECTION (Premium Violet Mesh Gradient & Smooth Graphics) --- */}
+      <section className="relative overflow-hidden bg-gradient-to-tr from-violet-50/70 via-indigo-50/40 to-fuchsia-50/30 py-24 md:py-32 text-slate-900 border-b border-slate-100">
         {/* Glow effects */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-400/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-fuchsia-400/10 rounded-full blur-3xl pointer-events-none animate-pulse-slow"></div>
 
         <div className="container-custom relative z-10">
           {/* Title & Tagline */}
-          <div className="text-center max-w-3xl mx-auto mb-10 md:mb-12 animate-slide-up">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary-50 text-primary-600 border border-primary-100 mb-4">
-              ✨ Nền tảng việc làm đa ngành thế hệ mới
+          <div className="text-center max-w-3xl mx-auto mb-12 md:mb-16 animate-slide-up">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-primary-50 text-primary-600 border border-primary-100 mb-6 uppercase tracking-wider">
+              ✨ Nền tảng kết nối nhân sự đa ngành hàng đầu
             </span>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-5 leading-tight text-slate-900">
-              Khám phá công việc <br />
-              <span className="bg-gradient-to-r from-primary-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-                mơ ước
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6 leading-tight text-slate-900">
+              Định hình tương lai <br />
+              <span className="bg-gradient-to-r from-primary-600 via-indigo-600 to-fuchsia-600 bg-clip-text text-transparent">
+                Sự nghiệp
               </span>{" "}
-              của bạn
+              của chính bạn
             </h1>
             <p className="text-base md:text-lg text-slate-500 font-light max-w-xl mx-auto">
-              Hàng ngàn cơ hội việc làm từ các công ty uy tín hàng đầu tại Việt
-              Nam đang chờ đón bạn.
+              Tìm kiếm hàng ngàn cơ hội việc làm chất lượng cao từ các doanh
+              nghiệp đã được xác thực uy tín tại Việt Nam.
             </p>
           </div>
 
-          {/* Search Box Card with Light Glassmorphic design */}
-          <div className="bg-white/95 backdrop-blur-xl border border-slate-100 p-5 md:p-6 rounded-3xl shadow-xl shadow-slate-100/80 max-w-5xl mx-auto animate-fade-in">
+          {/* Premium Search Box with Glassmorphism and detailed layout */}
+          <div className="bg-white/95 backdrop-blur-xl border border-slate-150 p-6 md:p-8 rounded-[32px] shadow-2xl shadow-slate-200/80 max-w-5xl mx-auto animate-fade-in">
             <form
               onSubmit={handleSearch}
-              className="flex flex-col md:flex-row gap-3"
+              className="flex flex-col lg:flex-row gap-4"
             >
-              {/* Input: Keyword */}
+              {/* Keyword input with Icon */}
               <div className="flex-1 relative">
-                <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="keyword"
-                  value={searchForm.keyword}
-                  onChange={handleInputChange}
-                  placeholder="Tiêu đề, kỹ năng, công ty..."
-                  className="w-full pl-11 pr-4 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
-                />
-              </div>
-
-              {/* Select: Location */}
-              <div className="md:w-52 relative">
-                <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
-                <select
-                  name="locationId"
-                  value={searchForm.locationId}
-                  onChange={handleInputChange}
-                  className="w-full pl-11 pr-8 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm appearance-none cursor-pointer"
-                >
-                  <option value="" className="text-slate-700">
-                    Tất cả địa điểm
-                  </option>
-                  {locations.map((loc) => (
-                    <option
-                      key={loc.id}
-                      value={loc.id}
-                      className="text-slate-700"
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2 pl-1">
+                  Tìm kiếm từ khóa
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                    <svg
+                      className="w-5 h-5 text-primary-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
                     >
-                      {loc.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Select: Category */}
-              <div className="md:w-60 relative">
-                <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-slate-400">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                </div>
-                <select
-                  name="categoryId"
-                  value={searchForm.categoryId}
-                  onChange={handleInputChange}
-                  className="w-full pl-11 pr-8 py-3.5 bg-slate-50/50 border border-slate-200 rounded-2xl text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm appearance-none cursor-pointer"
-                >
-                  <option value="" className="text-slate-700">
-                    Tất cả ngành nghề
-                  </option>
-                  {categories.map((cat) => (
-                    <option
-                      key={cat.id}
-                      value={cat.id}
-                      className="text-slate-700"
-                    >
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 right-3.5 flex items-center pointer-events-none text-slate-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                className="bg-linear-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700 text-white font-semibold px-8 py-3.5 rounded-2xl shadow-md shadow-primary-500/20 transition-all duration-300 active:scale-[0.98] text-sm md:w-auto w-full cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>Tìm Việc Ngay</span>
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    name="keyword"
+                    value={searchForm.keyword}
+                    onChange={handleInputChange}
+                    placeholder="Tên công việc, vị trí, kỹ năng cần tìm..."
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-primary-500 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all text-sm font-semibold"
                   />
-                </svg>
-              </button>
+                </div>
+              </div>
+
+              {/* Location Select with Icon */}
+              <div className="lg:w-56 relative">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2 pl-1">
+                  Địa điểm
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                    <svg
+                      className="w-5 h-5 text-primary-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                  <select
+                    name="locationId"
+                    value={searchForm.locationId}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-10 py-4 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-primary-500 rounded-2xl text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all text-sm font-semibold appearance-none cursor-pointer"
+                  >
+                    <option value="">Tất cả địa điểm</option>
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category Select with Icon */}
+              <div className="lg:w-64 relative">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-wider block mb-2 pl-1">
+                  Ngành nghề
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                    <svg
+                      className="w-5 h-5 text-primary-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                      />
+                    </svg>
+                  </div>
+                  <select
+                    name="categoryId"
+                    value={searchForm.categoryId}
+                    onChange={handleInputChange}
+                    className="w-full pl-12 pr-10 py-4 bg-slate-50 hover:bg-slate-100/50 focus:bg-white border border-slate-200 focus:border-primary-500 rounded-2xl text-slate-800 focus:outline-none focus:ring-4 focus:ring-primary-500/10 transition-all text-sm font-semibold appearance-none cursor-pointer"
+                  >
+                    <option value="">Tất cả ngành nghề</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400">
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit button at bottom or side */}
+              <div className="flex items-end mt-4 lg:mt-0">
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700 text-white font-extrabold px-10 py-4 rounded-2xl shadow-lg shadow-primary-500/25 transition-all duration-300 active:scale-[0.98] text-sm w-full cursor-pointer flex items-center justify-center gap-2 h-[54px]"
+                >
+                  <span>Tìm Kiếm</span>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                </button>
+              </div>
             </form>
 
             {/* Quick Suggest Tag Chips */}
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500 pl-1">
-              <span className="font-semibold text-slate-500">
-                Tìm kiếm phổ biến:
-              </span>
+            <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-slate-500 pl-1">
+              <span className="font-bold text-slate-400">Gợi ý từ khóa:</span>
               {[
                 "ReactJS",
                 ".NET",
                 "Marketing",
                 "Sales",
-                "Kiểm toán",
+                "Kế toán",
                 "Devops",
               ].map((tag) => (
                 <button
                   key={tag}
                   type="button"
                   onClick={() => handleHotTagClick(tag)}
-                  className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded-full border border-slate-200 transition-colors cursor-pointer"
+                  className="bg-slate-100 hover:bg-primary-50 hover:text-primary-600 text-slate-600 px-3.5 py-1.5 rounded-xl border border-slate-200 hover:border-primary-200 transition-all cursor-pointer font-bold"
                 >
                   {tag}
                 </button>
@@ -461,49 +512,49 @@ const HomePage = () => {
       <section className="py-12 -mt-6 relative z-20">
         <div className="container-custom">
           {loadingStats ? (
-            <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center text-slate-400 text-xs">
-              Đang kết nối số liệu thực tế...
+            <div className="bg-white border border-slate-150 rounded-2xl p-6 text-center text-slate-400 text-xs font-semibold">
+              Đang kết nối số liệu hệ thống thực tế...
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Stat Item 1 */}
-              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl shadow-sm">
+              <div className="bg-white border border-slate-150 shadow-lg hover:shadow-xl rounded-3xl p-7 flex items-center gap-6 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-14 h-14 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-2xl shadow-inner">
                   💼
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <h3 className="text-3xl font-black text-slate-900">
                     {stats.activeJobsCount}
                   </h3>
-                  <p className="text-sm text-slate-500 font-medium">
-                    Việc làm đang tuyển dụng
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">
+                    Việc làm đang mở tuyển
                   </p>
                 </div>
               </div>
               {/* Stat Item 2 */}
-              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl shadow-sm">
+              <div className="bg-white border border-slate-150 shadow-lg hover:shadow-xl rounded-3xl p-7 flex items-center gap-6 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-14 h-14 rounded-2xl bg-fuchsia-50 text-fuchsia-600 flex items-center justify-center text-2xl shadow-inner">
                   🏢
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <h3 className="text-3xl font-black text-slate-900">
                     {stats.companiesCount}
                   </h3>
-                  <p className="text-sm text-slate-500 font-medium">
-                    Nhà tuyển dụng tin cậy
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">
+                    Doanh nghiệp tin cậy
                   </p>
                 </div>
               </div>
               {/* Stat Item 3 */}
-              <div className="bg-white border border-slate-100/80 shadow-md hover:shadow-xl rounded-2xl p-6 flex items-center gap-5 transition-all duration-300 hover:-translate-y-1">
-                <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl shadow-sm">
+              <div className="bg-white border border-slate-150 shadow-lg hover:shadow-xl rounded-3xl p-7 flex items-center gap-6 transition-all duration-300 hover:-translate-y-1">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner">
                   🤝
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <h3 className="text-3xl font-black text-slate-900">
                     {stats.applicationsCount}
                   </h3>
-                  <p className="text-sm text-slate-500 font-medium">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wide mt-0.5">
                     Lượt kết nối ứng tuyển
                   </p>
                 </div>
@@ -517,7 +568,7 @@ const HomePage = () => {
       <section className="py-16 bg-[#fcfdfe]">
         <div className="container-custom">
           <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-3">
               Khám Phá Theo Ngành Nghề
             </h2>
             <p className="text-slate-500 text-sm">
@@ -531,10 +582,10 @@ const HomePage = () => {
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.id)}
-                className="bg-white border border-slate-100 rounded-2xl p-5 md:p-6 text-center cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary-500/5 hover:border-primary-100 group flex flex-col items-center gap-4"
+                className="bg-white border border-slate-150 rounded-3xl p-6 text-center cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-primary-500/5 hover:border-primary-300 group flex flex-col items-center gap-4"
               >
                 {getCategoryIcon(cat.id)}
-                <h3 className="font-semibold text-slate-800 text-sm group-hover:text-primary-600 transition-colors line-clamp-2 min-h-[40px] flex items-center justify-center">
+                <h3 className="font-bold text-slate-800 text-sm group-hover:text-primary-600 transition-colors line-clamp-2 min-h-[40px] flex items-center justify-center">
                   {cat.name}
                 </h3>
               </div>
@@ -544,19 +595,19 @@ const HomePage = () => {
       </section>
 
       {/* --- FEATURED/HOT JOBS SECTION (3-Column Grid) --- */}
-      <section className="py-16 bg-gradient-to-b from-slate-50/20 to-indigo-50/20 border-t border-b border-slate-100">
+      <section className="py-20 bg-gradient-to-b from-slate-50/40 to-indigo-50/20 border-t border-b border-slate-100">
         <div className="container-custom">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex justify-between items-end mb-12">
             <div>
-              <span className="text-[10px] font-black text-rose-600 uppercase bg-rose-50 border border-rose-100 px-2.5 py-1 rounded-full tracking-wider">
-                🔥 Hot Job / Khuyên dùng
+              <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-100 px-3 py-1 rounded-full tracking-wider uppercase">
+                🔥 Hot Job / Đề xuất tuyển gấp
               </span>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-2.5">
-                Việc Làm Nổi Bật
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-3">
+                Việc Làm Nổi Bật hàng tuần
               </h2>
               <p className="text-slate-500 text-sm mt-1">
-                Tin tuyển dụng chất lượng cao, phản hồi nhanh chóng từ các tập
-                đoàn hàng đầu.
+                Các chiến dịch tuyển dụng tiêu điểm với quyền lợi tốt và phản
+                hồi nhanh từ HR.
               </p>
             </div>
           </div>
@@ -582,18 +633,17 @@ const HomePage = () => {
               ))}
             </div>
           ) : hotJobs.length === 0 ? (
-            <div className="text-center py-10 bg-white rounded-3xl border border-slate-100 text-slate-500 font-semibold text-sm">
-              Hiện tại chưa có việc làm nổi bật nào.
+            <div className="text-center py-12 bg-white rounded-3xl border border-slate-150 text-slate-400 font-semibold text-sm">
+              Hiện chưa có việc làm nổi bật nào được thiết lập.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {hotJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-white border border-slate-150 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between min-h-[220px] relative group overflow-hidden"
+                  className="bg-white border border-slate-150 rounded-3xl p-6 shadow-md hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 flex flex-col justify-between min-h-[240px] relative group overflow-hidden"
                 >
-                  {/* Decorative glowing top line */}
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-amber-500" />
+                  <div className="absolute top-0 left-0 w-full h-[4px] bg-gradient-to-r from-rose-500 via-primary-500 to-indigo-500" />
 
                   <div>
                     {/* Top Row: Logo & Level Tag */}
@@ -601,7 +651,7 @@ const HomePage = () => {
                       {job.company ? (
                         <Link
                           to={`/companies/${job.company.id}`}
-                          className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0 hover:scale-105 transition-transform"
+                          className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 hover:scale-105 transition-transform"
                         >
                           {job.company.logoUrl ? (
                             <img
@@ -616,22 +666,22 @@ const HomePage = () => {
                           )}
                         </Link>
                       ) : (
-                        <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                        <div className="w-12 h-12 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0">
                           <span className="text-lg font-bold text-slate-400">
                             ?
                           </span>
                         </div>
                       )}
 
-                      <span className="bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md border border-rose-100 animate-pulse-slow">
-                        HOT
+                      <span className="bg-rose-50 text-rose-600 text-[9px] font-black uppercase tracking-wider px-2 py-0.75 rounded-lg border border-rose-100">
+                        Nổi bật
                       </span>
                     </div>
 
                     {/* Middle: Title & Company */}
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="text-base font-bold text-slate-900 hover:text-rose-600 transition-colors block mb-1 line-clamp-1"
+                      className="text-base font-black text-slate-900 hover:text-primary-600 transition-colors block mb-1 line-clamp-1"
                       title={job.title}
                     >
                       {job.title}
@@ -640,12 +690,12 @@ const HomePage = () => {
                     {job.company ? (
                       <Link
                         to={`/companies/${job.company.id}`}
-                        className="text-slate-600 text-xs font-semibold hover:text-rose-600 transition-colors hover:underline block mb-3.5"
+                        className="text-slate-600 text-xs font-semibold hover:text-primary-600 transition-colors hover:underline block mb-3"
                       >
                         {job.company.companyName}
                       </Link>
                     ) : (
-                      <span className="text-slate-400 text-xs font-medium block mb-3.5">
+                      <span className="text-slate-400 text-xs font-medium block mb-3">
                         Doanh nghiệp ẩn danh
                       </span>
                     )}
@@ -678,7 +728,7 @@ const HomePage = () => {
                     </span>
                     <Link
                       to={`/jobs/${job.id}`}
-                      className="text-xs font-bold text-slate-900 group-hover:text-rose-600 flex items-center gap-1 transition-colors"
+                      className="text-xs font-extrabold text-slate-900 group-hover:text-primary-600 flex items-center gap-1 transition-colors"
                     >
                       Chi tiết <span>➔</span>
                     </Link>
@@ -690,17 +740,75 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- LATEST JOBS SECTION (Dynamic List) --- */}
-      <section className="py-16 bg-[#fcfdfe]">
+      {/* --- TOP EMPLOYERS SECTION (Premium new addition) --- */}
+      <section className="py-20 bg-white">
         <div className="container-custom">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full tracking-wider uppercase">
+              🏢 Nhà tuyển dụng hàng đầu
+            </span>
+            <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-3">
+              Doanh nghiệp nổi bật liên kết
+            </h2>
+            <p className="text-slate-500 text-sm mt-1">
+              Hợp tác chiến lược cùng những tập đoàn lớn mang đến cơ hội thăng
+              tiến vững chắc.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {featuredEmployers.map((emp) => (
+              <div
+                key={emp.id}
+                className="bg-white border border-slate-150 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between items-center text-center relative overflow-hidden group"
+              >
+                {/* Visual accent inside container */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-primary-500/5 rounded-full blur-xl transform translate-x-6 -translate-y-6"></div>
+
+                <div className="flex flex-col items-center">
+                  <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center p-2 mb-4 group-hover:scale-105 transition-transform duration-300">
+                    <img
+                      src={emp.logo}
+                      alt={emp.name}
+                      className="object-contain w-full h-full"
+                    />
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-sm mb-1">
+                    {emp.name}
+                  </h3>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">
+                    {emp.industry}
+                  </span>
+                  <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed mb-4 px-2">
+                    {emp.desc}
+                  </p>
+                </div>
+
+                <Link
+                  to={`/companies/${emp.id}`}
+                  className="w-full bg-slate-50 hover:bg-primary-50 group-hover:text-primary-600 text-slate-700 text-xs font-bold py-2.5 rounded-2xl border border-slate-150 hover:border-primary-200 transition-all cursor-pointer block"
+                >
+                  Xem {emp.jobsCount} vị trí tuyển
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* --- LATEST JOBS SECTION (2-Column Grid) --- */}
+      <section className="py-20 bg-slate-50/50 border-t border-b border-slate-100">
+        <div className="container-custom">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
             <div>
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                Việc Làm Mới Nhất
+              <span className="text-[10px] font-black text-primary-600 bg-primary-50 border border-primary-100 px-3 py-1 rounded-full tracking-wider uppercase">
+                💼 Cập nhật mới nhất
+              </span>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight mt-3">
+                Việc làm mới đăng tuyển
               </h2>
-              <p className="text-slate-500 text-sm mt-1.5">
-                Các vị trí vừa đăng tuyển với mức lương hấp dẫn đang chờ hồ sơ
-                của bạn.
+              <p className="text-slate-500 text-sm mt-1">
+                Tìm kiếm vị trí tuyển dụng vừa được phát hành trên hệ thống.
               </p>
             </div>
             <button
@@ -715,34 +823,26 @@ const HomePage = () => {
           </div>
 
           {loadingJobs ? (
-            /* Skeleton Loading State */
-            <div className="grid grid-cols-1 gap-4">
-              {[1, 2, 3, 4].map((n) => (
+            /* Skeleton Loading State (2 columns grid) */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
                 <div
                   key={n}
-                  className="bg-white border border-slate-100 p-5 rounded-2xl flex flex-col md:flex-row justify-between gap-4 animate-pulse"
+                  className="bg-white border border-slate-100 p-5 rounded-2xl flex flex-col md:flex-row justify-between gap-4 animate-pulse h-32"
                 >
                   <div className="flex gap-4">
                     <div className="w-14 h-14 bg-slate-100 rounded-xl"></div>
                     <div className="space-y-3 flex-1">
                       <div className="h-4 bg-slate-200 rounded-md w-48"></div>
                       <div className="h-3 bg-slate-150 rounded-md w-32"></div>
-                      <div className="flex gap-2">
-                        <div className="h-5 bg-slate-100 rounded-md w-16"></div>
-                        <div className="h-5 bg-slate-100 rounded-md w-16"></div>
-                      </div>
                     </div>
-                  </div>
-                  <div className="flex md:flex-col justify-end items-end gap-2">
-                    <div className="h-5 bg-slate-200 rounded-md w-24"></div>
-                    <div className="h-8 bg-slate-100 rounded-md w-28"></div>
                   </div>
                 </div>
               ))}
             </div>
           ) : latestJobs.length === 0 ? (
             /* Empty State */
-            <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3">
+            <div className="text-center py-16 bg-white rounded-3xl border border-slate-150 shadow-sm flex flex-col items-center justify-center gap-3">
               <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center text-2xl text-slate-400">
                 🔍
               </div>
@@ -754,8 +854,8 @@ const HomePage = () => {
               </p>
             </div>
           ) : (
-            /* Jobs List */
-            <div className="grid grid-cols-1 gap-4">
+            /* Jobs List in 2 Columns Grid! */
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {latestJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
@@ -764,63 +864,143 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* --- HOW IT WORKS SECTION --- */}
-      <section className="py-20 bg-white border-t border-slate-100">
+      {/* --- WHY CHOOSE US SECTION (Premium platform highlight) --- */}
+      <section className="py-20 bg-white">
         <div className="container-custom">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-              Quy Trình Ứng Tuyển Nhanh Chóng
-            </h2>
-            <p className="text-slate-500 text-sm">
-              Tìm kiếm công việc mơ ước chỉ với 3 bước đơn giản
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Left Graphics */}
+            <div className="space-y-6">
+              <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full tracking-wider uppercase">
+                🚀 Lý do chọn JobPortal
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 leading-tight">
+                Giải pháp tìm kiếm việc làm hàng đầu cho thế hệ mới
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Chúng tôi cung cấp giải pháp tuyển dụng minh bạch, kết nối nhanh
+                chóng thông qua hệ thống CV PDF đạt chuẩn và các doanh nghiệp
+                được thẩm định hồ sơ kỹ càng từ Admin.
+              </p>
+
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      Hồ sơ doanh nghiệp minh bạch
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      100% doanh nghiệp liên kết được kiểm tra mã số thuế và
+                      thông tin pháp lý đầy đủ.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      Nộp CV nhanh chỉ 1-Click
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Lưu trữ CV mặc định, ứng tuyển nhanh chóng không tốn thời
+                      gian soạn lại hồ sơ.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0 text-xs">
+                    ✓
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-slate-900 text-sm">
+                      Thông tin đa ngành toàn diện
+                    </h4>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Không chỉ có công nghệ thông tin, chúng tôi có đầy đủ cơ
+                      hội cho Sales, Marketing, Kế toán, Nhân sự.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right decorative card statistics visual */}
+            <div className="bg-gradient-to-tr from-primary-600 to-indigo-700 rounded-[36px] p-8 md:p-10 text-white shadow-xl relative overflow-hidden flex flex-col justify-between h-[360px]">
+              <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl transform translate-x-12 -translate-y-12"></div>
+              <div className="absolute left-1/3 bottom-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
+
+              <div>
+                <span className="text-[10px] font-black text-primary-100 uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full">
+                  Trải nghiệm vượt trội
+                </span>
+                <h3 className="text-2xl font-black mt-4 leading-snug">
+                  Hệ thống tuyển dụng được xây dựng trên công nghệ tìm kiếm Linq
+                  tối ưu
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                <div>
+                  <h4 className="text-2xl font-black">99.8%</h4>
+                  <p className="text-[10px] text-primary-200 mt-0.5">
+                    Thời gian hoạt động liên tục (Uptime)
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-2xl font-black">&lt; 100ms</h4>
+                  <p className="text-[10px] text-primary-200 mt-0.5">
+                    Tốc độ truy vấn tìm kiếm trung bình
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
-            {/* Decorative arrow/line for tablet/desktop */}
-            <div className="hidden md:block absolute top-1/4 left-[30%] right-[30%] h-0.5 border-t border-dashed border-slate-200 z-0"></div>
-
-            {/* Step 1 */}
-            <div className="flex flex-col items-center text-center relative z-10 group">
-              <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl font-bold shadow-sm mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 hover:scale-105">
-                1
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
-                Tải Lên CV & Tạo Hồ Sơ
+      {/* --- NEWSLETTER SUBSCRIPTION SECTION (Premium newsletter addition) --- */}
+      <section className="py-16 bg-slate-50 border-t border-slate-100">
+        <div className="container-custom">
+          <div className="bg-white border border-slate-150 rounded-[32px] p-8 md:p-12 shadow-md relative overflow-hidden max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2 md:max-w-md">
+              <h3 className="text-xl md:text-2xl font-black text-slate-900">
+                Nhận thông báo việc làm mới nhất
               </h3>
-              <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
-                Cập nhật thông tin kinh nghiệm làm việc, kỹ năng của bạn và tải
-                lên file CV PDF chuyên nghiệp.
+              <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+                Đăng ký nhận bản tin việc làm hàng tuần gửi trực tiếp tới email
+                của bạn dựa trên kỹ năng bạn quan tâm.
               </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="flex flex-col items-center text-center relative z-10 group">
-              <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-2xl font-bold shadow-sm mb-6 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 hover:scale-105">
-                2
+            {subscribed ? (
+              <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold px-6 py-4 rounded-2xl text-center md:w-80">
+                🎉 Đăng ký thành công! Hãy kiểm tra hòm thư của bạn hàng tuần.
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
-                Tìm Kiếm Công Việc
-              </h3>
-              <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
-                Tìm kiếm công việc theo kỹ năng của bạn như ReactJS, Sales,
-                Marketing hoặc theo địa điểm làm việc.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="flex flex-col items-center text-center relative z-10 group">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl font-bold shadow-sm mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 hover:scale-105">
-                3
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-2">
-                Ứng Tuyển & Phỏng Vấn
-              </h3>
-              <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
-                Gửi trực tiếp CV của bạn cho nhà tuyển dụng chỉ bằng 1 cú click
-                và chờ nhận cuộc gọi phỏng vấn.
-              </p>
-            </div>
+            ) : (
+              <form
+                onSubmit={handleSubscribeNewsletter}
+                className="flex gap-2 w-full md:w-80"
+              >
+                <input
+                  type="email"
+                  required
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="Nhập email nhận tin..."
+                  className="flex-1 px-4 py-3.5 bg-slate-50 focus:bg-white border border-slate-200 focus:border-primary-500 rounded-2xl text-xs font-semibold outline-none transition-all"
+                />
+                <button
+                  type="submit"
+                  className="bg-primary-600 hover:bg-primary-700 text-white font-bold text-xs px-5 py-3.5 rounded-2xl cursor-pointer transition-colors whitespace-nowrap shadow-sm shadow-primary-500/10"
+                >
+                  Đăng ký
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>

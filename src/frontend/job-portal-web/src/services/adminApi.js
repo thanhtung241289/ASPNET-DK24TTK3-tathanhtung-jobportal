@@ -21,4 +21,9 @@ export const adminApi = {
     axiosClient.put(`/admin/categories/${id}`, { name }),
   // Xóa ngành nghề (chỉ Admin)
   deleteCategory: (id) => axiosClient.delete(`/admin/categories/${id}`),
+
+  // Lấy tất cả tin tuyển dụng trong hệ thống (chỉ Admin)
+  getAllJobs: () => axiosClient.get("/admin/jobs"),
+  // Bật/tắt trạng thái nổi bật (IsHot) cho tin tuyển dụng
+  toggleJobHot: (id) => axiosClient.put(`/admin/jobs/${id}/toggle-hot`),
 };

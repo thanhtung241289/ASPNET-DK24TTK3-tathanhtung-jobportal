@@ -1,8 +1,10 @@
 // File: JobPortal.API/Controllers/AdminJobController.cs
 using JobPortal.Application.DTOs;
 using JobPortal.Application.Interfaces;
+using JobPortal.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace JobPortal.API.Controllers;
 
@@ -12,10 +14,12 @@ namespace JobPortal.API.Controllers;
 public class AdminJobController : ControllerBase
 {
     private readonly IJobService _jobService;
+    private readonly JobPortalDbContext _context;
 
-    public AdminJobController(IJobService jobService)
+    public AdminJobController(IJobService jobService, JobPortalDbContext context)
     {
         _jobService = jobService;
+        _context = context;
     }
 
     [HttpGet("pending")]
@@ -25,6 +29,29 @@ public class AdminJobController : ControllerBase
         return Ok(jobs);
     }
 
+    // 1. Lấy tất cả tin tuyển dụng trong hệ thống để phục vụ quản lý & cấu hình hot
+    [HttpGet]
+    public async Task<IActionResult> GetAllJobs()
+    {
+        var jobs = await _context.JobPosts
+            .Include(j => j.Company)
+            .Include(j => j.Category)
+            .OrderByDescending(j => j.CreatedAt)
+            .Select(j => new {
+                j.Id,
+                j.Title,
+                CompanyName = j.Company.CompanyName,
+                CategoryName = j.Category.Name,
+                Status = j.Status.ToString(),
+                j.IsHot,
+                j.CreatedAt,
+                j.ExpirationDate
+            })
+            .ToListAsync();
+        return Ok(jobs);
+    }
+
+    // 2. Phê duyệt hoặc từ chối tin tuyển dụng
     [HttpPut("{id}/approve")]
     public async Task<IActionResult> ApproveJob(Guid id, [FromBody] ApproveJobRequest request)
     {
@@ -46,5 +73,24 @@ public class AdminJobController : ControllerBase
 
         var statusMessage = request.Status == Domain.Enums.JobStatus.Published ? "Phê duyệt công khai thành công!" : "Đã từ chối bài đăng tuyển dụng.";
         return Ok(new { message = statusMessage });
+    }
+
+    // 3. Bật/tắt trạng thái Tin tuyển dụng nổi bật (IsHot)
+    [HttpPut("{id}/toggle-hot")]
+    public async Task<IActionResult> ToggleHot(Guid id)
+    {
+        var job = await _context.JobPosts.FirstOrDefaultAsync(j => j.Id == id);
+        if (job == null)
+        {
+            return NotFound(new { message = "Không tìm thấy tin tuyển dụng." });
+        }
+
+        // Đảo cờ IsHot
+        job.IsHot = !job.IsHot;
+        _context.JobPosts.Update(job);
+        await _context.SaveChangesAsync();
+
+        var message = job.IsHot ? "Đã đặt làm tin tuyển dụng nổi bật!" : "Đã hủy trạng thái nổi bật.";
+        return Ok(new { isHot = job.IsHot, message });
     }
 }

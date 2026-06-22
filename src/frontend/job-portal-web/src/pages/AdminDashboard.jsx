@@ -7,8 +7,8 @@ import { useToast } from "../contexts/ToastContext";
 const AdminDashboard = () => {
   const { showToast } = useToast();
 
-  // Tabs management
-  const [activeTab, setActiveTab] = useState("jobs"); // "jobs" | "categories"
+  // Tabs management: "jobs" | "categories" | "featured"
+  const [activeTab, setActiveTab] = useState("jobs");
 
   // 1. States for Jobs Approval
   const [pendingJobs, setPendingJobs] = useState([]);
@@ -28,6 +28,12 @@ const AdminDashboard = () => {
   const [editingCategory, setEditingCategory] = useState(null); // { id, name }
   const [editCategoryName, setEditCategoryName] = useState("");
   const [updatingCategory, setUpdatingCategory] = useState(false);
+
+  // 3. States for Manual Hot Config Tab
+  const [allJobs, setAllJobs] = useState([]);
+  const [loadingAllJobs, setLoadingAllJobs] = useState(false);
+  const [jobSearchKeyword, setJobSearchKeyword] = useState("");
+  const [togglingHotId, setTogglingHotId] = useState(null);
 
   // Load Pending Jobs
   const loadPendingJobs = async () => {
@@ -55,6 +61,19 @@ const AdminDashboard = () => {
     }
   };
 
+  // Load All Jobs (for Hot Config)
+  const loadAllJobs = async () => {
+    setLoadingAllJobs(true);
+    try {
+      const data = await adminApi.getAllJobs();
+      setAllJobs(data || []);
+    } catch (error) {
+      console.error("Lỗi khi tải toàn bộ tin tuyển dụng:", error);
+    } finally {
+      setLoadingAllJobs(false);
+    }
+  };
+
   useEffect(() => {
     loadPendingJobs();
   }, []);
@@ -72,6 +91,8 @@ const AdminDashboard = () => {
       await adminApi.reviewJob(jobId, { status: "Approved", reason: "" });
       showToast("Đã phê duyệt và xuất bản tin thành công!", "success");
       setPendingJobs((prev) => prev.filter((job) => job.id !== jobId));
+      // Nếu đang có dữ liệu allJobs thì load lại
+      if (allJobs.length > 0) loadAllJobs();
     } catch (error) {
       showToast("Phê duyệt thất bại. Vui lòng thử lại!", "error");
     }
@@ -107,6 +128,7 @@ const AdminDashboard = () => {
       );
       setPendingJobs((prev) => prev.filter((job) => job.id !== selectedJobId));
       setIsRejectModalOpen(false);
+      if (allJobs.length > 0) loadAllJobs();
     } catch (error) {
       showToast("Gửi yêu cầu từ chối thất bại.", "error");
     } finally {
@@ -129,8 +151,6 @@ const AdminDashboard = () => {
       setNewCategoryName("");
       showToast(`Đã tạo ngành nghề "${created.name}" thành công!`, "success");
     } catch (error) {
-      // toast toàn cục trong axiosClient đã tự bắt và hiển thị thân thiện,
-      // ở đây chỉ log và dọn trạng thái.
       console.error("Lỗi khi tạo ngành nghề:", error);
     } finally {
       setCreatingCategory(false);
@@ -191,10 +211,36 @@ const AdminDashboard = () => {
       setCategories((prev) => prev.filter((c) => c.id !== catId));
       showToast("Xóa ngành nghề thành công!", "success");
     } catch (error) {
-      // Axios interceptor đã xử lý lỗi (ví dụ lỗi 400 do có tin đang tham chiếu)
       console.error("Lỗi khi xóa ngành nghề:", error);
     }
   };
+
+  // Toggle IsHot Status
+  const handleToggleHot = async (jobId) => {
+    setTogglingHotId(jobId);
+    try {
+      const response = await adminApi.toggleJobHot(jobId);
+      const isHotNow = response.isHot;
+      setAllJobs((prev) =>
+        prev.map((j) => (j.id === jobId ? { ...j, isHot: isHotNow } : j)),
+      );
+      showToast(response.message, "success");
+    } catch (error) {
+      console.error("Lỗi khi bật/tắt tin nổi bật:", error);
+    } finally {
+      setTogglingHotId(null);
+    }
+  };
+
+  // Filtered jobs in front-end for Search
+  const filteredAllJobs = allJobs.filter((job) => {
+    const keyword = jobSearchKeyword.toLowerCase();
+    return (
+      job.title.toLowerCase().includes(keyword) ||
+      (job.companyName && job.companyName.toLowerCase().includes(keyword)) ||
+      (job.categoryName && job.categoryName.toLowerCase().includes(keyword))
+    );
+  });
 
   return (
     <div className="container-custom py-10 flex flex-col gap-6">
@@ -211,8 +257,8 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Tabs thanh lịch */}
-      <div className="flex border-b border-slate-200 gap-1 bg-slate-50/50 p-1 rounded-2xl w-fit">
+      {/* Tabs thanh lịch bổ sung Tab 3 cấu hình nổi bật */}
+      <div className="flex border-b border-slate-200 gap-1 bg-slate-50/50 p-1 rounded-2xl w-fit flex-wrap">
         <button
           onClick={() => setActiveTab("jobs")}
           className={`px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-2 ${
@@ -235,6 +281,19 @@ const AdminDashboard = () => {
           }`}
         >
           <span>📁</span> Quản lý ngành nghề ({categories.length})
+        </button>
+        <button
+          onClick={() => {
+            setActiveTab("featured");
+            loadAllJobs();
+          }}
+          className={`px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-2 ${
+            activeTab === "featured"
+              ? "bg-white text-rose-600 shadow-sm border border-slate-100"
+              : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
+          }`}
+        >
+          <span>🔥</span> Cấu hình Tin nổi bật ({allJobs.length})
         </button>
       </div>
 
@@ -447,6 +506,122 @@ const AdminDashboard = () => {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* TAB 3: CẤU HÌNH TIN NỔI BẬT (HOT JOBS CONFIG) */}
+      {activeTab === "featured" && (
+        <div className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-6 animate-fade-in">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 border-l-4 border-rose-600 pl-3">
+                Thiết lập Tin tuyển dụng nổi bật (IsHot)
+              </h2>
+              <p className="text-xs text-slate-400 mt-1 font-semibold">
+                Các bài đăng tuyển dụng được chọn "Nổi bật" sẽ được ghim dạng
+                card tại khu vực VIP đầu trang chủ.
+              </p>
+            </div>
+
+            {/* Thanh tìm kiếm nhanh tin tuyển dụng */}
+            <div className="w-full md:w-80 relative">
+              <input
+                type="text"
+                value={jobSearchKeyword}
+                onChange={(e) => setJobSearchKeyword(e.target.value)}
+                placeholder="Tìm tin tuyển dụng, công ty..."
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                🔍
+              </span>
+            </div>
+          </div>
+
+          {loadingAllJobs ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <div className="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="text-slate-400 text-xs">
+                Đang tải danh sách bài viết...
+              </p>
+            </div>
+          ) : filteredAllJobs.length === 0 ? (
+            <div className="text-center py-10 text-slate-400 text-xs font-semibold">
+              Không tìm thấy tin tuyển dụng nào phù hợp điều kiện.
+            </div>
+          ) : (
+            <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase border-b border-slate-100">
+                    <th className="py-3.5 px-4">Tin tuyển dụng</th>
+                    <th className="py-3.5 px-4 w-48">Công ty</th>
+                    <th className="py-3.5 px-4 w-32">Trạng thái duyệt</th>
+                    <th className="py-3.5 px-4 w-28 text-center">
+                      Nổi bật (HOT)
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-xs text-slate-700 font-semibold">
+                  {filteredAllJobs.map((job) => (
+                    <tr
+                      key={job.id}
+                      className="hover:bg-slate-50/30 transition-colors"
+                    >
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-slate-900 text-sm">
+                          {job.title}
+                        </div>
+                        <div className="text-slate-400 text-[10px] mt-0.5">
+                          📂 {job.categoryName} | Hạn:{" "}
+                          {new Date(job.expirationDate).toLocaleDateString(
+                            "vi-VN",
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-700 font-bold">
+                        {job.companyName || "Ẩn danh"}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`px-2 py-0.5 rounded-lg text-[9px] font-bold border ${
+                            job.status === "Published"
+                              ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                              : job.status === "Pending"
+                                ? "bg-amber-50 border-amber-100 text-amber-700"
+                                : "bg-rose-50 border-rose-100 text-rose-700"
+                          }`}
+                        >
+                          {job.status === "Published"
+                            ? "Công khai"
+                            : job.status === "Pending"
+                              ? "Chờ duyệt"
+                              : "Từ chối"}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 text-center">
+                        <div className="flex items-center justify-center">
+                          {/* Toggle Switch Button */}
+                          <button
+                            type="button"
+                            disabled={togglingHotId !== null}
+                            onClick={() => handleToggleHot(job.id)}
+                            className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${
+                              job.isHot
+                                ? "bg-rose-500 justify-end"
+                                : "bg-slate-200 justify-start"
+                            } ${togglingHotId === job.id ? "opacity-50" : ""}`}
+                          >
+                            <span className="bg-white w-4 h-4 rounded-full shadow-md transition-all duration-300"></span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
