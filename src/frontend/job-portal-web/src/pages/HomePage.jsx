@@ -832,7 +832,7 @@ const HomePage = () => {
             <div className="space-y-5">
               <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1 rounded-full tracking-wider uppercase">
                 <Award className="w-3.5 h-3.5 text-emerald-500" /> Lý do chọn
-                ViệcLàmViệt
+                Jobportal
               </span>
               <h2 className="text-2xl md:text-3xl font-black text-slate-900 leading-tight">
                 Giải pháp tìm kiếm việc làm hàng đầu cho thế hệ mới

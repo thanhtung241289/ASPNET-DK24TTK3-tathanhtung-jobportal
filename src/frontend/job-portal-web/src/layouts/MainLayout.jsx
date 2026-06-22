@@ -476,7 +476,7 @@ const MainLayout = () => {
 
           {/* Bottom bar */}
           <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
-            <p>© {new Date().getFullYear()} ViệcLàmViệt. Bảo lưu mọi quyền.</p>
+            <p>© {new Date().getFullYear()} Jobportal. Bảo lưu mọi quyền.</p>
             <div className="flex flex-wrap justify-center gap-6">
               <a href="#" className="hover:text-white transition-colors">
                 Điều khoản sử dụng
