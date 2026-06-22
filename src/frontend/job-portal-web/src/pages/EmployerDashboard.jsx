@@ -1,6 +1,17 @@
-// File: src/pages/EmployerDashboard.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  Briefcase,
+  Camera,
+  FolderOpen,
+  Building2,
+  FileText,
+  Users,
+  Calendar,
+  DollarSign,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
 import { employerApi } from "../services/employerApi";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
@@ -178,14 +189,12 @@ const EmployerDashboard = () => {
   return (
     <div className="container-custom py-10 min-h-screen">
       {/* Header Banner Section */}
-      <div className="relative bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-lg overflow-hidden">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl transform translate-x-12 -translate-y-12"></div>
-        <div className="absolute left-1/3 bottom-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
-
+      <div className="relative bg-primary-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-sm overflow-hidden">
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
-              💼 Trang tuyển dụng doanh nghiệp
+              <Briefcase className="w-3.5 h-3.5" /> Trang tuyển dụng doanh
+              nghiệp
             </span>
             <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
               {profile?.companyName || "Bảng điều khiển tuyển dụng"}
@@ -225,47 +234,65 @@ const EmployerDashboard = () => {
             <div className="space-y-1">
               <button
                 onClick={() => setActiveTab("jobs")}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer group ${
                   activeTab === "jobs"
                     ? "bg-primary-50 text-primary-600"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">💼</span>
+                  <Briefcase
+                    className={`w-4 h-4 transition-colors ${activeTab === "jobs" ? "text-primary-600" : "text-slate-400 group-hover:text-primary-600"}`}
+                  />
                   <span>Tin tuyển dụng đã đăng</span>
                 </div>
-                <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg text-xs font-bold">
+                <span
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors ${
+                    activeTab === "jobs"
+                      ? "bg-primary-100 text-primary-600"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
                   {jobs.length}
                 </span>
               </button>
 
               <button
                 onClick={() => setActiveTab("applications")}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer group ${
                   activeTab === "applications"
                     ? "bg-primary-50 text-primary-600"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">📁</span>
+                  <FolderOpen
+                    className={`w-4 h-4 transition-colors ${activeTab === "applications" ? "text-primary-600" : "text-slate-400 group-hover:text-primary-600"}`}
+                  />
                   <span>Hồ sơ ứng tuyển</span>
                 </div>
-                <span className="bg-primary-100 text-primary-600 px-2 py-0.5 rounded-lg text-xs font-bold">
+                <span
+                  className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-colors ${
+                    activeTab === "applications"
+                      ? "bg-primary-100 text-primary-600"
+                      : "bg-slate-100 text-slate-600"
+                  }`}
+                >
                   {applications.length}
                 </span>
               </button>
 
               <button
                 onClick={() => setActiveTab("settings")}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer ${
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 cursor-pointer group ${
                   activeTab === "settings"
                     ? "bg-primary-50 text-primary-600"
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
-                <span className="text-lg">🏢</span>
+                <Building2
+                  className={`w-4 h-4 transition-colors ${activeTab === "settings" ? "text-primary-600" : "text-slate-400 group-hover:text-primary-600"}`}
+                />
                 <span>Thông tin công ty</span>
               </button>
             </div>
@@ -276,38 +303,70 @@ const EmployerDashboard = () => {
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">
               Thống kê nhanh
             </p>
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="block text-xl font-extrabold text-slate-800">
-                  {activeJobsCount}
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  Đang tuyển
-                </span>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50/60 p-4 rounded-2xl border border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <Briefcase className="w-4 h-4 text-emerald-600" />
+                  <span className="text-[9px] font-extrabold bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded-md">
+                    Live
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-slate-800 leading-none">
+                    {activeJobsCount}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 block">
+                    Đang tuyển
+                  </span>
+                </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="block text-xl font-extrabold text-amber-500">
-                  {pendingJobsCount}
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  Chờ duyệt
-                </span>
+
+              <div className="bg-slate-50/60 p-4 rounded-2xl border border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <Clock className="w-4 h-4 text-amber-500" />
+                  <span className="text-[9px] font-extrabold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded-md">
+                    Wait
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-amber-650 leading-none">
+                    {pendingJobsCount}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 block">
+                    Chờ duyệt
+                  </span>
+                </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="block text-xl font-extrabold text-primary-600">
-                  {totalAppsCount}
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  Đơn đã nhận
-                </span>
+
+              <div className="bg-slate-50/60 p-4 rounded-2xl border border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <FolderOpen className="w-4 h-4 text-primary-600" />
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-primary-600 leading-none">
+                    {totalAppsCount}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 block">
+                    Đơn đã nhận
+                  </span>
+                </div>
               </div>
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <span className="block text-xl font-extrabold text-emerald-500">
-                  {newAppsCount}
-                </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase">
-                  Hồ sơ mới
-                </span>
+
+              <div className="bg-slate-50/60 p-4 rounded-2xl border border-slate-100 flex flex-col justify-between hover:bg-slate-50 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <FileText className="w-4 h-4 text-indigo-500" />
+                  <span className="text-[9px] font-extrabold bg-indigo-50 text-indigo-700 px-1.5 py-0.5 rounded-md">
+                    New
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-2xl font-black text-indigo-600 leading-none">
+                    {newAppsCount}
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase mt-1 block">
+                    Hồ sơ mới
+                  </span>
+                </div>
               </div>
             </div>
           </div>
@@ -332,7 +391,7 @@ const EmployerDashboard = () => {
 
               {jobs.length === 0 ? (
                 <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <span className="text-4xl block mb-3">💼</span>
+                  <Briefcase className="w-12 h-12 text-slate-350 mx-auto mb-3" />
                   <h3 className="text-base font-bold text-slate-700">
                     Chưa có tin tuyển dụng nào
                   </h3>
@@ -349,105 +408,119 @@ const EmployerDashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {jobs.map((job) => (
-                    <div
-                      key={job.id}
-                      className="bg-white hover:bg-slate-50/50 rounded-2xl p-5 border border-slate-100 shadow-xs hover:shadow-sm transition-all duration-300"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="space-y-2">
-                          <h3 className="text-base font-extrabold text-slate-800 hover:text-primary-600 transition-colors">
-                            <Link to={`/jobs/${job.id}`}>{job.title}</Link>
-                          </h3>
-                          <div className="flex flex-wrap gap-y-1.5 gap-x-4 text-xs font-semibold text-slate-400">
-                            <span className="flex items-center gap-1">
-                              📂 {job.category?.name || "N/A"}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              💰{" "}
-                              {job.isNegotiable
-                                ? "Thỏa thuận"
-                                : `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()} VNĐ`}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              👥 Tuyển: {job.quantity}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              ⏳ Hạn:{" "}
-                              {new Date(job.expirationDate).toLocaleDateString(
-                                "vi-VN",
-                              )}
-                            </span>
+                  {jobs.map((job) => {
+                    const borderStatusClass =
+                      job.status === "Published"
+                        ? "border-l-4 border-l-emerald-500"
+                        : job.status === "Pending"
+                          ? "border-l-4 border-l-amber-500"
+                          : job.status === "Rejected"
+                            ? "border-l-4 border-l-rose-500"
+                            : "border-l-4 border-l-slate-400";
+                    return (
+                      <div
+                        key={job.id}
+                        className={`bg-white hover:bg-slate-50/55 rounded-2xl p-5 border border-slate-100 ${borderStatusClass} shadow-xs hover:shadow-sm transition-all duration-300`}
+                      >
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                          <div className="space-y-2">
+                            <h3 className="text-base font-extrabold text-slate-800 hover:text-primary-600 transition-colors">
+                              <Link to={`/jobs/${job.id}`}>{job.title}</Link>
+                            </h3>
+                            <div className="flex flex-wrap gap-y-1.5 gap-x-4 text-xs font-semibold text-slate-500">
+                              <span className="flex items-center gap-1">
+                                <FolderOpen className="w-3.5 h-3.5 text-slate-400" />
+                                {job.category?.name || "N/A"}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                                {job.isNegotiable
+                                  ? "Thỏa thuận"
+                                  : `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()} VNĐ`}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Users className="w-3.5 h-3.5 text-slate-400" />
+                                Tuyển: {job.quantity}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                Hạn:{" "}
+                                {new Date(
+                                  job.expirationDate,
+                                ).toLocaleDateString("vi-VN")}
+                              </span>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3">
-                          {/* Status Badge */}
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
-                              job.status === "Published"
-                                ? "bg-emerald-50 text-emerald-600 border-emerald-250"
-                                : job.status === "Pending"
-                                  ? "bg-amber-50 text-amber-600 border-amber-250"
-                                  : job.status === "Rejected"
-                                    ? "bg-rose-50 text-rose-600 border-rose-250"
-                                    : "bg-slate-50 text-slate-600 border-slate-200"
-                            }`}
-                          >
+                          <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-3">
+                            {/* Status Badge */}
                             <span
-                              className={`w-1.5 h-1.5 rounded-full ${
+                              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
                                 job.status === "Published"
-                                  ? "bg-emerald-500"
+                                  ? "bg-emerald-50 text-emerald-600 border-emerald-250"
                                   : job.status === "Pending"
-                                    ? "bg-amber-500"
+                                    ? "bg-amber-50 text-amber-600 border-amber-250"
                                     : job.status === "Rejected"
-                                      ? "bg-rose-500"
-                                      : "bg-slate-500"
+                                      ? "bg-rose-50 text-rose-600 border-rose-250"
+                                      : "bg-slate-50 text-slate-600 border-slate-200"
                               }`}
-                            ></span>
-                            {job.status === "Published"
-                              ? "Hoạt động"
-                              : job.status === "Pending"
-                                ? "Chờ duyệt"
-                                : job.status === "Rejected"
-                                  ? "Bị từ chối"
-                                  : "Hết hạn"}
-                          </span>
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  job.status === "Published"
+                                    ? "bg-emerald-500"
+                                    : job.status === "Pending"
+                                      ? "bg-amber-500"
+                                      : job.status === "Rejected"
+                                        ? "bg-rose-500"
+                                        : "bg-slate-500"
+                                }`}
+                              ></span>
+                              {job.status === "Published"
+                                ? "Hoạt động"
+                                : job.status === "Pending"
+                                  ? "Chờ duyệt"
+                                  : job.status === "Rejected"
+                                    ? "Bị từ chối"
+                                    : "Hết hạn"}
+                            </span>
 
-                          {/* Applicant Count */}
-                          <span className="text-xs font-bold text-slate-500">
-                            👥 {job.applicantCount || 0} hồ sơ ứng tuyển
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Display Reject Reason if status is Rejected */}
-                      {job.status === "Rejected" && (
-                        <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 mt-4 text-xs text-rose-700 flex gap-2">
-                          <span>⚠️</span>
-                          <div>
-                            <p className="font-bold">
-                              Lý do từ chối kiểm duyệt:
-                            </p>
-                            {/* Extract rejection text from Description if prepended */}
-                            <p className="mt-0.5">
-                              {job.description &&
-                              job.description.includes(
-                                "Lý do từ chối kiểm duyệt:",
-                              )
-                                ? job.description
-                                    .split(
-                                      "<p style='color:red;'><b>Lý do từ chối kiểm duyệt:</b>",
-                                    )[1]
-                                    ?.split("</p>")[0]
-                                    ?.trim()
-                                : "Nội dung bài viết không phù hợp hoặc vi phạm điều khoản tuyển dụng."}
-                            </p>
+                            {/* Applicant Count */}
+                            <span className="flex items-center gap-1 text-xs font-bold text-slate-500">
+                              <FileText className="w-3.5 h-3.5 text-slate-400" />
+                              {job.applicantCount || 0} hồ sơ ứng tuyển
+                            </span>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  ))}
+
+                        {/* Display Reject Reason if status is Rejected */}
+                        {job.status === "Rejected" && (
+                          <div className="bg-rose-50 border border-rose-100 rounded-xl p-3.5 mt-4 text-xs text-rose-700 flex gap-2">
+                            <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                            <div>
+                              <p className="font-bold">
+                                Lý do từ chối kiểm duyệt:
+                              </p>
+                              {/* Extract rejection text from Description if prepended */}
+                              <p className="mt-0.5">
+                                {job.description &&
+                                job.description.includes(
+                                  "Lý do từ chối kiểm duyệt:",
+                                )
+                                  ? job.description
+                                      .split(
+                                        "<p style='color:red;'><b>Lý do từ chối kiểm duyệt:</b>",
+                                      )[1]
+                                      ?.split("</p>")[0]
+                                      ?.trim()
+                                  : "Nội dung bài viết không phù hợp hoặc vi phạm điều khoản tuyển dụng."}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -470,7 +543,7 @@ const EmployerDashboard = () => {
 
               {applications.length === 0 ? (
                 <div className="text-center py-20 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <span className="text-4xl block mb-3">📁</span>
+                  <FolderOpen className="w-12 h-12 text-slate-350 mx-auto mb-3" />
                   <h3 className="text-base font-bold text-slate-700">
                     Chưa có đơn ứng tuyển nào
                   </h3>
@@ -530,7 +603,7 @@ const EmployerDashboard = () => {
                                 rel="noreferrer"
                                 className="inline-flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-700 hover:underline font-bold"
                               >
-                                📄 Tải CV xem
+                                <FileText className="w-3.5 h-3.5" /> Tải CV xem
                               </a>
                             ) : (
                               <span className="text-xs text-slate-400 font-normal">
@@ -544,18 +617,18 @@ const EmployerDashboard = () => {
                               onChange={(e) =>
                                 handleStatusChange(app.id, e.target.value)
                               }
-                              className={`text-xs font-bold px-3 py-1.5 rounded-xl border outline-none cursor-pointer ${
+                              className={`text-xs font-bold px-3 py-1.5 rounded-lg border outline-none cursor-pointer transition-all ${
                                 app.status === "New"
-                                  ? "bg-blue-50 text-blue-600 border-blue-200"
+                                  ? "bg-sky-50/70 text-sky-700 border-sky-200 hover:bg-sky-50"
                                   : app.status === "Viewed"
-                                    ? "bg-purple-50 text-purple-600 border-purple-200"
+                                    ? "bg-indigo-50/70 text-indigo-700 border-indigo-200 hover:bg-indigo-50"
                                     : app.status === "Contacted"
-                                      ? "bg-amber-50 text-amber-600 border-amber-200"
+                                      ? "bg-amber-50/70 text-amber-700 border-amber-200 hover:bg-amber-50"
                                       : app.status === "Interviewing"
-                                        ? "bg-indigo-50 text-indigo-600 border-indigo-200"
+                                        ? "bg-purple-50/70 text-purple-700 border-purple-200 hover:bg-purple-50"
                                         : app.status === "Offered"
-                                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                          : "bg-rose-50 text-rose-600 border-rose-200"
+                                          ? "bg-emerald-50/70 text-emerald-700 border-emerald-200 hover:bg-emerald-50"
+                                          : "bg-rose-50/70 text-rose-700 border-rose-200 hover:bg-rose-50"
                               }`}
                             >
                               <option value="New">Mới nộp</option>
@@ -603,7 +676,7 @@ const EmployerDashboard = () => {
                       className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-r from-slate-100 to-slate-200 flex items-center justify-center">
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center">
                       <span className="text-slate-400 text-xs font-bold">
                         Chưa cấu hình ảnh bìa
                       </span>
@@ -613,7 +686,7 @@ const EmployerDashboard = () => {
                   {/* Upload Overlay */}
                   <label className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <div className="text-center text-white">
-                      <span className="block text-2xl mb-1">📷</span>
+                      <Camera className="w-6 h-6 mx-auto mb-1 text-white" />
                       <span className="text-xs font-bold">
                         Tải ảnh bìa mới (Max 2MB)
                       </span>
@@ -644,14 +717,14 @@ const EmployerDashboard = () => {
                         className="w-full h-full object-contain"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-primary-500 to-indigo-600 text-white flex items-center justify-center font-extrabold text-2xl shadow-inner">
+                      <div className="w-full h-full bg-primary-600 text-white flex items-center justify-center font-extrabold text-2xl shadow-inner">
                         {profile?.companyName?.charAt(0).toUpperCase() || "C"}
                       </div>
                     )}
 
                     {/* Upload Overlay */}
                     <label className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                      <span className="text-white text-lg">📷</span>
+                      <Camera className="w-5 h-5 text-white" />
                       <input
                         type="file"
                         accept="image/*"

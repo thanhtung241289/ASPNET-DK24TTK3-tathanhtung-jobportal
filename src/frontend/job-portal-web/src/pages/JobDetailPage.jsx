@@ -1,6 +1,6 @@
-// File: src/pages/JobDetailPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { DollarSign, Briefcase, Layers, Users, Calendar } from "lucide-react";
 import { jobApi } from "../services/jobApi";
 import {
   translateJobLevel,
@@ -216,35 +216,50 @@ const JobDetailPage = () => {
               Thông tin chung
             </h3>
             <div className="space-y-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Mức lương:</span>{" "}
-                <span className="font-semibold text-emerald-600">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500 flex items-center gap-2">
+                  <DollarSign className="w-4 h-4 text-slate-400" />
+                  Mức lương
+                </span>
+                <span className="font-bold text-emerald-600">
                   {job.isNegotiable
                     ? "Thỏa thuận"
                     : `${job.salaryMin?.toLocaleString()} - ${job.salaryMax?.toLocaleString()} VND`}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Hình thức:</span>{" "}
-                <span className="font-semibold text-slate-800">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500 flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-slate-400" />
+                  Hình thức
+                </span>
+                <span className="font-bold text-slate-800">
                   {translateWorkType(job.workType)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Cấp bậc:</span>{" "}
-                <span className="font-semibold text-slate-800">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-slate-400" />
+                  Cấp bậc
+                </span>
+                <span className="font-bold text-slate-800">
                   {translateJobLevel(job.jobLevel)}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Số lượng:</span>{" "}
-                <span className="font-semibold text-slate-800">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500 flex items-center gap-2">
+                  <Users className="w-4 h-4 text-slate-400" />
+                  Số lượng
+                </span>
+                <span className="font-bold text-slate-800">
                   {job.quantity} người
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Hạn nộp:</span>{" "}
-                <span className="font-semibold text-rose-500">
+              <div className="flex items-center justify-between py-1.5 border-b border-slate-50">
+                <span className="text-slate-500 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-slate-400" />
+                  Hạn nộp
+                </span>
+                <span className="font-bold text-rose-500">
                   {new Date(job.expirationDate).toLocaleDateString("vi-VN")}
                 </span>
               </div>

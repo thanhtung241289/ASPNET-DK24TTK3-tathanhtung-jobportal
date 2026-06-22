@@ -1,5 +1,13 @@
-// File: src/pages/ProfilePage.jsx
 import { useEffect, useState } from "react";
+import {
+  Camera,
+  X,
+  FileText,
+  Trash2,
+  Check,
+  AlertTriangle,
+  UploadCloud,
+} from "lucide-react";
 import { profileApi } from "../services/profileApi";
 import { useToast } from "../contexts/ToastContext";
 
@@ -265,11 +273,7 @@ const ProfilePage = () => {
   return (
     <div className="bg-[#fcfdfe] min-h-screen pb-16 relative">
       {/* --- COVER PHOTO & PROFILE HEADER --- */}
-      <div className="h-60 bg-gradient-to-r from-primary-600 via-indigo-600 to-violet-700 w-full relative overflow-hidden">
-        {/* Decorative glows */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -left-10 bottom-0 w-80 h-80 bg-black/10 rounded-full blur-2xl pointer-events-none"></div>
-
+      <div className="h-60 bg-primary-600 w-full relative overflow-hidden">
         <div className="container-custom relative h-full">
           <div className="absolute -bottom-10 left-4 md:left-8 flex items-end gap-5">
             {/* Avatar block */}
@@ -288,7 +292,7 @@ const ProfilePage = () => {
               />
 
               {/* Profile Image or Fallback character */}
-              <div className="w-full h-full rounded-xl overflow-hidden relative bg-gradient-to-tr from-primary-500 to-indigo-600 flex items-center justify-center text-white text-4xl font-extrabold shadow-inner">
+              <div className="w-full h-full rounded-xl overflow-hidden relative bg-primary-600 flex items-center justify-center text-white text-4xl font-extrabold shadow-inner">
                 {profile.avatarUrl ? (
                   <img
                     src={getFullUrl(profile.avatarUrl)}
@@ -303,24 +307,7 @@ const ProfilePage = () => {
 
                 {/* Hover overlay */}
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-white z-10">
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
+                  <Camera className="w-5 h-5 text-white" />
                   <span className="text-[9px] font-bold uppercase tracking-wider">
                     Đổi ảnh
                   </span>
@@ -431,9 +418,9 @@ const ProfilePage = () => {
                         <button
                           type="button"
                           onClick={() => removeTag(idx)}
-                          className="text-primary-400 hover:text-rose-600 font-bold hover:bg-rose-50 rounded-sm w-4 h-4 flex items-center justify-center transition-colors text-[10px]"
+                          className="text-primary-400 hover:text-rose-600 font-bold hover:bg-rose-50 rounded-sm w-4 h-4 flex items-center justify-center transition-colors"
                         >
-                          ✕
+                          <X className="w-3 h-3" />
                         </button>
                       </span>
                     ))}
@@ -493,7 +480,7 @@ const ProfilePage = () => {
                 <button
                   type="submit"
                   disabled={savingProfile}
-                  className="bg-linear-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-primary-500/10 transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer text-sm"
+                  className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-3 rounded-2xl shadow-lg shadow-primary-500/10 transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer text-sm"
                 >
                   {savingProfile ? (
                     <span className="flex items-center gap-2">
@@ -526,19 +513,7 @@ const ProfilePage = () => {
                   />
                   <div className="space-y-3 pointer-events-none">
                     <div className="w-12 h-12 bg-primary-50 text-primary-500 rounded-xl flex items-center justify-center mx-auto group-hover:scale-105 transition-all duration-300 shadow-xs">
-                      <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                        />
-                      </svg>
+                      <UploadCloud className="w-6 h-6 text-primary-550" />
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-700">
@@ -583,19 +558,7 @@ const ProfilePage = () => {
                 /* Empty state */
                 <div className="text-center py-10 border border-dashed border-slate-200 rounded-2xl bg-slate-50/50 flex flex-col items-center justify-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center">
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                      />
-                    </svg>
+                    <FileText className="w-6 h-6" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-500">
@@ -629,7 +592,7 @@ const ProfilePage = () => {
                                 : "bg-slate-100 text-slate-500"
                             }`}
                           >
-                            📄
+                            <FileText className="w-4 h-4" />
                           </div>
 
                           <div className="min-w-0">
@@ -655,19 +618,7 @@ const ProfilePage = () => {
                           className="w-7 h-7 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                           title="Xóa CV"
                         >
-                          <svg
-                            className="w-4 h-4"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                            />
-                          </svg>
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
@@ -675,19 +626,7 @@ const ProfilePage = () => {
                       <div className="flex items-center justify-between mt-3.5 pt-2.5 border-t border-slate-100/50">
                         {resume.isDefault ? (
                           <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-600 text-[10px] font-extrabold px-2 py-1 rounded-lg border border-emerald-500/10">
-                            <svg
-                              className="w-3 h-3"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth="3"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                            <Check className="w-3.5 h-3.5" />
                             CV MẶC ĐỊNH
                           </span>
                         ) : (
@@ -714,7 +653,7 @@ const ProfilePage = () => {
         <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-3xl border border-slate-100 p-6 max-w-sm w-full shadow-2xl animate-scale-up">
             <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center text-xl mb-4">
-              ⚠
+              <AlertTriangle className="w-6 h-6" />
             </div>
             <h4 className="text-base font-extrabold text-slate-900">
               Xác nhận xóa tài liệu?

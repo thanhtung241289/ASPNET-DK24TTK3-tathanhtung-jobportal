@@ -1,6 +1,6 @@
-// File: src/pages/PostJob.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Briefcase, MapPin, Sparkles, Plus, Check } from "lucide-react";
 import { masterDataApi } from "../services/masterDataApi";
 import { employerApi } from "../services/employerApi";
 import { useToast } from "../contexts/ToastContext";
@@ -190,14 +190,11 @@ const PostJob = () => {
   return (
     <div className="container-custom py-10 max-w-4xl min-h-screen">
       {/* Premium Header Accent Card */}
-      <div className="relative bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-lg overflow-hidden">
-        <div className="absolute right-0 top-0 w-64 h-64 bg-white/5 rounded-full blur-3xl transform translate-x-12 -translate-y-12"></div>
-        <div className="absolute left-1/3 bottom-0 w-48 h-48 bg-indigo-500/10 rounded-full blur-2xl"></div>
-
+      <div className="relative bg-primary-600 text-white rounded-3xl p-8 md:p-10 mb-8 shadow-sm overflow-hidden">
         <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
-              💼 Tuyển dụng nhân sự
+              <Briefcase className="w-3.5 h-3.5" /> Tuyển dụng nhân sự
             </span>
             <h1 className="text-3xl font-extrabold tracking-tight">
               Tạo tin tuyển dụng mới
@@ -399,12 +396,10 @@ const PostJob = () => {
                         : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100/80"
                     }`}
                   >
-                    <span>📍</span>
+                    <MapPin className="w-3.5 h-3.5" />
                     <span>{loc.name}</span>
                     {isSelected && (
-                      <span className="text-primary-600 font-extrabold ml-1">
-                        ✓
-                      </span>
+                      <Check className="w-3 h-3 text-primary-600 font-extrabold ml-1" />
                     )}
                   </button>
                 );
@@ -434,12 +429,10 @@ const PostJob = () => {
                         : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100/80"
                     }`}
                   >
-                    <span>⚡</span>
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500" />
                     <span>{skill.name}</span>
                     {isSelected && (
-                      <span className="text-emerald-600 font-extrabold ml-1">
-                        ✓
-                      </span>
+                      <Check className="w-3 h-3 text-emerald-600 font-extrabold ml-1" />
                     )}
                   </button>
                 );
@@ -470,7 +463,9 @@ const PostJob = () => {
                 {creatingSkill ? (
                   <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  <span>+ Tạo Kỹ năng</span>
+                  <>
+                    <Plus className="w-3.5 h-3.5" /> Tạo Kỹ năng
+                  </>
                 )}
               </button>
             </div>

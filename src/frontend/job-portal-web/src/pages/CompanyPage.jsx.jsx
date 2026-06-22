@@ -1,6 +1,6 @@
-// File: src/pages/CompanyPage.jsx
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { MapPin, Users, Globe, Shield, Check, Briefcase } from "lucide-react";
 import { companyApi } from "../services/companyApi";
 import JobCard from "../components/JobCard";
 
@@ -61,7 +61,7 @@ const CompanyPage = () => {
   return (
     <div className="min-h-screen bg-slate-50/50 pb-16">
       {/* 1. COVER HERO SECTION */}
-      <div className="relative h-64 md:h-80 w-full overflow-hidden bg-gradient-to-tr from-blue-100 via-indigo-100/50 to-purple-100">
+      <div className="relative h-64 md:h-80 w-full overflow-hidden bg-slate-100">
         {company.coverUrl ? (
           <img
             src={getFullUrl(company.coverUrl)}
@@ -69,7 +69,7 @@ const CompanyPage = () => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-100 via-indigo-50 to-purple-100 opacity-60"></div>
+          <div className="absolute inset-0 bg-slate-100"></div>
         )}
       </div>
 
@@ -100,10 +100,10 @@ const CompanyPage = () => {
                 </h1>
                 {company.isVerified && (
                   <span
-                    className="inline-flex items-center justify-center bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full font-bold shadow-xs cursor-default"
+                    className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2.5 py-1 rounded-full font-bold shadow-xs border border-blue-200 cursor-default"
                     title="Doanh nghiệp đã được xác thực"
                   >
-                    ✓ Đã xác thực
+                    <Check className="w-3.5 h-3.5" /> Đã xác thực
                   </span>
                 )}
               </div>
@@ -176,9 +176,9 @@ const CompanyPage = () => {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <span className="text-4xl">💼</span>
-                  <p className="text-slate-500 text-sm mt-3 font-medium">
+                <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center gap-2">
+                  <Briefcase className="w-10 h-10 text-slate-400" />
+                  <p className="text-slate-500 text-sm font-medium">
                     Doanh nghiệp hiện tại chưa đăng tuyển vị trí nào mới.
                   </p>
                 </div>
@@ -196,12 +196,12 @@ const CompanyPage = () => {
               <div className="space-y-4 text-sm">
                 {/* Địa chỉ */}
                 <div className="flex gap-3">
-                  <span className="text-xl">📍</span>
+                  <MapPin className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <span className="block font-bold text-slate-700">
                       Trụ sở chính
                     </span>
-                    <span className="text-slate-600 block mt-0.5">
+                    <span className="text-slate-650 block mt-0.5">
                       {company.address || "Chưa cập nhật"}
                     </span>
                   </div>
@@ -209,12 +209,12 @@ const CompanyPage = () => {
 
                 {/* Quy mô */}
                 <div className="flex gap-3">
-                  <span className="text-xl">👥</span>
+                  <Users className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <span className="block font-bold text-slate-700">
                       Quy mô công ty
                     </span>
-                    <span className="text-slate-600 block mt-0.5">
+                    <span className="text-slate-650 block mt-0.5">
                       {company.companySize || "Chưa xác định"}
                     </span>
                   </div>
@@ -223,7 +223,7 @@ const CompanyPage = () => {
                 {/* Website */}
                 {company.website && (
                   <div className="flex gap-3">
-                    <span className="text-xl">🌐</span>
+                    <Globe className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                     <div>
                       <span className="block font-bold text-slate-700">
                         Website chính thức
@@ -232,7 +232,7 @@ const CompanyPage = () => {
                         href={company.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary-600 hover:text-primary-700 hover:underline break-all block mt-0.5 font-medium"
+                        className="text-primary-650 hover:text-primary-750 hover:underline break-all block mt-0.5 font-medium"
                       >
                         {company.website}
                       </a>
@@ -242,7 +242,7 @@ const CompanyPage = () => {
 
                 {/* Trạng thái xác thực */}
                 <div className="flex gap-3">
-                  <span className="text-xl">🛡️</span>
+                  <Shield className="w-5 h-5 text-slate-400 mt-0.5 shrink-0" />
                   <div>
                     <span className="block font-bold text-slate-700">
                       Trạng thái

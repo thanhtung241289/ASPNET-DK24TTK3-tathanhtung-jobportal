@@ -1,6 +1,6 @@
-// File: src/pages/JobsPage.jsx
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { Search, Filter, X, Trash2 } from "lucide-react";
 import { jobApi } from "../services/jobApi";
 import { masterDataApi } from "../services/masterDataApi";
 import JobCard from "../components/JobCard";
@@ -123,7 +123,8 @@ const JobsPage = () => {
             <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-xs sticky top-20 flex flex-col gap-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h2 className="text-base font-bold text-slate-800 flex items-center gap-2">
-                  <span>🔍</span> Bộ lọc tìm kiếm
+                  <Filter className="w-4 h-4 text-primary-600" /> Bộ lọc tìm
+                  kiếm
                 </h2>
                 {(keyword ||
                   locationId ||
@@ -132,9 +133,9 @@ const JobsPage = () => {
                   workType) && (
                   <button
                     onClick={handleClearFilters}
-                    className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer"
+                    className="text-xs font-bold text-rose-600 hover:text-rose-700 transition-colors cursor-pointer flex items-center gap-1"
                   >
-                    Xóa tất cả
+                    <Trash2 className="w-3 h-3" /> Xóa tất cả
                   </button>
                 )}
               </div>
@@ -155,9 +156,9 @@ const JobsPage = () => {
                   {keyword && (
                     <button
                       onClick={() => updateFilter("keyword", "")}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold"
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
-                      ✕
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -269,8 +270,8 @@ const JobsPage = () => {
               </div>
             ) : jobs.length === 0 ? (
               <div className="bg-white border border-slate-100 rounded-3xl p-16 text-center flex flex-col items-center justify-center gap-3">
-                <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-xl text-slate-400 shadow-inner">
-                  🔍
+                <div className="w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 shadow-inner">
+                  <Search className="w-6 h-6" />
                 </div>
                 <p className="text-slate-700 font-bold text-sm">
                   Không tìm thấy công việc phù hợp

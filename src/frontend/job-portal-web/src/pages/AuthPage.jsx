@@ -79,7 +79,7 @@ const AuthPage = () => {
       <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-card hover:shadow-card-hover border border-gray-100/80 space-y-6 transition-all duration-300">
         {/* Tiêu đề & Chuyển đổi trạng thái */}
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-extrabold text-primary-600 tracking-tight">
             {isLogin ? "Chào mừng trở lại" : "Tạo tài khoản mới"}
           </h2>
           <p className="text-sm text-gray-500 mt-2">

@@ -4,13 +4,13 @@
 @theme {
   --font-sans: 'Inter', system-ui, sans-serif;
 
-  /* Hệ màu Primary - Violet Premium */
-  --color-primary-50: #f5f3ff;
-  --color-primary-100: #ede9fe;
-  --color-primary-500: #8b5cf6;
-  --color-primary-600: #7c3aed;
-  --color-primary-700: #6d28d9;
-  --color-primary-900: #4c1d95;
+  /* Hệ màu Primary - Forest Green Premium */
+  --color-primary-50: #f0fdf4;
+  --color-primary-100: #dcfce7;
+  --color-primary-500: #22c55e;
+  --color-primary-600: #15803d;
+  --color-primary-700: #166534;
+  --color-primary-900: #14532d;
 
   /* Hệ màu Success */
   --color-success-50: #f0fdf4;
@@ -35,7 +35,20 @@
   --animate-slide-up: slideUp 0.4s ease-out;
   --animate-slide-down: slideDown 0.3s ease-out;
   --animate-slide-in: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-up: scaleUp 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes scaleUp {
+    0% {
+      opacity: 0;
+      transform: scale(0.95) translateY(-8px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
 
   @keyframes fadeIn {
     0% {

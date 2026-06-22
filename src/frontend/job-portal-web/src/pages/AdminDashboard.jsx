@@ -1,5 +1,19 @@
-// File: src/pages/AdminDashboard.jsx
 import { useEffect, useState } from "react";
+import {
+  Briefcase,
+  Layers,
+  Flame,
+  Trash2,
+  Edit2,
+  Plus,
+  Search,
+  Check,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  Building2,
+  Calendar,
+} from "lucide-react";
 import { adminApi } from "../services/adminApi";
 import { masterDataApi } from "../services/masterDataApi";
 import { useToast } from "../contexts/ToastContext";
@@ -267,7 +281,8 @@ const AdminDashboard = () => {
               : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
           }`}
         >
-          <span>📋</span> Hàng đợi duyệt bài ({pendingJobs.length})
+          <Briefcase className="w-4 h-4" /> Hàng đợi duyệt bài (
+          {pendingJobs.length})
         </button>
         <button
           onClick={() => {
@@ -276,11 +291,12 @@ const AdminDashboard = () => {
           }}
           className={`px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-2 ${
             activeTab === "categories"
-              ? "bg-white text-indigo-600 shadow-sm border border-slate-100"
+              ? "bg-white text-indigo-650 shadow-sm border border-slate-100"
               : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
           }`}
         >
-          <span>📁</span> Quản lý ngành nghề ({categories.length})
+          <Layers className="w-4 h-4" /> Quản lý ngành nghề ({categories.length}
+          )
         </button>
         <button
           onClick={() => {
@@ -289,11 +305,12 @@ const AdminDashboard = () => {
           }}
           className={`px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer transition-all flex items-center gap-2 ${
             activeTab === "featured"
-              ? "bg-white text-rose-600 shadow-sm border border-slate-100"
+              ? "bg-white text-rose-650 shadow-sm border border-slate-100"
               : "text-slate-500 hover:text-slate-700 hover:bg-white/40"
           }`}
         >
-          <span>🔥</span> Cấu hình Tin nổi bật ({allJobs.length})
+          <Flame className="w-4 h-4 animate-pulse" /> Cấu hình Tin nổi bật (
+          {allJobs.length})
         </button>
       </div>
 
@@ -309,7 +326,7 @@ const AdminDashboard = () => {
             </div>
           ) : pendingJobs.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm max-w-2xl mx-auto w-full animate-fade-in flex flex-col items-center justify-center gap-3">
-              <span className="text-4xl">🎉</span>
+              <CheckCircle2 className="w-12 h-12 text-emerald-500" />
               <p className="text-slate-600 font-bold text-lg">
                 Hàng đợi trống rỗng!
               </p>
@@ -342,12 +359,17 @@ const AdminDashboard = () => {
                       {job.title}
                     </h2>
                     <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
-                      <span className="text-primary-600">
-                        🏢 {job.companyName || "Doanh nghiệp ẩn danh"}
+                      <span className="text-primary-600 flex items-center gap-1">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400" />{" "}
+                        {job.companyName || "Doanh nghiệp ẩn danh"}
                       </span>
-                      <span>📂 {job.categoryName}</span>
-                      <span className="text-rose-500">
-                        ⏳ Hạn nộp:{" "}
+                      <span className="flex items-center gap-1">
+                        <Layers className="w-3.5 h-3.5 text-slate-400" />{" "}
+                        {job.categoryName}
+                      </span>
+                      <span className="text-rose-500 flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-rose-450" /> Hạn
+                        nộp:{" "}
                         {new Date(job.expirationDate).toLocaleDateString(
                           "vi-VN",
                         )}
@@ -359,15 +381,15 @@ const AdminDashboard = () => {
                   <div className="flex lg:flex-col justify-end items-center lg:items-end gap-3 border-t lg:border-t-0 border-slate-100 pt-4 lg:pt-0 flex-shrink-0">
                     <button
                       onClick={() => handleApprove(job.id)}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 w-full lg:w-36 text-center cursor-pointer"
+                      className="bg-emerald-650 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all shadow-sm active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
                     >
-                      Phê Duyệt ✓
+                      Phê Duyệt <Check className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleOpenRejectModal(job.id)}
-                      className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-5 py-2.5 rounded-xl transition-all border border-rose-200 active:scale-95 w-full lg:w-36 text-center cursor-pointer"
+                      className="bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs px-5 py-2.5 rounded-xl transition-all border border-rose-200 active:scale-95 w-full lg:w-36 text-center cursor-pointer flex items-center justify-center gap-1"
                     >
-                      Từ Chối ✗
+                      Từ Chối <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -438,7 +460,13 @@ const AdminDashboard = () => {
                   disabled={creatingCategory}
                   className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs px-4 py-2.5 rounded-xl cursor-pointer transition-colors flex items-center justify-center gap-1.5 shadow-sm shadow-indigo-500/15"
                 >
-                  {creatingCategory ? "Đang tạo..." : "Thêm Ngành Nghề"}
+                  {creatingCategory ? (
+                    "Đang tạo..."
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5" /> Thêm Ngành Nghề
+                    </>
+                  )}
                 </button>
               </form>
             )}
@@ -486,17 +514,17 @@ const AdminDashboard = () => {
                         <td className="py-3.5 px-4 text-right flex justify-end gap-2.5">
                           <button
                             onClick={() => startEditCategory(cat)}
-                            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-850 hover:underline cursor-pointer"
                           >
-                            Sửa
+                            <Edit2 className="w-3 h-3" /> Sửa
                           </button>
                           <button
                             onClick={() =>
                               handleDeleteCategory(cat.id, cat.name)
                             }
-                            className="text-xs font-bold text-rose-600 hover:text-rose-800 hover:underline cursor-pointer"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-850 hover:underline cursor-pointer"
                           >
-                            Xóa
+                            <Trash2 className="w-3 h-3" /> Xóa
                           </button>
                         </td>
                       </tr>
@@ -532,9 +560,7 @@ const AdminDashboard = () => {
                 placeholder="Tìm tin tuyển dụng, công ty..."
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                🔍
-              </span>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
             </div>
           </div>
 
@@ -572,11 +598,18 @@ const AdminDashboard = () => {
                         <div className="font-bold text-slate-900 text-sm">
                           {job.title}
                         </div>
-                        <div className="text-slate-400 text-[10px] mt-0.5">
-                          📂 {job.categoryName} | Hạn:{" "}
-                          {new Date(job.expirationDate).toLocaleDateString(
-                            "vi-VN",
-                          )}
+                        <div className="text-slate-400 text-[10px] mt-0.5 flex items-center gap-1.5">
+                          <span className="flex items-center gap-0.5">
+                            <Layers className="w-3 h-3 text-slate-400" />{" "}
+                            {job.categoryName}
+                          </span>
+                          <span>|</span>
+                          <span className="flex items-center gap-0.5">
+                            <Calendar className="w-3 h-3 text-slate-400" /> Hạn:{" "}
+                            {new Date(job.expirationDate).toLocaleDateString(
+                              "vi-VN",
+                            )}
+                          </span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4 text-slate-700 font-bold">

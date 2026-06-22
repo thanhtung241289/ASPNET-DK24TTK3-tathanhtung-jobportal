@@ -1,10 +1,20 @@
 // File: src/layouts/MainLayout.jsx
 import { useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  User,
+  Briefcase,
+  Shield,
+  LogOut,
+  FileText,
+  LayoutDashboard,
+  Plus,
+} from "lucide-react";
 
 const MainLayout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -12,6 +22,14 @@ const MainLayout = () => {
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  // Helper check active route
+  const isActive = (path) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
   };
 
   return (
@@ -28,30 +46,56 @@ const MainLayout = () => {
           </Link>
 
           {/* Khối ở giữa: Điều hướng Menu thông minh dựa theo Vai trò (Role) */}
-          <nav className="hidden md:flex gap-8 font-semibold text-sm text-slate-600">
+          <nav className="hidden md:flex gap-8 font-semibold text-sm">
             <Link
               to="/"
-              className="hover:text-primary-600 transition-colors py-1 relative group"
+              className={`transition-colors py-1 relative group font-bold text-sm ${
+                isActive("/")
+                  ? "text-primary-600"
+                  : "text-slate-600 hover:text-primary-600"
+              }`}
             >
               Trang chủ
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full"></span>
+              <span
+                className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
+                  isActive("/") ? "w-full" : "w-0 group-hover:w-full"
+                }`}
+              ></span>
             </Link>
             <Link
               to="/jobs"
-              className="hover:text-primary-600 transition-colors py-1 relative group"
+              className={`transition-colors py-1 relative group font-bold text-sm ${
+                isActive("/jobs")
+                  ? "text-primary-600"
+                  : "text-slate-600 hover:text-primary-600"
+              }`}
             >
               Việc làm
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full"></span>
+              <span
+                className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
+                  isActive("/jobs") ? "w-full" : "w-0 group-hover:w-full"
+                }`}
+              ></span>
             </Link>
 
             {/* Nếu là Ứng viên (Seeker) -> Hiện menu theo dõi đơn nộp */}
             {user && user.role === "Seeker" && (
               <Link
                 to="/my-applications"
-                className="hover:text-primary-600 transition-colors py-1 relative group"
+                className={`transition-colors py-1 relative group font-bold text-sm ${
+                  isActive("/my-applications")
+                    ? "text-primary-600"
+                    : "text-slate-600 hover:text-primary-600"
+                }`}
               >
                 Đơn đã nộp
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full"></span>
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
+                    isActive("/my-applications")
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
+                  }`}
+                ></span>
               </Link>
             )}
 
@@ -59,10 +103,20 @@ const MainLayout = () => {
             {user && user.role === "Employer" && (
               <Link
                 to="/employer/dashboard"
-                className="hover:text-primary-600 transition-colors py-1 relative group"
+                className={`transition-colors py-1 relative group font-bold text-sm ${
+                  isActive("/employer/dashboard")
+                    ? "text-primary-600"
+                    : "text-slate-600 hover:text-primary-600"
+                }`}
               >
                 Quản lý tuyển dụng
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary-600 transition-all duration-300 group-hover:w-full"></span>
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-primary-600 transition-all duration-300 ${
+                    isActive("/employer/dashboard")
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
+                  }`}
+                ></span>
               </Link>
             )}
 
@@ -70,10 +124,20 @@ const MainLayout = () => {
             {user && user.role === "Admin" && (
               <Link
                 to="/admin/jobs"
-                className="hover:text-amber-600 font-semibold text-amber-600 transition-colors py-1 relative group"
+                className={`transition-colors py-1 relative group font-bold text-sm ${
+                  isActive("/admin/jobs")
+                    ? "text-amber-600"
+                    : "text-slate-650 hover:text-amber-600"
+                }`}
               >
                 Hàng đợi duyệt bài
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-amber-500 transition-all duration-300 group-hover:w-full"></span>
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 bg-amber-500 transition-all duration-300 ${
+                    isActive("/admin/jobs")
+                      ? "w-full"
+                      : "w-0 group-hover:w-full"
+                  }`}
+                ></span>
               </Link>
             )}
           </nav>
@@ -91,7 +155,7 @@ const MainLayout = () => {
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-primary-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all active:scale-[0.98] shadow-md shadow-primary-500/10"
+                  className="bg-primary-600 text-white px-5 py-2 rounded-xl text-sm font-semibold hover:bg-primary-700 transition-all active:scale-[0.98] shadow-sm shadow-primary-500/10"
                 >
                   Đăng ký
                 </Link>
@@ -121,18 +185,18 @@ const MainLayout = () => {
                   <button
                     type="button"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary-500 to-indigo-600 text-white flex items-center justify-center font-extrabold text-sm shadow-md border border-slate-100 hover:scale-105 transition-all duration-200 cursor-pointer outline-none"
+                    className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-extrabold text-sm shadow border border-slate-100 hover:scale-105 transition-all duration-200 cursor-pointer outline-none"
                     title="Menu tài khoản"
                   >
                     {user.email ? user.email.charAt(0).toUpperCase() : "U"}
                   </button>
-                  {/* Badge hiển thị role nằm gọn góc phải dưới của avatar */}
+                  {/* Badge hiển thị role nằm gọn góc phải dưới của avatar sử dụng icon Lucide */}
                   <span
-                    className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-black text-white border-2 border-white shadow-xs select-none ${
+                    className={`absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full flex items-center justify-center text-white border-2 border-white shadow-sm select-none ${
                       user.role === "Admin"
                         ? "bg-amber-500"
                         : user.role === "Employer"
-                          ? "bg-indigo-600"
+                          ? "bg-primary-600"
                           : "bg-emerald-500"
                     }`}
                     title={
@@ -143,112 +207,133 @@ const MainLayout = () => {
                           : "Ứng viên"
                     }
                   >
-                    {user.role === "Admin"
-                      ? "A"
-                      : user.role === "Employer"
-                        ? "E"
-                        : "S"}
+                    {user.role === "Admin" ? (
+                      <Shield className="w-2.5 h-2.5" />
+                    ) : user.role === "Employer" ? (
+                      <Briefcase className="w-2.5 h-2.5" />
+                    ) : (
+                      <User className="w-2.5 h-2.5" />
+                    )}
                   </span>
-                </div>
 
-                {/* Dropdown Menu */}
-                {dropdownOpen && (
-                  <>
-                    {/* Lớp phủ click ra ngoài để đóng */}
-                    <div
-                      className="fixed inset-0 z-40 bg-transparent"
-                      onClick={() => setDropdownOpen(false)}
-                    ></div>
+                  {/* Dropdown Menu */}
+                  {dropdownOpen && (
+                    <>
+                      {/* Lớp phủ click ra ngoài để đóng */}
+                      <div
+                        className="fixed inset-0 z-40 bg-transparent"
+                        onClick={() => setDropdownOpen(false)}
+                      ></div>
 
-                    {/* Khung nội dung Dropdown */}
-                    <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-100/80 py-3 z-50 animate-scale-up">
-                      {/* Tiêu đề & Thông tin tài khoản */}
-                      <div className="px-4 py-2 border-b border-slate-100/80 mb-2">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Tài khoản
-                        </p>
-                        <p
-                          className="text-xs font-bold text-slate-800 truncate mt-0.5"
-                          title={user.email}
-                        >
-                          {user.email}
-                        </p>
-                        <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-500 text-[10px] font-extrabold px-2 py-0.5 rounded-lg border border-slate-150 mt-1.5">
-                          {user.role === "Admin"
-                            ? "Quản trị viên"
-                            : user.role === "Employer"
-                              ? "Nhà tuyển dụng"
-                              : "Ứng viên"}
-                        </span>
-                      </div>
-
-                      {/* Các lựa chọn Menu động theo Role */}
-                      <div className="space-y-0.5">
-                        {user.role === "Seeker" && (
-                          <>
-                            <Link
-                              to="/profile"
-                              onClick={() => setDropdownOpen(false)}
-                              className="block px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors"
-                            >
-                              📁 Hồ sơ của tôi
-                            </Link>
-                            <Link
-                              to="/my-applications"
-                              onClick={() => setDropdownOpen(false)}
-                              className="block px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors"
-                            >
-                              📝 Đơn đã ứng tuyển
-                            </Link>
-                          </>
-                        )}
-
-                        {user.role === "Employer" && (
-                          <>
-                            <Link
-                              to="/employer/dashboard"
-                              onClick={() => setDropdownOpen(false)}
-                              className="block px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors"
-                            >
-                              📊 Bảng điều khiển
-                            </Link>
-                            <Link
-                              to="/employer/post-job"
-                              onClick={() => setDropdownOpen(false)}
-                              className="block px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-primary-600 transition-colors"
-                            >
-                              ➕ Đăng tin tuyển dụng
-                            </Link>
-                          </>
-                        )}
-
-                        {user.role === "Admin" && (
-                          <Link
-                            to="/admin/jobs"
-                            onClick={() => setDropdownOpen(false)}
-                            className="block px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-amber-600 transition-colors"
+                      {/* Khung nội dung Dropdown */}
+                      <div className="absolute right-0 top-full mt-2.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-100/80 py-3 z-50 animate-scale-up">
+                        {/* Tiêu đề & Thông tin tài khoản */}
+                        <div className="px-4 py-2 border-b border-slate-100/80 mb-2">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Xin chào,
+                          </p>
+                          <p
+                            className="text-xs font-bold text-slate-800 truncate mt-0.5"
+                            title={user.email}
                           >
-                            🛡️ Hàng đợi duyệt bài
-                          </Link>
-                        )}
-                      </div>
+                            {user.email}
+                          </p>
 
-                      {/* Ngăn cách đăng xuất */}
-                      <div className="border-t border-slate-100/80 mt-2 pt-2 px-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setDropdownOpen(false);
-                            handleLogout();
-                          }}
-                          className="w-full text-left px-3 py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                        >
-                          Đăng xuất ➔
-                        </button>
+                          {/* Premium role badges with icons */}
+                          {user.role === "Admin" && (
+                            <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-amber-200 mt-1.5">
+                              <Shield className="w-2.5 h-2.5" />
+                              Quản trị viên
+                            </span>
+                          )}
+                          {user.role === "Employer" && (
+                            <span className="inline-flex items-center gap-1 bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-primary-200 mt-1.5">
+                              <Briefcase className="w-2.5 h-2.5 text-primary-600" />
+                              Nhà tuyển dụng
+                            </span>
+                          )}
+                          {user.role === "Seeker" && (
+                            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-lg border border-emerald-200 mt-1.5">
+                              <User className="w-2.5 h-2.5 text-emerald-600" />
+                              Ứng viên
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Các lựa chọn Menu động theo Role */}
+                        <div className="space-y-0.5">
+                          {user.role === "Seeker" && (
+                            <>
+                              <Link
+                                to="/profile"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                              >
+                                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                                Hồ sơ của tôi
+                              </Link>
+                              <Link
+                                to="/my-applications"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                              >
+                                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                                Đơn đã ứng tuyển
+                              </Link>
+                            </>
+                          )}
+
+                          {user.role === "Employer" && (
+                            <>
+                              <Link
+                                to="/employer/dashboard"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                              >
+                                <LayoutDashboard className="w-3.5 h-3.5 text-slate-400" />
+                                Bảng điều khiển
+                              </Link>
+                              <Link
+                                to="/employer/post-job"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-primary-600 transition-colors"
+                              >
+                                <Plus className="w-3.5 h-3.5 text-slate-400" />
+                                Đăng tin tuyển dụng
+                              </Link>
+                            </>
+                          )}
+
+                          {user.role === "Admin" && (
+                            <Link
+                              to="/admin/jobs"
+                              onClick={() => setDropdownOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2.5 text-xs font-bold text-slate-650 hover:bg-primary-50/50 hover:text-amber-600 transition-colors"
+                            >
+                              <Shield className="w-3.5 h-3.5 text-slate-400" />
+                              Hàng đợi duyệt bài
+                            </Link>
+                          )}
+                        </div>
+
+                        {/* Ngăn cách đăng xuất */}
+                        <div className="border-t border-slate-100/80 mt-2 pt-2 px-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setDropdownOpen(false);
+                              handleLogout();
+                            }}
+                            className="w-full text-left px-3 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer flex items-center gap-2"
+                          >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Đăng xuất
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </>
-                )}
+                    </>
+                  )}
+                </div>
               </div>
             )}
           </div>
